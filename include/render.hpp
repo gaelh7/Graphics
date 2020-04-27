@@ -8,7 +8,10 @@ class Surface: public Polygon{
         unsigned int IBO;
     public:
         template<typename... Points>
-        Surface(Points... args): Polygon({args...}){};
+        Surface(Points... args): Surface(std::vector<Point>{args...}){};
         Surface(std::vector<Point> vert);
+        ~Surface();
+        void bind() const;
         void render() const;
+
 };

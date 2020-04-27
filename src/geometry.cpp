@@ -4,7 +4,7 @@ using namespace xt;
 
 /**
  * Sign of a number.
- * 
+ *
  * @param val Number to find the sign of.
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
@@ -14,7 +14,7 @@ static int sign(double val) {
 
 /**
  * Norm of a length three vector.
- * 
+ *
  * @param vec Vector to find the magnitude of.
  * @return Magnitude of the vector
  */
@@ -26,7 +26,7 @@ static double norm(xtensor_fixed<double, xshape<3>> vec){
 
 /**
  * Dot product of two length three vectors.
- * 
+ *
  * @param v1 First vector.
  * @param v1 Second vector.
  * @return Dot product of v1 and v2.
@@ -40,11 +40,11 @@ static double dot(xtensor_fixed<double, xshape<3>> v1, xtensor_fixed<double, xsh
 
 /**
  * Determinant of a 3x3 matrix.
- * 
+ *
  * This function does not take in a matrix or two dimensional array.
  * Instead, it takes 3 xtensor parameters which instead define the
  * columns of the matrix.
- * 
+ *
  * @param v1 First column of matrix.
  * @param v2 Second column of matrix.
  * @param v3 Third column of matrix.
@@ -56,9 +56,7 @@ static double det(xtensor_fixed<double, xshape<3>> v1, xtensor_fixed<double, xsh
            v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);
 };
 
-Point::Point(xtensor_fixed<double, xshape<3>> pos): pos(pos){
-    vertices = {*this};
-};
+Point::Point(xtensor_fixed<double, xshape<3>> pos): pos(pos), vertices({*this}){};
 
 double Point::dist(const Point &obj) const {
     return obj.dim() == 0 ? norm(pos - obj.pos):obj.dist(*this);
@@ -403,6 +401,47 @@ double Polygon::area() const {
     for(LinSeg edge: edges) area += norm(cross(edge.vertices[0].pos - pos, edge.vertices[0].pos - edge.vertices[1].pos))/2;
     return area;
 };
+
+Polyhedron::Polyhedron(std::vector<Point> vert){
+    vertices = vert;
+    pos = {0, 0, 0};
+    for(Point p: vertices) pos += p.pos;
+    pos /= vertices.size();
+    Point center{pos};
+    std::vector<std::vector<Point>> points;
+    for(unsigned int i = 3; i < vertices.size(); i++){
+        std::vector<std::vector<Point>> comb = combinations<Point>(vertices.begin(), vertices.end(), i);
+        points.insert(points.end(), comb.begin(), comb.end());
+    }
+    for(std::vector<Point> v: points){
+        try{
+            Polygon face = Polygon(v);
+            if(face.sign_dist(center) < 0){
+                std::swap(v[1], v[2]);
+                face = Polygon(v);
+            }
+            std::vector<Point> vert_check;
+            std::copy_if(vertices.begin(), vertices.end(), std::back_inserter(vert_check), [&face](Point p){
+                return !face.contains(p);
+            });
+            bool side = std::all_of(vert_check.begin(), vert_check.end(), [&face](Point p){
+                return face.sign_dist(p) > 0;
+            });
+            bool subface = std::any_of(faces.begin(), faces.end(), [&face](Polygon f){
+                return face.contains(f) && !f.contains(face);
+            });
+            if(side && !subface) faces.push_back(face);
+        }
+        catch(std::invalid_argument){}
+    }
+    if(faces.size() == 0) throw std::invalid_argument("Inputs cannot be coplanar");
+    std::vector<LinSeg> lines;
+    for(Polygon face: faces) lines.insert(lines.end(), face.edges.begin(), face.edges.end());
+    std::copy_if(lines.begin(), lines.end(), std::back_inserter(edges), [this](LinSeg l1){
+        return std::find_if(edges.begin(), edges.end(), [&l1](LinSeg l2){return l1.equals(l2);}) == edges.end();
+    });
+    if(faces.size() + vertices.size() - edges.size() != 2) throw std::invalid_argument("Inputs must define a convex polyhedron");
+}
 
 double Polyhedron::dist(const Point &obj) const {
     bool contained = std::all_of(faces.begin(), faces.end(), [&obj](Polygon face){

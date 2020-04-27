@@ -12,17 +12,25 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
         IBO_DATA[i + 1] = i/3 + 1;
         IBO_DATA[i + 2] = i/3 + 2;
     }
-    // std::cout << &glGenBuffers << std::endl;
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &IBO);
 };
 
-void Surface::render() const {
+Surface::~Surface(){
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &IBO);
+}
+
+void Surface::bind() const{
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VBO_DATA), &VBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3*sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3*sizeof(double), 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(IBO_DATA), &IBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA.get(), GL_STATIC_DRAW);
+};
+
+void Surface::render() const {
+    glDrawElements(GL_TRIANGLES, 3*(vertices.size() - 2), GL_UNSIGNED_INT, nullptr);
 };

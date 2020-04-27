@@ -22,7 +22,7 @@ include_directories(${INC_DIR} ${SRC_DIR} ${GLFW_DIR}/include ${GLAD_DIR}/includ
 
 # target
 add_executable(main ${SOURCES})
-add_executable(gl ${SRC_DIR}/gl.cpp)
+add_executable(gl ${SRC_DIR}/gl.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp)
 
 # dependencies
 add_subdirectory(${GLFW_DIR})
@@ -44,4 +44,3 @@ target_link_libraries(gl xtensor ${XTENSOR_LIBARIES})
 
 target_link_libraries(main ${OPENGL_LIBRARIES})
 target_link_libraries(gl ${OPENGL_LIBRARIES})
-
