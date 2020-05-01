@@ -1,4 +1,6 @@
-#include "geometry.hpp"
+#include "Graphics/geometry.hpp"
+
+#define PI 3.141592653589793238463
 
 using namespace xt;
 
@@ -8,7 +10,7 @@ using namespace xt;
  * @param val Number to find the sign of.
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
-static int sign(double val) {
+static constexpr int sign(const double val) {
     return (0 < val) - (val < 0);
 };
 
@@ -18,7 +20,7 @@ static int sign(double val) {
  * @param vec Vector to find the magnitude of.
  * @return Magnitude of the vector
  */
-static double norm(xtensor_fixed<double, xshape<3>> vec){
+static double norm(const xtensor_fixed<double, xshape<3>> &vec){
     double mag = 0;
     for(double i: vec) mag += i*i;
     return sqrt(mag);
@@ -31,11 +33,18 @@ static double norm(xtensor_fixed<double, xshape<3>> vec){
  * @param v1 Second vector.
  * @return Dot product of v1 and v2.
  */
-static double dot(xtensor_fixed<double, xshape<3>> v1, xtensor_fixed<double, xshape<3>> v2){
+static double dot(const xtensor_fixed<double, xshape<3>> &v1, const xtensor_fixed<double, xshape<3>> &v2){
     double val = 0;
     for(unsigned int i = 0; i < 3; i++)
         val += v1[i]*v2[i];
     return val;
+};
+
+static xt::xtensor_fixed<double, xt::xshape<3>> cross(const xt::xtensor_fixed<double, xt::xshape<3>> &arr1, const xt::xtensor_fixed<double, xt::xshape<3>> &arr2){
+    double i = arr1[1]*arr2[2] - arr1[2]*arr2[1];
+    double j = arr1[2]*arr2[0] - arr1[0]*arr2[2];
+    double k = arr1[0]*arr2[1] - arr1[1]*arr2[0];
+    return {i, j, k};
 };
 
 /**
@@ -50,13 +59,33 @@ static double dot(xtensor_fixed<double, xshape<3>> v1, xtensor_fixed<double, xsh
  * @param v3 Third column of matrix.
  * @return Determinant of the matrix.
  */
-static double det(xtensor_fixed<double, xshape<3>> v1, xtensor_fixed<double, xshape<3>> v2, xtensor_fixed<double, xshape<3>> v3){
+static double det(const xtensor_fixed<double, xshape<3>> &v1, const xtensor_fixed<double, xshape<3>> &v2, const xtensor_fixed<double, xshape<3>> &v3){
     return v1[0]*(v2[1]*v3[2] - v3[1]*v2[2]) -
            v2[0]*(v1[1]*v3[2] - v3[1]*v1[2]) +
            v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);
 };
 
-Point::Point(xtensor_fixed<double, xshape<3>> pos): pos(pos), vertices({*this}){};
+template <typename T, class iter>
+std::vector<std::vector<T>> combinations(iter first, iter last, int k){
+    std::vector<std::vector<T>> out;
+    if(k == 1){
+        for(iter i = first; i != last; i++) out.push_back(std::vector<T>{*i});
+        return out;
+    }
+    for(iter i = first; i != last; i++){
+        std::vector<T> next;
+        for(std::vector<T> end: combinations<T>(i+1, last, k-1)){
+            next = {*i};
+            next.insert(next.end(), end.begin(), end.end());
+            out.push_back(next);
+        }
+    }
+    return out;
+};
+
+Point::Point(xtensor_fixed<double, xshape<3>> pos): pos(pos) {
+    vertices = {*this};
+};
 
 double Point::dist(const Point &obj) const {
     return obj.dim() == 0 ? norm(pos - obj.pos):obj.dist(*this);
@@ -84,7 +113,7 @@ bool Point::equals(const Point &obj) const {
     return obj.contains(*this) && contains(obj);
 };
 
-Line::Line(Point p1, Point p2): p1(p1), p2(p2){
+Line::Line(Point p1, Point p2){
     if(p1.equals(p2))
         throw std::invalid_argument("Inputs must have different positions");
     vertices = {p1, p2};
@@ -93,13 +122,13 @@ Line::Line(Point p1, Point p2): p1(p1), p2(p2){
 Line::Line(std::vector<Point> vert): Line(vert[0], vert[1]) {};
 
 double Line::dist(const Point &obj) const {
-    return obj.dim() == 0 ? norm(cross(p1.pos - obj.pos, p1.pos - p2.pos) / p1.dist(p2)):obj.dist(*this);
+    return obj.dim() == 0 ? norm(cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):obj.dist(*this);
 };
 
 double Line::dist(const Line &obj) const {
     if(obj.isSpace()){
         xtensor_fixed<double, xshape<3>> vec = cross(dirVec(), obj.dirVec());
-        return norm(vec) < 1e-10 ? dist(obj.vertices[0]):std::abs(dot(vec, p1.pos - obj.vertices[1].pos))/norm(vec);
+        return norm(vec) < 1e-10 ? dist(obj.vertices[0]):std::abs(dot(vec, vertices[0].pos - obj.vertices[1].pos))/norm(vec);
     }
     return obj.dist(*this);
 };
@@ -113,18 +142,18 @@ std::unique_ptr<Point> Line::intersect(const Line &obj) const {
     if(dist(obj) >= 1e-10) return nullptr;
     if(contains(obj)) return obj.isSpace() ? std::make_unique<Line>(obj):obj.intersect(*this);
     else if(contains(obj.vertices[0])) return std::make_unique<Point>(obj.vertices[0]);
-    else if(obj.contains(p1)) return std::make_unique<Point>(p1);
-    xtensor_fixed<double, xshape<3>> vec1 = cross(obj.dirVec(), obj.vertices[0].pos - p1.pos);
+    else if(obj.contains(vertices[0])) return std::make_unique<Point>(vertices[0]);
+    xtensor_fixed<double, xshape<3>> vec1 = cross(obj.dirVec(), obj.vertices[0].pos - vertices[0].pos);
     xtensor_fixed<double, xshape<3>> vec2 = cross(obj.dirVec(), dirVec());
-    return std::make_unique<Point>(p1.pos + (sign(dot(vec1, vec2)))*(norm(vec1)/norm(vec2))*dirVec());
+    return std::make_unique<Point>(vertices[0].pos + (sign(dot(vec1, vec2)))*(norm(vec1)/norm(vec2))*dirVec());
 };
 
 xtensor_fixed<double, xshape<3>> Line::dirVec() const {
-    return p1.direction(p2);
+    return vertices[0].direction(vertices[1]);
 };
 
 std::unique_ptr<Point> Line::project(const Point &obj) const {
-    return std::make_unique<Point>(p1.pos + dirVec()*dot(obj.pos - p1.pos, dirVec()));
+    return std::make_unique<Point>(vertices[0].pos + dirVec()*dot(obj.pos - vertices[0].pos, dirVec()));
 };
 
 double Line::angle(const Line &lobj, xtensor_fixed<double, xshape<3>>* axisptr = nullptr){
@@ -140,26 +169,26 @@ LinSeg::LinSeg(std::vector<Point> vert): Line(vert[0], vert[1]) {};
 
 double LinSeg::dist(const Point &obj) const {
     if(obj.dim() == 0)
-        return dot(obj.pos - p1.pos, p2.pos - p1.pos) > 0 && dot(obj.pos - p2.pos, p1.pos - p2.pos) > 0 ? norm(cross(p1.pos - obj.pos, p1.pos - p2.pos) / p1.dist(p2)):std::min(obj.dist(p1), obj.dist(p2));
+        return dot(obj.pos - vertices[0].pos, vertices[1].pos - vertices[0].pos) > 0 && dot(obj.pos - vertices[1].pos, vertices[0].pos - vertices[1].pos) > 0 ? norm(cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
     return obj.dist(*this);
 };
 
 double LinSeg::dist(const Line &obj) const {
     xtensor_fixed<double, xshape<3>> c = cross(obj.dirVec(), dirVec());
     if(norm(c) < 1e-10) return obj.dist(vertices[0]);
-    double t = det(p1.pos - obj.vertices[0].pos, obj.dirVec(), c)/std::pow(norm(c), 2);
-    return t < 0 || t > norm(p2.pos - p1.pos) ? std::min(obj.dist(p1), obj.dist(p2)):obj.dist((Line)*this);
+    double t = det(vertices[0].pos - obj.vertices[0].pos, obj.dirVec(), c)/std::pow(norm(c), 2);
+    return t < 0 || t > norm(vertices[1].pos - vertices[0].pos) ? std::min(obj.dist(vertices[0]), obj.dist(vertices[1])):obj.dist((Line)*this);
 };
 
 double LinSeg::dist(const LinSeg &obj) const {
     xtensor_fixed<double, xshape<3>> c = cross(dirVec(), obj.dirVec());
-    xtensor_fixed<double, xshape<3>> t = obj.vertices[0].pos - p1.pos;
+    xtensor_fixed<double, xshape<3>> t = obj.vertices[0].pos - vertices[0].pos;
     double c_squared = std::pow(norm(c), 2);
     double t0 = det(t, obj.dirVec(), c)/c_squared;
     double t1 = det(t, dirVec(), c)/c_squared;
-    if(norm(c) < 1e-10 || t0 < 0 || t0 > length()) return std::min(obj.dist(p1), obj.dist(p2));
+    if(norm(c) < 1e-10 || t0 < 0 || t0 > length()) return std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
     else if(t1 < 0 || t1 > obj.length()) return std::min(dist(obj.vertices[0]), dist(obj.vertices[1]));
-    return std::abs(dot(c, p1.pos - obj.vertices[1].pos))/norm(c);
+    return std::abs(dot(c, vertices[0].pos - obj.vertices[1].pos))/norm(c);
 };
 
 std::unique_ptr<Point> LinSeg::intersect(const Point &obj) const {
@@ -176,23 +205,23 @@ std::unique_ptr<Point> LinSeg::intersect(const LinSeg &obj) const {
     if(contains(obj)) return std::make_unique<LinSeg>(obj);
     else if(obj.contains(*this)) return std::make_unique<LinSeg>(*this);
     if(norm(cross(dirVec(), obj.dirVec())) < 1e-10){
-        if(obj.contains(p1)){
-            if(p1.equals(obj.vertices[0]) || p1.equals(obj.vertices[1])) return std::make_unique<Point>(p1);
-            return contains(obj.vertices[0]) ? std::make_unique<LinSeg>(p1, obj.vertices[0]):std::make_unique<LinSeg>(p1, obj.vertices[1]);
+        if(obj.contains(vertices[0])){
+            if(vertices[0].equals(obj.vertices[0]) || vertices[0].equals(obj.vertices[1])) return std::make_unique<Point>(vertices[0]);
+            return contains(obj.vertices[0]) ? std::make_unique<LinSeg>(vertices[0], obj.vertices[0]):std::make_unique<LinSeg>(vertices[0], obj.vertices[1]);
         }
-        if(obj.contains(p2)){
-            if(p2.equals(obj.vertices[0]) || p2.equals(obj.vertices[1])) return std::make_unique<Point>(p2);
-            return contains(obj.vertices[0]) ? std::make_unique<LinSeg>(p2, obj.vertices[0]):std::make_unique<LinSeg>(p2, obj.vertices[1]);
+        if(obj.contains(vertices[1])){
+            if(vertices[1].equals(obj.vertices[0]) || vertices[1].equals(obj.vertices[1])) return std::make_unique<Point>(vertices[1]);
+            return contains(obj.vertices[0]) ? std::make_unique<LinSeg>(vertices[1], obj.vertices[0]):std::make_unique<LinSeg>(vertices[1], obj.vertices[1]);
         }
     }
     return Line::intersect(obj);
 };
 
 double LinSeg::length() const {
-    return p1.dist(p2);
+    return vertices[0].dist(vertices[1]);
 };
 
-Plane::Plane(Point p1, Point p2, Point p3): p1(p1), p2(p2), p3(p3){
+Plane::Plane(Point p1, Point p2, Point p3){
     if(Line(p1, p2).contains(p3)) throw std::invalid_argument("Inputs cannot be collinear");
     vertices = {p1, p2, p3};
 };
@@ -200,7 +229,7 @@ Plane::Plane(Point p1, Point p2, Point p3): p1(p1), p2(p2), p3(p3){
 Plane::Plane(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]) {};
 
 xtensor_fixed<double, xshape<3>> Plane::normVec() const {
-    xtensor_fixed<double, xshape<3>> vec = cross(p2.pos - p1.pos, p3.pos - p1.pos);
+    xtensor_fixed<double, xshape<3>> vec = cross(vertices[1].pos - vertices[0].pos, vertices[2].pos - vertices[0].pos);
     return vec / norm(vec);
 };
 
@@ -210,11 +239,11 @@ std::unique_ptr<Point> Plane::project(const Point &obj) const {
 };
 
 double Plane::sign_dist(const Point &obj) const {
-    return dot(normVec(), obj.pos - p1.pos);
+    return dot(normVec(), obj.pos - vertices[0].pos);
 };
 
 double Plane::dist(const Point &obj) const {
-    return obj.dim() == 0 ? std::abs(dot(normVec(), obj.pos - p1.pos)):obj.dist(*this);
+    return obj.dim() == 0 ? std::abs(dot(normVec(), obj.pos - vertices[0].pos)):obj.dist(*this);
 };
 
 double Plane::dist(const Line &obj) const {
@@ -254,8 +283,8 @@ std::unique_ptr<Point> Plane::intersect(const Plane &obj) const {
     if(dist(obj) >= 1e-10) return nullptr;
     if(!obj.isSpace()) return obj.intersect(*this);
     else if(contains(obj)) return std::make_unique<Plane>(obj);
-    std::unique_ptr<Point> x = obj.intersect(Line(p1, p2));
-    if(x == nullptr) x = obj.intersect(Line(p1, p3));
+    std::unique_ptr<Point> x = obj.intersect(Line(vertices[0], vertices[1]));
+    if(x == nullptr) x = obj.intersect(Line(vertices[0], vertices[2]));
     return std::make_unique<Line>(*x, Point(x->pos + cross(normVec(), obj.normVec())));
 };
 
@@ -289,13 +318,13 @@ double Polygon::dist(const Point &obj) const {
                 });
                 return *std::min_element(distances.begin(), distances.end());
             }
-        return std::abs(dot(normVec(), obj.pos - p1.pos));
+        return std::abs(dot(normVec(), obj.pos - vertices[0].pos));
     }
     return obj.dist(*this);
 };
 
 double Polygon::dist(const Line &obj) const {
-    Plane pl(p1,p2,p3);
+    Plane pl(vertices[0],vertices[1],vertices[2]);
     std::unique_ptr<Point> p = pl.intersect(obj);
     if(p != nullptr && contains(*p)) return 0;
     std::vector<double> distances;
@@ -306,7 +335,7 @@ double Polygon::dist(const Line &obj) const {
 };
 
 double Polygon::dist(const LinSeg &obj) const {
-    Plane pl(p1,p2,p3);
+    Plane pl(vertices[0],vertices[1],vertices[2]);
     std::unique_ptr<Point> p = pl.intersect(obj);
     if(p != nullptr && contains(*p)) return 0;
     std::vector<double> distances;

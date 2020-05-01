@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -6,38 +8,11 @@
 #include "xtensor/xio.hpp"
 #include "xtensor/xfixed.hpp"
 
-#define PI 3.141592653589793238463
-
-static xt::xtensor_fixed<double, xt::xshape<3>> cross(xt::xtensor_fixed<double, xt::xshape<3>> arr1, xt::xtensor_fixed<double, xt::xshape<3>> arr2){
-    double i = arr1[1]*arr2[2] - arr1[2]*arr2[1];
-    double j = arr1[2]*arr2[0] - arr1[0]*arr2[2];
-    double k = arr1[0]*arr2[1] - arr1[1]*arr2[0];
-    return {i, j, k};
-};
-
-template <typename T, class iter>
-std::vector<std::vector<T>> combinations(iter first, iter last, int k){
-    std::vector<std::vector<T>> out;
-    if(k == 1){
-        for(iter i = first; i != last; i++) out.push_back(std::vector<T>{*i});
-        return out;
-    }
-    for(iter i = first; i != last; i++){
-        std::vector<T> next;
-        for(std::vector<T> end: combinations<T>(i+1, last, k-1)){
-            next = {*i};
-            next.insert(next.end(), end.begin(), end.end());
-            out.push_back(next);
-        }
-    }
-    return out;
-};
-
 class Point {
     public:
         std::vector<Point> vertices;
         xt::xtensor_fixed<double, xt::xshape<3>> pos;
-        Point(){};
+        Point(): pos({0, 0, 0}){};
         Point(xt::xtensor_fixed<double, xt::xshape<3>> pos);
         virtual unsigned int dim() const {return 0;};
         virtual bool isSpace() const {return true;};
@@ -49,9 +24,6 @@ class Point {
 };
 
 class Line: public Point {
-    protected:
-        Point p1;
-        Point p2;
     public:
         Line(){};
         Line(Point p1, Point p2);
@@ -82,10 +54,6 @@ class LinSeg: public Line {
 };
 
 class Plane: public Point {
-    protected:
-        Point p1;
-        Point p2;
-        Point p3;
     public:
         Plane(){};
         Plane(Point p1, Point p2, Point p3);
