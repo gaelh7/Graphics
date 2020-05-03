@@ -1,31 +1,11 @@
 #pragma once
 
 #include "Graphics/geometry.hpp"
-
-#ifdef GH_DEBUG
-    #define ASSERT(x) if (!(x)) __debugbreak()
-    #define GLCALL(x) GLClearError();\
-                      x;\
-                      ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-#else
-    #define ASSERT(x) x
-    #define GLCALL(x) x
-#endif
-
-static void GLClearError(){
-    while(glGetError());
-}
-
-static bool GLLogCall(const char* function, const char* file, int line){
-    if(GLenum error = glGetError()){
-        std::cout << "OpenGLError " << std::hex << error << ": " << file << "(" << std::dec << line << "): in " << function << std::endl;
-        return false;
-    }
-    return true;
-}
+#include "Graphics/log.hpp"
 
 class Surface: public Polygon{
     private:
+        static constexpr unsigned char stride = 9;
         unsigned int VAO, VBO, IBO;
         std::unique_ptr<double[]> VBO_DATA;
         std::unique_ptr<unsigned int[]> IBO_DATA;
@@ -33,10 +13,12 @@ class Surface: public Polygon{
         xt::xtensor_fixed<double, xt::xshape<3>> vel;
         xt::xtensor_fixed<double, xt::xshape<3>> acc;
         template<typename... Points>
-        Surface(xt::xtensor_fixed<double, xt::xshape<3>> vel = {0, 0, 0}, xt::xtensor_fixed<double, xt::xshape<3>> acc = {0, 0, 0}, Points... args): Surface(vel, acc, std::vector<Point>{args...}){};
-        Surface(xt::xtensor_fixed<double, xt::xshape<3>> vel, xt::xtensor_fixed<double, xt::xshape<3>> acc, std::vector<Point> vert);
+        Surface(Points... args): Surface(std::vector<Point>{args...}){};
+        Surface(std::vector<Point> vert);
         ~Surface();
-        void update(double dt);
+        void update(const double dt);
+        void set_color(const double r, const double g, const double b, const double a);
+        void vertex_color(const unsigned int vertex, const double r, const double g, const double b, const double a);
         // void rotate(xt::xtensor_fixed<double, xt::xshape<3>> axis, double theta, xt::xtensor_fixed<double, xt::xshape<3>> p);
         inline void bind() const{
             GLCALL(glBindVertexArray(VAO));
@@ -45,12 +27,8 @@ class Surface: public Polygon{
         inline void render() const{
             GLCALL(glDrawElements(GL_TRIANGLES, 3*(vertices.size() - 2), GL_UNSIGNED_INT, nullptr));
         }
-        void VBOSET(){
-            for(unsigned int i = 0; i < 3*vertices.size(); i++)
-                if(i%3!=2)
-                    VBO_DATA[i] += 0.002;
-            GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-            GLCALL(glBufferData(GL_ARRAY_BUFFER, 3*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
+        void PRINT_VBOSET(){
+
         }
 };
 

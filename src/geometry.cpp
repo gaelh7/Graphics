@@ -4,6 +4,10 @@
 
 #define PI 3.141592653589793238463
 
+Point::Point(): pos({0, 0, 0}){
+    vertices = {*this};
+}
+
 Point::Point(xt::xtensor_fixed<double, xt::xshape<3>> pos): pos(pos) {
     vertices = {*this};
 };

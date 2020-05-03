@@ -10,7 +10,7 @@ class Point {
     public:
         std::vector<Point> vertices;
         xt::xtensor_fixed<double, xt::xshape<3>> pos;
-        Point(): pos({0, 0, 0}){};
+        Point();
         Point(xt::xtensor_fixed<double, xt::xshape<3>> pos);
         virtual unsigned int dim() const {return 0;};
         virtual bool isSpace() const {return true;};

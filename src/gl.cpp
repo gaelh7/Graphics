@@ -7,7 +7,8 @@
 #include <vector>
 #include <chrono>
 #include "Graphics/shader.hpp"
-#include <Graphics/render.hpp>
+#include "Graphics/render.hpp"
+#include "Graphics/texture.hpp"
 
 int main(void)
 {
@@ -41,6 +42,10 @@ int main(void)
     // Shader program(__FILE__ "/../res/shaders/test.glsl");
     program.bind();
 
+    // Texture tex("C:/Users/gaelm/Documents/C++ Projects/Graphics/res/textures/KICKSTART STEM FINAL.png");
+    // tex.bind();
+    // program.SetUniformi("u_Texture", 0);
+
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
 
     std::cout << __FILE__ << std::endl;
@@ -51,13 +56,18 @@ int main(void)
     Point p4({-0.5, 0.5, 0.0});
     Point p5({0, 0.8,0});
 
-    Surface s1({0.002,0.002,0}, {-0.001,-0.001,0}, p1, p4, p3, p2);
-    Surface s2({0.002,0.002,0}, {-0.0015,-0.001,0}, p1, p4, p5);
+    Surface s1(p1, p3, p4, p2);
+    s1.vel = {0.002,0.002,0};
+    s1.acc = {-0.001,-0.001,0};
+    // s1.set_color(0.2, 0.3, 0.8, 1.0);
+    s1.vertex_color(0, 1, 0, 0, 0);
+    s1.vertex_color(1, 0, 1, 0, 0);
+    s1.vertex_color(2, 0, 0, 1, 0);
+    s1.vertex_color(3, 1, 1, 1, 1);
 
-    Surface pl1({0, 0.8, 0}, {0, 0.8, 0}, Point({-0.942167, -0.942167,  0.      }), Point({-0.942167,  0.057833,  0.      }), Point({ 0.057833,  0.057833,  0.}), Point({ 0.057833, -0.942167,  0.      }));
-    Surface pl2({0, 0.8, 0}, {0, 0.8, 0}, Point({-1.54225 , -0.942167,  0.      }), Point({-1.54225 ,  0.057833,  0.      }), Point({-1.04225 ,  0.357833,  0.      }));
-
-    std::cout << pl1.dist(pl2) << std::endl;
+    Surface s2(p1, p4, p5);
+    s2.vel = {0.002,0.002,0};
+    s2.acc = {-0.0015,-0.001,0};
 
     // program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
 
@@ -73,10 +83,8 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 
-        program.SetUniformf("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
         s1.bind();
         s1.render();
-        // program.SetUniformf("u_Color", 0.9f, 0.1f, 0.2f, 1.0f);
         // s2.bind();
         // s2.render();
         s1.update(1./60.);

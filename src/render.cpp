@@ -1,16 +1,17 @@
 #include <glad/glad.h>
 #include "Graphics/render.hpp"
 
-static double norm(const xt::xtensor_fixed<double, xt::xshape<3>> &vec){
-    double mag = 0;
-    for(double i: vec) mag += i*i;
-    return sqrt(mag);
-};
-
-Surface::Surface(xt::xtensor_fixed<double, xt::xshape<3>> vel, xt::xtensor_fixed<double, xt::xshape<3>> acc, std::vector<Point> vert): Polygon(vert), vel(vel), acc(acc) {
-    VBO_DATA = std::make_unique<double[]>(3*vertices.size());
-    for(unsigned int i = 0; i < 3*vertices.size(); i++)
-        VBO_DATA[i] = vertices[i/3].pos[i%3];
+Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0, 0, 0}) {
+    VBO_DATA = std::make_unique<double[]>(stride*vertices.size());
+    for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
+        VBO_DATA[i] = vertices[i/stride].pos[0];
+        VBO_DATA[i + 1] = vertices[i/stride].pos[1];
+        VBO_DATA[i + 2] = vertices[i/stride].pos[2];
+        VBO_DATA[i + 3] = 1;
+        VBO_DATA[i + 4] = 1;
+        VBO_DATA[i + 5] = 1;
+        VBO_DATA[i + 6] = 1;
+    }
     IBO_DATA = std::make_unique<unsigned int[]>(3*(vertices.size() - 2));
     for(unsigned int i = 0; i < 3*(vertices.size() - 2); i+=3){
         IBO_DATA[i] = 0;
@@ -29,9 +30,14 @@ Surface::Surface(xt::xtensor_fixed<double, xt::xshape<3>> vel, xt::xtensor_fixed
 
     GLCALL(glGenBuffers(1, &VBO));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, 3*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
+    GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
     GLCALL(glEnableVertexAttribArray(0));
-    GLCALL(glVertexAttribPointer(0, 3, GL_DOUBLE, false, 3*sizeof(double), nullptr));
+    GLCALL(glEnableVertexAttribArray(1));
+    GLCALL(glEnableVertexAttribArray(2));
+    GLCALL(glVertexAttribPointer(0, 3, GL_DOUBLE, false, stride*sizeof(double), nullptr));
+    GLCALL(glVertexAttribPointer(1, 4, GL_DOUBLE, false, stride*sizeof(double), (const void*)(3*sizeof(double))));
+    GLCALL(glVertexAttribPointer(2, 2, GL_DOUBLE, false, stride*sizeof(double), (const void*)(7*sizeof(double))));
+
 
     GLCALL(glGenBuffers(1, &IBO));
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
@@ -47,34 +53,38 @@ Surface::~Surface(){
     GLCALL(glDeleteBuffers(1, &IBO));
 }
 
-void Surface::update(double dt){
+void Surface::update(const double dt){
     vel += acc*dt;
-    for(unsigned int i = 0; i < 3*vertices.size(); i++){
-        VBO_DATA[i] += vel[i%3];
-        if(i%3 == 0){
-            vertices[i/3].pos += vel;
-            edges[i/3].vertices[0].pos += vel;
-            edges[i/3].vertices[1].pos += vel;
+    for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
+        VBO_DATA[i] += vel[0];
+        VBO_DATA[i + 1] += vel[1];
+        VBO_DATA[i + 2] += vel[2];
+        if(i%stride == 0){
+            vertices[i/stride].pos += vel;
+            edges[i/stride].vertices[0].pos += vel;
+            edges[i/stride].vertices[1].pos += vel;
         }
     }
 
     int VBO_RESET;
     GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, 3*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
+    GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
 }
 
-// void Surface::rotate(xt::xtensor_fixed<double, xt::xshape<3>> axis, double theta, xt::xtensor_fixed<double, xt::xshape<3>> p){
-//     axis /= norm(axis);
+void Surface::set_color(const double r, const double g, const double b, const double a){
+    for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
+        VBO_DATA[i + 3] = r;
+        VBO_DATA[i + 4] = g;
+        VBO_DATA[i + 5] = b;
+        VBO_DATA[i + 6] = a;
+    }
+}
 
-// }
-
-// inline void Surface::bind() const{
-//     GLCALL(glBindVertexArray(VAO));
-//     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-// };
-
-// inline void Surface::render() const {
-//     GLCALL(glDrawElements(GL_TRIANGLES, 3*(vertices.size() - 2), GL_UNSIGNED_INT, nullptr));
-// };
+void Surface::vertex_color(const unsigned int vertex, const double r, const double g, const double b, const double a) {
+    VBO_DATA[stride*vertex + 3] = r;
+    VBO_DATA[stride*vertex + 4] = g;
+    VBO_DATA[stride*vertex + 5] = b;
+    VBO_DATA[stride*vertex + 6] = a;
+}

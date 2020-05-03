@@ -19,8 +19,9 @@ set(XTENSOR_DIR ${LIB_DIR}/xtensor)
 set(STB_DIR ${LIB_DIR}/stb_image)
 find_package(OpenGL 3.3 REQUIRED)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
-set(SOURCES ${SRC_DIR}/shader.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp)
-set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
+set(SOURCES ${SRC_DIR}/shader.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp ${SRC_DIR}/texture.cpp)
+file(GLOB HEADERS ${INC_DIR}/*.hpp)
+# set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 
 # include
 include_directories(${INC_DIR} ${STB_DIR})
