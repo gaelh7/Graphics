@@ -1,89 +1,10 @@
+#include <algorithm>
 #include "Graphics/geometry.hpp"
+#include "Graphics/gmath.hpp"
 
 #define PI 3.141592653589793238463
 
-using namespace xt;
-
-/**
- * Sign of a number.
- *
- * @param val Number to find the sign of.
- * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
- */
-static constexpr int sign(const double val) {
-    return (0 < val) - (val < 0);
-};
-
-/**
- * Norm of a length three vector.
- *
- * @param vec Vector to find the magnitude of.
- * @return Magnitude of the vector
- */
-static double norm(const xtensor_fixed<double, xshape<3>> &vec){
-    double mag = 0;
-    for(double i: vec) mag += i*i;
-    return sqrt(mag);
-};
-
-/**
- * Dot product of two length three vectors.
- *
- * @param v1 First vector.
- * @param v1 Second vector.
- * @return Dot product of v1 and v2.
- */
-static double dot(const xtensor_fixed<double, xshape<3>> &v1, const xtensor_fixed<double, xshape<3>> &v2){
-    double val = 0;
-    for(unsigned int i = 0; i < 3; i++)
-        val += v1[i]*v2[i];
-    return val;
-};
-
-static xt::xtensor_fixed<double, xt::xshape<3>> cross(const xt::xtensor_fixed<double, xt::xshape<3>> &arr1, const xt::xtensor_fixed<double, xt::xshape<3>> &arr2){
-    double i = arr1[1]*arr2[2] - arr1[2]*arr2[1];
-    double j = arr1[2]*arr2[0] - arr1[0]*arr2[2];
-    double k = arr1[0]*arr2[1] - arr1[1]*arr2[0];
-    return {i, j, k};
-};
-
-/**
- * Determinant of a 3x3 matrix.
- *
- * This function does not take in a matrix or two dimensional array.
- * Instead, it takes 3 xtensor parameters which instead define the
- * columns of the matrix.
- *
- * @param v1 First column of matrix.
- * @param v2 Second column of matrix.
- * @param v3 Third column of matrix.
- * @return Determinant of the matrix.
- */
-static double det(const xtensor_fixed<double, xshape<3>> &v1, const xtensor_fixed<double, xshape<3>> &v2, const xtensor_fixed<double, xshape<3>> &v3){
-    return v1[0]*(v2[1]*v3[2] - v3[1]*v2[2]) -
-           v2[0]*(v1[1]*v3[2] - v3[1]*v1[2]) +
-           v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);
-};
-
-template <typename T, class iter>
-std::vector<std::vector<T>> combinations(iter first, iter last, int k){
-    std::vector<std::vector<T>> out;
-    if(k == 1){
-        for(iter i = first; i != last; i++) out.push_back(std::vector<T>{*i});
-        return out;
-    }
-    for(iter i = first; i != last; i++){
-        std::vector<T> next;
-        for(std::vector<T> end: combinations<T>(i+1, last, k-1)){
-            next = {*i};
-            next.insert(next.end(), end.begin(), end.end());
-            out.push_back(next);
-        }
-    }
-    return out;
-};
-
-Point::Point(xtensor_fixed<double, xshape<3>> pos): pos(pos) {
+Point::Point(xt::xtensor_fixed<double, xt::xshape<3>> pos): pos(pos) {
     vertices = {*this};
 };
 
@@ -95,7 +16,7 @@ std::unique_ptr<Point> Point::intersect(const Point &obj) const {
     return dist(obj) < 1e-10 ? std::make_unique<Point>(*this):nullptr;
 };
 
-xtensor_fixed<double, xshape<3>> Point::direction(const Point &obj) const {
+xt::xtensor_fixed<double, xt::xshape<3>> Point::direction(const Point &obj) const {
     if(equals(obj))
         return {0, 0, 0};
     return (obj.pos - pos)/dist(obj);
@@ -127,7 +48,7 @@ double Line::dist(const Point &obj) const {
 
 double Line::dist(const Line &obj) const {
     if(obj.isSpace()){
-        xtensor_fixed<double, xshape<3>> vec = cross(dirVec(), obj.dirVec());
+        xt::xtensor_fixed<double, xt::xshape<3>> vec = cross(dirVec(), obj.dirVec());
         return norm(vec) < 1e-10 ? dist(obj.vertices[0]):std::abs(dot(vec, vertices[0].pos - obj.vertices[1].pos))/norm(vec);
     }
     return obj.dist(*this);
@@ -143,12 +64,12 @@ std::unique_ptr<Point> Line::intersect(const Line &obj) const {
     if(contains(obj)) return obj.isSpace() ? std::make_unique<Line>(obj):obj.intersect(*this);
     else if(contains(obj.vertices[0])) return std::make_unique<Point>(obj.vertices[0]);
     else if(obj.contains(vertices[0])) return std::make_unique<Point>(vertices[0]);
-    xtensor_fixed<double, xshape<3>> vec1 = cross(obj.dirVec(), obj.vertices[0].pos - vertices[0].pos);
-    xtensor_fixed<double, xshape<3>> vec2 = cross(obj.dirVec(), dirVec());
+    xt::xtensor_fixed<double, xt::xshape<3>> vec1 = cross(obj.dirVec(), obj.vertices[0].pos - vertices[0].pos);
+    xt::xtensor_fixed<double, xt::xshape<3>> vec2 = cross(obj.dirVec(), dirVec());
     return std::make_unique<Point>(vertices[0].pos + (sign(dot(vec1, vec2)))*(norm(vec1)/norm(vec2))*dirVec());
 };
 
-xtensor_fixed<double, xshape<3>> Line::dirVec() const {
+xt::xtensor_fixed<double, xt::xshape<3>> Line::dirVec() const {
     return vertices[0].direction(vertices[1]);
 };
 
@@ -156,8 +77,8 @@ std::unique_ptr<Point> Line::project(const Point &obj) const {
     return std::make_unique<Point>(vertices[0].pos + dirVec()*dot(obj.pos - vertices[0].pos, dirVec()));
 };
 
-double Line::angle(const Line &lobj, xtensor_fixed<double, xshape<3>>* axisptr = nullptr){
-    xtensor_fixed<double, xshape<3>> axis = axisptr == nullptr ? cross(dirVec(), lobj.dirVec()):*axisptr;
+double Line::angle(const Line &lobj, xt::xtensor_fixed<double, xt::xshape<3>>* axisptr = nullptr){
+    xt::xtensor_fixed<double, xt::xshape<3>> axis = axisptr == nullptr ? cross(dirVec(), lobj.dirVec()):*axisptr;
     axis /= norm(axis);
     double theta{std::atan2(det(dirVec(), lobj.dirVec(), axis), dot(dirVec(), lobj.dirVec()))};
     return theta >= 0 ? theta:theta + 2*PI;
@@ -174,15 +95,15 @@ double LinSeg::dist(const Point &obj) const {
 };
 
 double LinSeg::dist(const Line &obj) const {
-    xtensor_fixed<double, xshape<3>> c = cross(obj.dirVec(), dirVec());
+    xt::xtensor_fixed<double, xt::xshape<3>> c = cross(obj.dirVec(), dirVec());
     if(norm(c) < 1e-10) return obj.dist(vertices[0]);
     double t = det(vertices[0].pos - obj.vertices[0].pos, obj.dirVec(), c)/std::pow(norm(c), 2);
     return t < 0 || t > norm(vertices[1].pos - vertices[0].pos) ? std::min(obj.dist(vertices[0]), obj.dist(vertices[1])):obj.dist((Line)*this);
 };
 
 double LinSeg::dist(const LinSeg &obj) const {
-    xtensor_fixed<double, xshape<3>> c = cross(dirVec(), obj.dirVec());
-    xtensor_fixed<double, xshape<3>> t = obj.vertices[0].pos - vertices[0].pos;
+    xt::xtensor_fixed<double, xt::xshape<3>> c = cross(dirVec(), obj.dirVec());
+    xt::xtensor_fixed<double, xt::xshape<3>> t = obj.vertices[0].pos - vertices[0].pos;
     double c_squared = std::pow(norm(c), 2);
     double t0 = det(t, obj.dirVec(), c)/c_squared;
     double t1 = det(t, dirVec(), c)/c_squared;
@@ -228,8 +149,8 @@ Plane::Plane(Point p1, Point p2, Point p3){
 
 Plane::Plane(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]) {};
 
-xtensor_fixed<double, xshape<3>> Plane::normVec() const {
-    xtensor_fixed<double, xshape<3>> vec = cross(vertices[1].pos - vertices[0].pos, vertices[2].pos - vertices[0].pos);
+xt::xtensor_fixed<double, xt::xshape<3>> Plane::normVec() const {
+    xt::xtensor_fixed<double, xt::xshape<3>> vec = cross(vertices[1].pos - vertices[0].pos, vertices[2].pos - vertices[0].pos);
     return vec / norm(vec);
 };
 
@@ -295,7 +216,7 @@ Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]) {
     pos /= vertices.size();
     Point center{pos};
     Line l{center, vertices[0]};
-    xtensor_fixed<double, xshape<3>> vec = cross(vertices[0].direction(vertices[1]), vertices[0].direction(vertices[2]));
+    xt::xtensor_fixed<double, xt::xshape<3>> vec = cross(vertices[0].direction(vertices[1]), vertices[0].direction(vertices[2]));
     std::sort(vertices.begin(), vertices.end(), [&l, &vec, &center](Point p1, Point p2){
         return l.angle(Line(center, p1), &vec) < l.angle(Line(center, p2), &vec);
     });

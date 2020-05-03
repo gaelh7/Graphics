@@ -2,12 +2,13 @@
 
 #include "Graphics/geometry.hpp"
 
-#define ASSERT(x) if ((!x)) __debugbreak();
 #ifdef GH_DEBUG
+    #define ASSERT(x) if (!(x)) __debugbreak()
     #define GLCALL(x) GLClearError();\
-        x;\
-        ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+                      x;\
+                      ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 #else
+    #define ASSERT(x) x
     #define GLCALL(x) x
 #endif
 

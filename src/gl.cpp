@@ -32,26 +32,24 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return -1;
 
     {
-
-    // ShaderSource src = ParseShader("../res/shaders/test.glsl");
-    // unsigned int shader = CreateShaders(src);
-
-    // Shader program("../res/shaders/test.glsl");
     Shader program("C:/Users/gaelm/Documents/C++ Projects/Graphics/res/shaders/test.glsl");
+    // Shader program(__FILE__ "/../res/shaders/test.glsl");
     program.bind();
 
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
+
+    std::cout << __FILE__ << std::endl;
 
     Point p1({-0.5, -0.5, 0.0});
     Point p2({0.5, -0.5, 0.0});
     Point p3({0.5,  0.5, 0.0});
     Point p4({-0.5, 0.5, 0.0});
-    Point p5({0, 0.8, 0});
+    Point p5({0, 0.8,0});
 
     Surface s1({0.002,0.002,0}, {-0.001,-0.001,0}, p1, p4, p3, p2);
     Surface s2({0.002,0.002,0}, {-0.0015,-0.001,0}, p1, p4, p5);
@@ -61,7 +59,7 @@ int main(void)
 
     std::cout << pl1.dist(pl2) << std::endl;
 
-    program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
+    // program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
 
     int frames = 0;
     long long time = 0;
@@ -75,16 +73,16 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 
-        program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
+        program.SetUniformf("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
         s1.bind();
         s1.render();
-        program.SetUniformf("u_Color", 0.9f, 0.1f, 0.2f, 1.0f);
-        s2.bind();
-        s2.render();
+        // program.SetUniformf("u_Color", 0.9f, 0.1f, 0.2f, 1.0f);
+        // s2.bind();
+        // s2.render();
         s1.update(1./60.);
-        s2.update(1./60.);
+        // s2.update(1./60.);
 
-        std::cout << s1.dist(s2) << "\n";
+        // std::cout << s1.dist(s2) << "\n";
         // std::cout << s1 << "\n";
         // std::cout << s2 << "\n";
 

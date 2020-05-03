@@ -43,7 +43,6 @@ int main(int argc, char* argv[])
     Polygon x(p6,p7,p8,p9);
     Polyhedron y(p1,p2,p3,p4,p5);
 
-    cout << Point().pos << endl;
 
     cout << "Point: " << sizeof(Point) << " bytes" << endl;
     cout << "Line: " << sizeof(Line) << " bytes" << endl;

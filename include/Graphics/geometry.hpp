@@ -2,8 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
-#include <algorithm>
 #include <memory>
 #include "xtensor/xio.hpp"
 #include "xtensor/xfixed.hpp"
