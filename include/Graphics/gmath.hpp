@@ -17,31 +17,10 @@ static constexpr int sign(const double val) {
  * @param vec Vector to find the magnitude of.
  * @return Magnitude of the vector
  */
-static double norm(const xt::xtensor_fixed<double, xt::xshape<3>> &vec){
+static double norm(glm::dvec3 &vec){
     double mag = 0;
-    for(double i: vec) mag += i*i;
+    for(int i = 0; i < vec.length(); i++) mag += vec[i]*vec[i];
     return sqrt(mag);
-};
-
-/**
- * Dot product of two length three vectors.
- *
- * @param v1 First vector.
- * @param v1 Second vector.
- * @return Dot product of v1 and v2.
- */
-static double dot(const xt::xtensor_fixed<double, xt::xshape<3>> &v1, const xt::xtensor_fixed<double, xt::xshape<3>> &v2){
-    double val = 0;
-    for(unsigned int i = 0; i < 3; i++)
-        val += v1[i]*v2[i];
-    return val;
-};
-
-static xt::xtensor_fixed<double, xt::xshape<3>> cross(const xt::xtensor_fixed<double, xt::xshape<3>> &arr1, const xt::xtensor_fixed<double, xt::xshape<3>> &arr2){
-    double i = arr1[1]*arr2[2] - arr1[2]*arr2[1];
-    double j = arr1[2]*arr2[0] - arr1[0]*arr2[2];
-    double k = arr1[0]*arr2[1] - arr1[1]*arr2[0];
-    return {i, j, k};
 };
 
 /**
@@ -56,7 +35,7 @@ static xt::xtensor_fixed<double, xt::xshape<3>> cross(const xt::xtensor_fixed<do
  * @param v3 Third column of matrix.
  * @return Determinant of the matrix.
  */
-static double det(const xt::xtensor_fixed<double, xt::xshape<3>> &v1, const xt::xtensor_fixed<double, xt::xshape<3>> &v2, const xt::xtensor_fixed<double, xt::xshape<3>> &v3){
+static double det(glm::dvec3 &v1, glm::dvec3 &v2, glm::dvec3 &v3){
     return v1[0]*(v2[1]*v3[2] - v3[1]*v2[2]) -
            v2[0]*(v1[1]*v3[2] - v3[1]*v1[2]) +
            v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);

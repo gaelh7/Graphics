@@ -3,20 +3,21 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "xtensor/xio.hpp"
-#include "xtensor/xfixed.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Point {
     public:
         std::vector<Point> vertices;
-        xt::xtensor_fixed<double, xt::xshape<3>> pos;
+        glm::dvec3 pos;
         Point();
-        Point(xt::xtensor_fixed<double, xt::xshape<3>> pos);
+        Point(glm::dvec3 pos);
         virtual unsigned int dim() const {return 0;}
         virtual bool isSpace() const {return true;}
         virtual double dist(const Point &obj) const;
         virtual std::unique_ptr<Point> intersect (const Point &obj) const;
-        xt::xtensor_fixed<double, xt::xshape<3>> direction(const Point &obj) const;
+        glm::dvec3 direction(const Point &obj) const;
         bool contains(const Point &obj) const;
         bool equals(const Point &obj) const;
 };
@@ -31,9 +32,9 @@ class Line: public Point {
         virtual double dist(const Line &obj) const;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
         virtual std::unique_ptr<Point> intersect(const Line &obj) const;
-        xt::xtensor_fixed<double, xt::xshape<3>> dirVec() const;
+        glm::dvec3 dirVec() const;
         std::unique_ptr<Point> project(const Point &obj) const;
-        double angle(const Line &lobj, xt::xtensor_fixed<double, xt::xshape<3>>* axisptr);
+        double angle(const Line &lobj, glm::dvec3* axisptr);
 };
 
 class LinSeg: public Line {
@@ -57,7 +58,7 @@ class Plane: public Point {
         Plane(Point p1, Point p2, Point p3);
         Plane(std::vector<Point> vert);
         unsigned int dim() const override {return 2;}
-        xt::xtensor_fixed<double, xt::xshape<3>> normVec() const;
+        glm::dvec3 normVec() const;
         std::unique_ptr<Point> project(const Point &obj) const;
         template<typename T>
         std::unique_ptr<T> project(const T &obj) const {
@@ -124,7 +125,7 @@ class Polyhedron: public Point {
 
 static std::ostream& operator<<(std::ostream &strm, const Point &p){
     if(p.vertices.size() == 1)
-        return strm << "Point(" << p.pos << ")";
+        return strm << "Point(" << p.pos.x << ", " << p.pos.y << ", " << p.pos.z << ")";
     strm << typeid(p).name() << '(';
     for(unsigned int i = 0; i < p.vertices.size() - 1; i++)
         strm << p.vertices[i] << ", ";

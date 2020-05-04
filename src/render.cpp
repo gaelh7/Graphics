@@ -4,9 +4,9 @@
 Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0, 0, 0}) {
     VBO_DATA = std::make_unique<double[]>(stride*vertices.size());
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] = vertices[i/stride].pos[0];
-        VBO_DATA[i + 1] = vertices[i/stride].pos[1];
-        VBO_DATA[i + 2] = vertices[i/stride].pos[2];
+        VBO_DATA[i] = vertices[i/stride].pos.x;
+        VBO_DATA[i + 1] = vertices[i/stride].pos.y;
+        VBO_DATA[i + 2] = vertices[i/stride].pos.z;
         VBO_DATA[i + 3] = 1;
         VBO_DATA[i + 4] = 1;
         VBO_DATA[i + 5] = 1;
@@ -53,25 +53,25 @@ Surface::~Surface(){
     GLCALL(glDeleteBuffers(1, &IBO));
 }
 
-void Surface::update(const double dt){
-    vel += acc*dt;
-    for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] += vel[0];
-        VBO_DATA[i + 1] += vel[1];
-        VBO_DATA[i + 2] += vel[2];
-        if(i%stride == 0){
-            vertices[i/stride].pos += vel;
-            edges[i/stride].vertices[0].pos += vel;
-            edges[i/stride].vertices[1].pos += vel;
-        }
-    }
+// void Surface::update(const double dt){
+//     vel += acc*dt;
+//     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
+//         VBO_DATA[i] += vel[0];
+//         VBO_DATA[i + 1] += vel[1];
+//         VBO_DATA[i + 2] += vel[2];
+//         if(i%stride == 0){
+//             vertices[i/stride].pos += vel;
+//             edges[i/stride].vertices[0].pos += vel;
+//             edges[i/stride].vertices[1].pos += vel;
+//         }
+//     }
 
-    int VBO_RESET;
-    GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
-}
+//     int VBO_RESET;
+//     GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
+//     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+//     GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(double), VBO_DATA.get(), GL_STATIC_DRAW));
+//     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
+// }
 
 void Surface::set_color(const double r, const double g, const double b, const double a){
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){

@@ -42,9 +42,9 @@ int main(void)
     // Shader program(__FILE__ "/../res/shaders/test.glsl");
     program.bind();
 
-    Texture tex(PROJECT_DIR "/res/textures/awesomeface.png");
+    Texture tex(PROJECT_DIR "/res/textures/wall.png");
     tex.bind(0);
-    // program.SetUniformi("u_Texture", 0);
+    program.SetUniformi("Texture", 0);
 
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
 
@@ -56,13 +56,10 @@ int main(void)
 
     std::cout << sizeof(glm::vec3) << std::endl;
 
-    glm::vec4 a = {0, 1, 2, 3};
-    glm::vec4 b(2,4,4,2);
     glm::mat4 trans(1.0);
-    // trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
 
     program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
-    std::cout << (a * b)[2] << std::endl;
 
     Surface s1(p1, p3, p4, p2);
     // s1.vel = {0.002,0.002,0};
@@ -76,11 +73,12 @@ int main(void)
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);
     s1.tex_coord(3, 0, 1);
-    // s1.VBO_PRINT();
+    std::cout << s1.area() << std::endl;
+    s1.VBO_PRINT();
 
     Surface s2(p1, p4, p5);
-    s2.vel = {0.002,0.002,0};
-    s2.acc = {-0.0015,-0.001,0};
+    // s2.vel = {0.002,0.002,0};
+    // s2.acc = {-0.0015,-0.001,0};
 
     // program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
 
@@ -96,14 +94,14 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 
-        trans = glm::translate(trans, glm::vec3(0.001f, 0.001f, 0.0f));
-        program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
+        // trans = glm::translate(trans, glm::vec3(0.001f, 0.001f, 0.0f));
+        // program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
 
         s1.bind();
         s1.render();
         // s2.bind();
         // s2.render();
-        s1.update(1./60.);
+        // s1.update(1./60.);
         // s2.update(1./60.);
 
         // std::cout << s1.dist(s2) << "\n";
