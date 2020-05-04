@@ -4,9 +4,9 @@
 Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0, 0, 0}) {
     VBO_DATA = std::make_unique<double[]>(stride*vertices.size());
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] = vertices[i/stride].pos[0];
-        VBO_DATA[i + 1] = vertices[i/stride].pos[1];
-        VBO_DATA[i + 2] = vertices[i/stride].pos[2];
+        VBO_DATA[i] = vertices[i/stride].pos.x;
+        VBO_DATA[i + 1] = vertices[i/stride].pos.y;
+        VBO_DATA[i + 2] = vertices[i/stride].pos.z;
         VBO_DATA[i + 3] = 1;
         VBO_DATA[i + 4] = 1;
         VBO_DATA[i + 5] = 1;
