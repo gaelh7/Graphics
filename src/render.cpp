@@ -51,21 +51,13 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0
 Surface::~Surface(){
     GLCALL(glDeleteBuffers(1, &VBO));
     GLCALL(glDeleteBuffers(1, &IBO));
+    GLCALL(glDeleteVertexArrays(1, &VAO));
 }
 
 void Surface::update(const double dt){
-    vel += acc*dt;
-    for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] += vel[0];
-        VBO_DATA[i + 1] += vel[1];
-        VBO_DATA[i + 2] += vel[2];
-        if(i%stride == 0){
-            vertices[i/stride].pos += vel;
-            edges[i/stride].vertices[0].pos += vel;
-            edges[i/stride].vertices[1].pos += vel;
-        }
-    }
+}
 
+void Surface::reload() {
     int VBO_RESET;
     GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));

@@ -20,6 +20,7 @@ class Surface: public Polygon{
         Surface(std::vector<Point> vert);
         ~Surface();
         void update(const double dt);
+        void reload();
         void set_color(const double r, const double g, const double b, const double a);
         void vertex_color(const unsigned int vertex, const double r, const double g, const double b, const double a);
         void tex_coord(const unsigned int vertex, const double x, const double y);

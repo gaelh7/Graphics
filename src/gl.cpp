@@ -42,7 +42,7 @@ int main(void)
     // Shader program(__FILE__ "/../res/shaders/test.glsl");
     program.bind();
 
-    Texture tex(PROJECT_DIR "/res/textures/awesomeface.png");
+    Texture tex(PROJECT_DIR "/res/textures/wall.png");
     tex.bind(0);
     // program.SetUniformi("u_Texture", 0);
 
@@ -72,11 +72,11 @@ int main(void)
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);
     s1.tex_coord(3, 0, 1);
-    // s1.VBO_PRINT();
+    s1.VBO_PRINT();
 
-    Surface s2(p1, p4, p5);
-    s2.vel = {0.002,0.002,0};
-    s2.acc = {-0.0015,-0.001,0};
+    // Surface s2(p1, p4, p5);
+    // s2.vel = {0.002,0.002,0};
+    // s2.acc = {-0.0015,-0.001,0};
 
     // program.SetUniformf("u_Color", 0.2f,0.3f, 0.8f, 1.0f);
 
