@@ -56,4 +56,48 @@ class Shader{
                     break;
             }
         };
+        template<int col, int row>
+        void SetUniformMatrixf(const char* uniform, const float* data, bool transpose = false){
+            switch (col) {
+                case 2:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix2x3fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix2x4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix3x4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix3fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix3x4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+                case 4:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix4x2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix4x3fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+            }
+        }
 };

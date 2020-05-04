@@ -54,15 +54,19 @@ int main(void)
     Point p4({-0.5, 0.5, 0.0});
     Point p5({0, 0.8,0});
 
-    std::cout << sizeof(glm::vec4) << std::endl;
+    std::cout << sizeof(glm::vec3) << std::endl;
 
     glm::vec4 a = {0, 1, 2, 3};
     glm::vec4 b(2,4,4,2);
+    glm::mat4 trans(1.0);
+    // trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+
+    program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
     std::cout << (a * b)[2] << std::endl;
 
     Surface s1(p1, p3, p4, p2);
-    s1.vel = {0.002,0.002,0};
-    s1.acc = {-0.001,-0.001,0};
+    // s1.vel = {0.002,0.002,0};
+    // s1.acc = {-0.001,-0.001,0};
     // s1.set_color(0.2, 0.3, 0.8, 1.0);
     // s1.vertex_color(0, 1, 0, 0, 0);
     // s1.vertex_color(1, 0, 1, 0, 0.5);
@@ -91,6 +95,9 @@ int main(void)
         /* Render here */
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
+
+        trans = glm::translate(trans, glm::vec3(0.001f, 0.001f, 0.0f));
+        program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
 
         s1.bind();
         s1.render();
