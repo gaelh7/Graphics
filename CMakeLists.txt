@@ -6,6 +6,8 @@ project(Graphics VERSION 1.0)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(GH_DEBUG)
 endif()
+add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
+add_compile_definitions(PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # files
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -17,6 +19,7 @@ set(XTL_DIR ${LIB_DIR}/xtl)
 set(GLAD_DIR ${LIB_DIR}/glad)
 set(XTENSOR_DIR ${LIB_DIR}/xtensor)
 set(STB_DIR ${LIB_DIR}/stb_image)
+set(GLM_DIR ${LIB_DIR}/glm)
 find_package(OpenGL 3.3 REQUIRED)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 set(SOURCES ${SRC_DIR}/shader.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp ${SRC_DIR}/texture.cpp)
@@ -24,7 +27,7 @@ file(GLOB HEADERS ${INC_DIR}/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 
 # include
-include_directories(${INC_DIR} ${STB_DIR})
+include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR})
 
 # target
 add_library(Graphics STATIC ${HEADERS} ${SOURCES})

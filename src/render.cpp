@@ -88,3 +88,8 @@ void Surface::vertex_color(const unsigned int vertex, const double r, const doub
     VBO_DATA[stride*vertex + 5] = b;
     VBO_DATA[stride*vertex + 6] = a;
 }
+
+void Surface::tex_coord(const unsigned int vertex, const double x, const double y){
+    VBO_DATA[stride*vertex + 7] = x;
+    VBO_DATA[stride*vertex + 8] = y;
+}

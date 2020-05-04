@@ -38,17 +38,15 @@ int main(void)
         return -1;
 
     {
-    Shader program("C:/Users/gaelm/Documents/C++ Projects/Graphics/res/shaders/test.glsl");
+    Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     // Shader program(__FILE__ "/../res/shaders/test.glsl");
     program.bind();
 
-    // Texture tex("C:/Users/gaelm/Documents/C++ Projects/Graphics/res/textures/KICKSTART STEM FINAL.png");
-    // tex.bind();
+    Texture tex(PROJECT_DIR "/res/textures/awesomeface.png");
+    tex.bind(0);
     // program.SetUniformi("u_Texture", 0);
 
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
-
-    std::cout << __FILE__ << std::endl;
 
     Point p1({-0.5, -0.5, 0.0});
     Point p2({0.5, -0.5, 0.0});
@@ -56,14 +54,25 @@ int main(void)
     Point p4({-0.5, 0.5, 0.0});
     Point p5({0, 0.8,0});
 
+    std::cout << sizeof(glm::vec4) << std::endl;
+
+    glm::vec4 a = {0, 1, 2, 3};
+    glm::vec4 b(2,4,4,2);
+    std::cout << (a * b)[2] << std::endl;
+
     Surface s1(p1, p3, p4, p2);
     s1.vel = {0.002,0.002,0};
     s1.acc = {-0.001,-0.001,0};
     // s1.set_color(0.2, 0.3, 0.8, 1.0);
-    s1.vertex_color(0, 1, 0, 0, 0);
-    s1.vertex_color(1, 0, 1, 0, 0);
-    s1.vertex_color(2, 0, 0, 1, 0);
-    s1.vertex_color(3, 1, 1, 1, 1);
+    // s1.vertex_color(0, 1, 0, 0, 0);
+    // s1.vertex_color(1, 0, 1, 0, 0.5);
+    // s1.vertex_color(2, 0, 0, 1, 0);
+    // s1.vertex_color(3, 1, 1, 1, 1);
+    s1.tex_coord(0, 0, 0);
+    s1.tex_coord(1, 1, 0);
+    s1.tex_coord(2, 1, 1);
+    s1.tex_coord(3, 0, 1);
+    // s1.VBO_PRINT();
 
     Surface s2(p1, p4, p5);
     s2.vel = {0.002,0.002,0};
