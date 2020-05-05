@@ -7,6 +7,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(GH_DEBUG)
 endif()
 add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
+add_compile_definitions(GLM_FORCE_SWIZZLE)
 add_compile_definitions(PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # files

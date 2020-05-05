@@ -56,26 +56,30 @@ int main(void)
 
     std::cout << sizeof(glm::vec3) << std::endl;
 
-    glm::mat4 trans(1.0);
-    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    // trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
 
-    program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
+    // program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans1));
 
     Surface s1(p1, p3, p4, p2);
-    // s1.vel = {0.002,0.002,0};
-    // s1.acc = {-0.001,-0.001,0};
-    // s1.set_color(0.2, 0.3, 0.8, 1.0);
+    s1.trans_mat = glm::rotate(s1.trans_mat, glm::radians(1.0f), (glm::vec3)s1.normVec());
+
     // s1.vertex_color(0, 1, 0, 0, 0);
     // s1.vertex_color(1, 0, 1, 0, 0.5);
     // s1.vertex_color(2, 0, 0, 1, 0);
     // s1.vertex_color(3, 1, 1, 1, 1);
     s1.tex_coord(0, 0, 0);
-    s1.tex_coord(1, 1, 0);
+    s1.tex_coord(1, 0, 1);
     s1.tex_coord(2, 1, 1);
     s1.tex_coord(3, 0, 1);
-    s1.VBO_PRINT();
+    s1.reload();
 
-    // Surface s2(p1, p4, p5);
+    Surface s2(p1, p4, p5);
+    s2.tex_coord(0, 0, 0);
+    s2.tex_coord(1, 0, 0.8);
+    s2.tex_coord(2, 0.5, 1);
+    s2.reload();
+    s2.trans_mat = glm::translate(s2.trans_mat, glm::vec3(-0.004,-0.001,0));
+    // s2.trans_mat = &s2_mat;
     // s2.vel = {0.002,0.002,0};
     // s2.acc = {-0.0015,-0.001,0};
 
@@ -93,17 +97,20 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 
-        // trans = glm::translate(trans, glm::vec3(0.001f, 0.001f, 0.0f));
-        // program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans));
+        // trans1 = *s1.trans_mat*trans1;
+        program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(s1.tot_change));
 
         s1.bind();
         s1.render();
-        // s2.bind();
-        // s2.render();
-        // s1.update(1./60.);
-        // s2.update(1./60.);
+        s1.transform();
 
-        // std::cout << s1.dist(s2) << "\n";
+        // trans2 = *s2.trans_mat*trans2;
+        program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(s2.tot_change));
+        s2.bind();
+        s2.render();
+        s2.transform();
+
+        std::cout << s1.dist(s2) << "\n";
         // std::cout << s1 << "\n";
         // std::cout << s2 << "\n";
 

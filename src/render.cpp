@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include "Graphics/render.hpp"
 
-Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0, 0, 0}) {
+Surface::Surface(std::vector<Point> vert): Polygon(vert) {
     VBO_DATA = std::make_unique<double[]>(stride*vertices.size());
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
         VBO_DATA[i] = vertices[i/stride].pos.x;
@@ -38,7 +38,6 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert), vel({0, 0, 0}), acc({0
     GLCALL(glVertexAttribPointer(1, 4, GL_DOUBLE, false, stride*sizeof(double), (const void*)(3*sizeof(double))));
     GLCALL(glVertexAttribPointer(2, 2, GL_DOUBLE, false, stride*sizeof(double), (const void*)(7*sizeof(double))));
 
-
     GLCALL(glGenBuffers(1, &IBO));
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA.get(), GL_STATIC_DRAW));
@@ -54,7 +53,13 @@ Surface::~Surface(){
     GLCALL(glDeleteVertexArrays(1, &VAO));
 }
 
-void Surface::update(const double dt){
+void Surface::transform(){
+    tot_change = trans_mat*tot_change;
+    for(unsigned int i = 0; i < vertices.size(); i++){
+        vertices[i].pos = (trans_mat * glm::dvec4(vertices[i].pos, 1)).xyz();
+        edges[i].vertices[0].pos = (trans_mat * glm::dvec4(edges[i].vertices[0].pos, 1)).xyz();
+        edges[i].vertices[1].pos = (trans_mat * glm::dvec4(edges[i].vertices[1].pos, 1)).xyz();
+    }
 }
 
 void Surface::reload() {

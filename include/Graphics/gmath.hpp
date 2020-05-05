@@ -12,22 +12,10 @@ static constexpr int sign(const double val) {
 };
 
 /**
- * Norm of a length three vector.
- *
- * @param vec Vector to find the magnitude of.
- * @return Magnitude of the vector
- */
-static double norm(glm::dvec3 &vec){
-    double mag = 0;
-    for(int i = 0; i < vec.length(); i++) mag += vec[i]*vec[i];
-    return sqrt(mag);
-};
-
-/**
  * Determinant of a 3x3 matrix.
  *
  * This function does not take in a matrix or two dimensional array.
- * Instead, it takes 3 xtensor parameters which instead define the
+ * Instead, it takes 3 vec3 parameters which instead define the
  * columns of the matrix.
  *
  * @param v1 First column of matrix.

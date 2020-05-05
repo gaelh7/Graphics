@@ -13,13 +13,13 @@ class Surface: public Polygon{
         std::unique_ptr<double[]> VBO_DATA;
         std::unique_ptr<unsigned int[]> IBO_DATA;
     public:
-        glm::dvec3 vel;
-        glm::dvec3 acc;
+        glm::mat4 trans_mat{1.0};
+        glm::mat4 tot_change{1.0};
         template<typename... Points>
         Surface(Points... args): Surface(std::vector<Point>{args...}){};
         Surface(std::vector<Point> vert);
         ~Surface();
-        void update(const double dt);
+        void transform();
         void reload();
         void set_color(const double r, const double g, const double b, const double a);
         void vertex_color(const unsigned int vertex, const double r, const double g, const double b, const double a);

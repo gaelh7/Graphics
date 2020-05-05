@@ -21,7 +21,7 @@ class Shader{
     public:
         Shader(const char* filepath);
         ~Shader();
-        inline void bind() const {GLCALL(glUseProgram(id));};
+        inline void bind() const {GLCALL(glUseProgram(id));}
         template<typename... data> void SetUniformf(const char* uniform, float v0, data... v1) const {
             float data[] = {v0, v1...};
             switch (sizeof...(v1)){
@@ -58,9 +58,9 @@ class Shader{
         };
         template<int col, int row>
         void SetUniformMatrixf(const char* uniform, const float* data, bool transpose = false){
-            switch (col) {
+            switch (row) {
                 case 2:
-                    switch (row) {
+                    switch (col) {
                         case 2:
                             glUniformMatrix2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -73,7 +73,7 @@ class Shader{
                     }
                     break;
                 case 3:
-                    switch (row) {
+                    switch (col) {
                         case 2:
                             glUniformMatrix3x4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -86,7 +86,7 @@ class Shader{
                     }
                     break;
                 case 4:
-                    switch (row) {
+                    switch (col) {
                         case 2:
                             glUniformMatrix4x2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -95,6 +95,50 @@ class Shader{
                             break;
                         case 4:
                             glUniformMatrix4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+            }
+        }
+        template<int col, int row>
+        void SetUniformMatrixd(const char* uniform, const double* data, bool transpose = false){
+            switch (col) {
+                case 2:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix2x3dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix2x4dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix3x4dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix3dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix3x4dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                    }
+                    break;
+                case 4:
+                    switch (row) {
+                        case 2:
+                            glUniformMatrix4x2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 3:
+                            glUniformMatrix4x3dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            break;
+                        case 4:
+                            glUniformMatrix4dv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
                     }
                     break;
