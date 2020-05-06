@@ -7,7 +7,7 @@
  * @param val Number to find the sign of.
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
-static constexpr int sign(const double val) {
+static constexpr int sign(const float val) {
     return (0 < val) - (val < 0);
 };
 
@@ -23,7 +23,7 @@ static constexpr int sign(const double val) {
  * @param v3 Third column of matrix.
  * @return Determinant of the matrix.
  */
-static double det(glm::dvec3 &v1, glm::dvec3 &v2, glm::dvec3 &v3){
+static float det(glm::vec3 &v1, glm::vec3 &v2, glm::vec3 &v3){
     return v1[0]*(v2[1]*v3[2] - v3[1]*v2[2]) -
            v2[0]*(v1[1]*v3[2] - v3[1]*v1[2]) +
            v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);

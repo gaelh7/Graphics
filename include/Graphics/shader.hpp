@@ -22,7 +22,8 @@ class Shader{
         Shader(const char* filepath);
         ~Shader();
         inline void bind() const {GLCALL(glUseProgram(id));}
-        template<typename... data> void SetUniformf(const char* uniform, float v0, data... v1) const {
+        template<typename... data>
+        void SetUniformf(const char* uniform, float v0, data... v1) const {
             float data[] = {v0, v1...};
             switch (sizeof...(v1)){
                 case 0:
@@ -39,7 +40,8 @@ class Shader{
                     break;
             }
         };
-        template<typename... data> void SetUniformi(const char* uniform, int v0, data... v1) const {
+        template<typename... data>
+        void SetUniformi(const char* uniform, int v0, data... v1) const {
             int data[] = {v0, v1...};
             switch (sizeof...(v1)){
                 case 0:

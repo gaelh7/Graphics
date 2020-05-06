@@ -10,21 +10,22 @@ class Surface: public Polygon{
     private:
         static constexpr unsigned char stride = 9;
         unsigned int VAO, VBO, IBO;
-        std::unique_ptr<double[]> VBO_DATA;
-        std::unique_ptr<unsigned int[]> IBO_DATA;
+        float* VBO_DATA;
+        unsigned int* IBO_DATA;
     public:
         glm::mat4 trans_mat{1.0};
-        glm::mat4 tot_change{1.0};
+        glm::mat4 model{1.0};
         template<typename... Points>
         Surface(Points... args): Surface(std::vector<Point>{args...}){};
         Surface(std::vector<Point> vert);
         ~Surface();
+        Surface local();
         void transform();
+        void transform(glm::mat4 mat);
         void reload();
-        void set_color(const double r, const double g, const double b, const double a);
-        void vertex_color(const unsigned int vertex, const double r, const double g, const double b, const double a);
-        void tex_coord(const unsigned int vertex, const double x, const double y);
-        // void rotate(xt::xtensor_fixed<double, xt::xshape<3>> axis, double theta, xt::xtensor_fixed<double, xt::xshape<3>> p);
+        void set_color(const float r, const float g, const float b, const float a);
+        void vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a);
+        void tex_coord(const unsigned int vertex, const float x, const float y);
         inline void bind() const {
             GLCALL(glBindVertexArray(VAO));
             GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
@@ -41,4 +42,44 @@ class Surface: public Polygon{
         }
 };
 
-class Solid: public Polyhedron{};
+class Solid: public Polyhedron{
+    private:
+        static constexpr unsigned char stride = 9;
+        unsigned int VAO, VBO, IBO;
+        float* VBO_DATA;
+        unsigned int* IBO_DATA;
+    public:
+        unsigned int indices;
+        glm::mat4 trans_mat{1.0};
+        glm::mat4 model{1.0};
+        template<typename... Points>
+        Solid(Points... args): Solid(std::vector<Point>{args...}){};
+        Solid(std::vector<Point> vert);
+        ~Solid();
+        Surface local();
+        void transform();
+        void transform(glm::mat4 mat);
+        void reload();
+        void set_color(const float r, const float g, const float b, const float a);
+        void vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a);
+        void tex_coord(const unsigned int vertex, const float x, const float y);
+        inline void bind() const {
+            GLCALL(glBindVertexArray(VAO));
+            GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
+        }
+        inline void render() const {
+            GLCALL(glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr));
+        }
+        void VBO_PRINT() const {
+            for(unsigned int i = 0; i < vertices.size(); i++){
+                for(unsigned int j = 0; j < stride; j++)
+                    std::cout << VBO_DATA[stride*i + j] << "\t";
+                std::cout << std::endl;
+            }
+        }
+        void IBO_PRINT() const {
+            for(unsigned int i = 0; i < indices; i+=3){
+                std::cout << IBO_DATA[i] << ", " << IBO_DATA[i+1] << ", " << IBO_DATA[i + 2] << std::endl;
+            }
+        }
+};
