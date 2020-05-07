@@ -1,7 +1,33 @@
 #include <glad/glad.h>
 #include "Graphics/render.hpp"
 
-Surface::Surface(std::vector<Point> vert): Polygon(vert){
+Visual::Visual() {
+    GLCALL(glGenVertexArrays(1, &VAO));
+    GLCALL(glGenBuffers(1, &VBO));
+    GLCALL(glGenBuffers(1, &IBO));
+}
+
+Visual::~Visual(){
+    GLCALL(glDeleteBuffers(1, &VBO));
+    GLCALL(glDeleteBuffers(1, &IBO));
+    GLCALL(glDeleteVertexArrays(1, &VAO));
+    delete[] VBO_DATA;
+    delete[] IBO_DATA;
+}
+
+void Visual::vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a){
+    VBO_DATA[stride*vertex + 3] = r;
+    VBO_DATA[stride*vertex + 4] = g;
+    VBO_DATA[stride*vertex + 5] = b;
+    VBO_DATA[stride*vertex + 6] = a;
+}
+
+void Visual::tex_coord(const unsigned int vertex, const float x, const float y){
+    VBO_DATA[stride*vertex + 7] = x;
+    VBO_DATA[stride*vertex + 8] = y;
+}
+
+Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
     VBO_DATA = new float[stride*vertices.size()];
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
         VBO_DATA[i] = vertices[i/stride].pos.x;
@@ -27,10 +53,8 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     GLCALL(glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET));
     GLCALL(glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET));
 
-    GLCALL(glGenVertexArrays(1, &VAO));
     GLCALL(glBindVertexArray(VAO));
 
-    GLCALL(glGenBuffers(1, &VBO));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
     GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
     GLCALL(glEnableVertexAttribArray(0));
@@ -40,7 +64,6 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (const void*)(3*sizeof(float))));
     GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (const void*)(7*sizeof(float))));
 
-    GLCALL(glGenBuffers(1, &IBO));
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));
 
@@ -49,37 +72,12 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     GLCALL(glBindVertexArray(VAO_RESET));
 }
 
-Surface::~Surface(){
-    GLCALL(glDeleteBuffers(1, &VBO));
-    GLCALL(glDeleteBuffers(1, &IBO));
-    GLCALL(glDeleteVertexArrays(1, &VAO));
-    delete[] VBO_DATA;
-    delete[] IBO_DATA;
-}
-
-Surface Surface::local(){
-    Surface out(this->vertices);
-    out.transform(glm::inverse(model));
-    return Surface(out.vertices);
-}
-
-void Surface::transform(){
-    model = trans_mat*model;
+Surface Surface::world(){
+    std::vector<Point> vert(vertices.size());
     for(unsigned int i = 0; i < vertices.size(); i++){
-        pos = (trans_mat * glm::vec4(pos, 1)).xyz;
-        vertices[i].pos = (trans_mat * glm::vec4(vertices[i].pos, 1)).xyz;
-        edges[i].vertices[0].pos = (trans_mat * glm::vec4(edges[i].vertices[0].pos, 1)).xyz;
-        edges[i].vertices[1].pos = (trans_mat * glm::vec4(edges[i].vertices[1].pos, 1)).xyz;
+        vert[i].pos = (model*glm::vec4(vertices[i].pos, 1.0));
     }
-}
-
-void Surface::transform(glm::mat4 mat){
-    model = mat*model;
-    for(unsigned int i = 0; i < vertices.size(); i++){
-        vertices[i].pos = (mat * glm::vec4(vertices[i].pos, 1)).xyz;
-        edges[i].vertices[0].pos = (mat * glm::vec4(edges[i].vertices[0].pos, 1)).xyz;
-        edges[i].vertices[1].pos = (mat * glm::vec4(edges[i].vertices[1].pos, 1)).xyz;
-    }
+    return Surface(vert);
 }
 
 void Surface::reload(){
@@ -99,19 +97,7 @@ void Surface::set_color(const float r, const float g, const float b, const float
     }
 }
 
-void Surface::vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a){
-    VBO_DATA[stride*vertex + 3] = r;
-    VBO_DATA[stride*vertex + 4] = g;
-    VBO_DATA[stride*vertex + 5] = b;
-    VBO_DATA[stride*vertex + 6] = a;
-}
-
-void Surface::tex_coord(const unsigned int vertex, const float x, const float y){
-    VBO_DATA[stride*vertex + 7] = x;
-    VBO_DATA[stride*vertex + 8] = y;
-}
-
-Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
+Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     VBO_DATA = new float[stride*vertices.size()];
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
         VBO_DATA[i] = vertices[i/stride].pos.x;
@@ -153,10 +139,8 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     GLCALL(glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET));
     GLCALL(glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET));
 
-    GLCALL(glGenVertexArrays(1, &VAO));
     GLCALL(glBindVertexArray(VAO));
 
-    GLCALL(glGenBuffers(1, &VBO));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
     GLCALL(glBufferData(GL_ARRAY_BUFFER, stride*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
     GLCALL(glEnableVertexAttribArray(0));
@@ -166,22 +150,20 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (const void*)(3*sizeof(float))));
     GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (const void*)(7*sizeof(float))));
 
-    GLCALL(glGenBuffers(1, &IBO));
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));
 
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET));
     GLCALL(glBindVertexArray(VAO_RESET));
-
 }
 
-Solid::~Solid(){
-    GLCALL(glDeleteBuffers(1, &VBO));
-    GLCALL(glDeleteBuffers(1, &IBO));
-    GLCALL(glDeleteVertexArrays(1, &VAO));
-    delete[] VBO_DATA;
-    delete[] IBO_DATA;
+Solid Solid::world(){
+    std::vector<Point> vert(vertices.size());
+    for(unsigned int i = 0; i < vertices.size(); i++){
+        vert[i].pos = (model*glm::vec4(vertices[i].pos, 1.0));
+    }
+    return Solid(vert);
 }
 
 void Solid::reload(){
@@ -199,16 +181,4 @@ void Solid::set_color(const float r, const float g, const float b, const float a
         VBO_DATA[i + 5] = b;
         VBO_DATA[i + 6] = a;
     }
-}
-
-void Solid::vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a){
-    VBO_DATA[stride*vertex + 3] = r;
-    VBO_DATA[stride*vertex + 4] = g;
-    VBO_DATA[stride*vertex + 5] = b;
-    VBO_DATA[stride*vertex + 6] = a;
-}
-
-void Solid::tex_coord(const unsigned int vertex, const float x, const float y){
-    VBO_DATA[stride*vertex + 7] = x;
-    VBO_DATA[stride*vertex + 8] = y;
 }

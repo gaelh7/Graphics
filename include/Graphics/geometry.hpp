@@ -88,7 +88,7 @@ class Polygon: public Plane {
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;
         float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const;
+        virtual float dist(const Polygon &obj) const;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
         std::unique_ptr<Point> intersect(const Line &obj) const override;
         std::unique_ptr<Point> intersect(const LinSeg &obj) const override;

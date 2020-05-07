@@ -18,9 +18,9 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(480, 480, "Hello World", NULL, NULL);
@@ -37,17 +37,20 @@ int main(void)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return -1;
 
+    std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
+
     GLCALL(glEnable(GL_DEPTH_TEST));
     {
     Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
 
     Texture tex(PROJECT_DIR "/res/textures/wall.png");
+    Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
     tex.bind(0);
+    tex2.bind(1);
     program.SetUniformi("Texture", 0);
-    program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(glm::mat4(1.0)));
+    program.SetUniformi("Texture2", 1);
 
-    std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
 
     Point p1({-0.5, -0.5, 0.0});
     Point p2({0.5, -0.5, 0.0});
@@ -64,7 +67,7 @@ int main(void)
 
     Surface s1(p1, p3, p4, p2);
     Surface sLocal(s1.vertices);
-    s1.trans_mat = glm::translate(s1.trans_mat, glm::vec3(0.001, -0.002 ,0));
+    // s1.trans_mat = glm::translate(s1.trans_mat, glm::vec3(0.001, -0.002 ,0));
     // s1.transform();
 
     // s1.vertex_color(0, 1, 0, 0, 0);
@@ -82,7 +85,8 @@ int main(void)
     s2.tex_coord(1, 0, 0.8f);
     s2.tex_coord(2, 0.5, 1);
     s2.reload();
-    s2.trans_mat = glm::translate(s2.trans_mat, glm::vec3(0.002,-0.001,0));
+
+    // s2.transform(glm::translate(glm::mat4(1.0), glm::vec3(2.0,-1.,0)));
 
     Solid sol(p1, p2, p3, p4, p6);
     sol.tex_coord(0, 0, 0);
@@ -91,6 +95,8 @@ int main(void)
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
     sol.reload();
+    sol.model = glm::rotate(sol.model,1.f, glm::vec3(1.0, 0., 0.));
+    s2.model = glm::rotate(s2.model,1.f, glm::vec3(1.0, 0., 0.));
 
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -98,6 +104,12 @@ int main(void)
     project = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
     program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(view));
     program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
+
+    auto strt = std::chrono::high_resolution_clock::now();
+    std::cout << s2.dist(sol.world()) << std::endl;
+    auto ed = std::chrono::high_resolution_clock::now();
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(ed - strt);
+    std::cout << dur.count()/1000000000. << std::endl;
 
 
     int frames = 0;
@@ -114,7 +126,8 @@ int main(void)
 
         // std::cout << Point(s1.local().pos).dist(Point(sLocal.pos)) << "\r";
         // std::cout << s1.local().equals(sLocal) << "\r";
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s1.model));
+        // std::cout << s1.local() << "\r";
+        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(sol.model));
         view = glm::rotate(view, 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
         program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(view));
 
@@ -124,10 +137,13 @@ int main(void)
         sol.bind();
         sol.render();
 
-        // program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s2.model));
-        // s2.bind();
-        // s2.render();
-        // s2.transform();
+        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s2.model));
+        s2.bind();
+        s2.render();
+        s2.model = glm::translate(s2.model, glm::vec3(0.002,-0.001,0));
+
+        // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
+        // std::cout << s2.dist(Polyhedron(sol.world())) << "\n";
 
 
         /* Swap front and back buffers */
@@ -144,5 +160,7 @@ int main(void)
     std::cout << "FPS: " << (frames*1000000000.)/time << std::endl;
     }
     glfwTerminate();
+    std::cout << "Press return to continue...";
+    std::cin.get();
     return 0;
 }

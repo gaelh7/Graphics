@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
 
     // cout << y.contains(l2) << endl;
 
+    std::cout << "Press return to continue...";
     cin.get();
 
     return 0;
