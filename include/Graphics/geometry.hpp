@@ -6,6 +6,13 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/geometric.hpp>
 
+class Point;
+class Line;
+class LinSeg;
+class Plane;
+class Polygon;
+class Polyhedron;
+
 class Point {
     public:
         std::vector<Point> vertices;
@@ -15,7 +22,17 @@ class Point {
         virtual unsigned int dim() const {return 0;}
         virtual bool isSpace() const {return true;}
         virtual float dist(const Point &obj) const;
-        virtual std::unique_ptr<Point> intersect (const Point &obj) const;
+        virtual float dist(const Line &obj) const;
+        virtual float dist(const LinSeg &obj) const;
+        virtual float dist(const Plane &obj) const;
+        virtual float dist(const Polygon &obj) const;
+        virtual float dist(const Polyhedron &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const;
         glm::vec3 direction(const Point &obj) const;
         bool contains(const Point &obj) const;
         bool equals(const Point &obj) const;
@@ -28,9 +45,17 @@ class Line: public Point {
         Line(std::vector<Point> vert);
         unsigned int dim() const override {return 1;}
         float dist(const Point &obj) const override;
-        virtual float dist(const Line &obj) const;
+        float dist(const Line &obj) const override;
+        float dist(const LinSeg &obj) const override;
+        float dist(const Plane &obj) const override;
+        float dist(const Polygon &obj) const override;
+        float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
-        virtual std::unique_ptr<Point> intersect(const Line &obj) const;
+        std::unique_ptr<Point> intersect(const Line &obj) const override;
+        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         glm::vec3 dirVec() const;
         std::unique_ptr<Point> project(const Point &obj) const;
         float angle(const Line &lobj, glm::vec3* axisptr);
@@ -44,10 +69,16 @@ class LinSeg: public Line {
         bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const;
+        float dist(const LinSeg &obj) const override;
+        float dist(const Plane &obj) const override;
+        float dist(const Polygon &obj) const override;
+        float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
         std::unique_ptr<Point> intersect(const Line &obj) const override;
         std::unique_ptr<Point> intersect(const LinSeg &obj) const;
+        std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float length() const;
 };
 
@@ -67,13 +98,17 @@ class Plane: public Point {
         }
         float sign_dist(const Point &obj) const;
         float dist(const Point &obj) const override;
-        virtual float dist(const Line &obj) const;
-        virtual float dist(const LinSeg &obj) const;
-        virtual float dist(const Plane &obj) const;
+        float dist(const Line &obj) const override;
+        float dist(const LinSeg &obj) const override;
+        float dist(const Plane &obj) const override;
+        float dist(const Polygon &obj) const override;
+        float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
-        virtual std::unique_ptr<Point> intersect(const Line &obj) const;
-        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const;
-        virtual std::unique_ptr<Point> intersect(const Plane &obj) const;
+        std::unique_ptr<Point> intersect(const Line &obj) const override;
+        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
 };
 
 class Polygon: public Plane {
@@ -88,12 +123,14 @@ class Polygon: public Plane {
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;
         float dist(const Plane &obj) const override;
-        virtual float dist(const Polygon &obj) const;
+        float dist(const Polygon &obj) const override;
+        float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
         std::unique_ptr<Point> intersect(const Line &obj) const override;
         std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
         std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const;
+        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float area() const;
 };
 
@@ -108,11 +145,11 @@ class Polyhedron: public Point {
         unsigned int dim() const override {return 3;}
         bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
-        float dist(const Line &obj) const;
-        float dist(const LinSeg &obj) const;
-        float dist(const Plane &obj) const;
-        float dist(const Polygon &obj) const;
-        float dist(const Polyhedron &obj) const;
+        float dist(const Line &obj) const override;
+        float dist(const LinSeg &obj) const override;
+        float dist(const Plane &obj) const override;
+        float dist(const Polygon &obj) const override;
+        float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
         // std::unique_ptr<Point> intersect(const Line &obj) const;
         // std::unique_ptr<Point> intersect(const LinSeg &obj) const;

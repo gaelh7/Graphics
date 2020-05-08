@@ -33,7 +33,7 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return -1;
 
@@ -105,12 +105,6 @@ int main(void)
     program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(view));
     program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
 
-    auto strt = std::chrono::high_resolution_clock::now();
-    std::cout << s2.dist(sol.world()) << std::endl;
-    auto ed = std::chrono::high_resolution_clock::now();
-    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(ed - strt);
-    std::cout << dur.count()/1000000000. << std::endl;
-
 
     int frames = 0;
     long long time = 0;
@@ -143,7 +137,8 @@ int main(void)
         s2.model = glm::translate(s2.model, glm::vec3(0.002,-0.001,0));
 
         // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        // std::cout << s2.dist(Polyhedron(sol.world())) << "\n";
+        std::cout << s2.world().dist(sol.world()) << "\t";
+        std::cout << sol.world().dist(s2.world()) << "\r";
 
 
         /* Swap front and back buffers */

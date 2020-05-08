@@ -13,11 +13,67 @@ Point::Point(glm::vec3 pos): pos(pos){
 }
 
 float Point::dist(const Point &obj) const {
-    return obj.dim() == 0 ? glm::length(pos - obj.pos):obj.dist(*this);
+    return glm::length(pos - obj.pos);
+}
+
+float Point::dist(const Line &obj) const {
+    return glm::length(glm::cross(obj.vertices[0].pos - pos, obj.vertices[0].pos - obj.vertices[1].pos) / obj.vertices[0].dist(obj.vertices[1]));
+}
+
+float Point::dist(const LinSeg &obj) const {
+    return glm::dot(pos - obj.vertices[0].pos, obj.vertices[1].pos - obj.vertices[0].pos) > 0 && glm::dot(pos - obj.vertices[1].pos, obj.vertices[0].pos - obj.vertices[1].pos) > 0 ? glm::length(glm::cross(obj.vertices[0].pos - pos, obj.vertices[0].pos - obj.vertices[1].pos) / obj.vertices[0].dist(obj.vertices[1])):std::min(dist(obj.vertices[0]), dist(obj.vertices[1]));
+}
+
+float Point::dist(const Plane &obj) const {
+    return std::abs(glm::dot(obj.normVec(), pos - obj.vertices[0].pos));
+}
+
+float Point::dist(const Polygon &obj) const {
+    for(LinSeg edge: obj.edges)
+        if(glm::dot(glm::cross(edge.vertices[1].pos - edge.vertices[0].pos, pos - edge.vertices[0].pos), obj.normVec()) < 0){
+            std::vector<float> distances;
+            std::transform(obj.edges.begin(), obj.edges.end(), std::back_inserter(distances), [this](LinSeg lin){
+                return dist(lin);
+            });
+            return *std::min_element(distances.begin(), distances.end());
+        }
+    return std::abs(glm::dot(obj.normVec(), pos - obj.vertices[0].pos));
+}
+
+float Point::dist(const Polyhedron &obj) const {
+    bool contained = std::all_of(obj.faces.begin(), obj.faces.end(), [this](Polygon face){
+        return face.sign_dist(*this) >= 0;
+    });
+    if(contained) return 0;
+    std::vector<float> distances;
+    std::transform(obj.faces.begin(), obj.faces.end(), std::back_inserter(distances), [this](Polygon face){
+        return face.dist(*this);
+    });
+    return *std::min_element(distances.begin(), distances.end());
 }
 
 std::unique_ptr<Point> Point::intersect(const Point &obj) const {
-    return dist(obj) < 1e-5 ? std::make_unique<Point>(*this):nullptr;
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
+}
+
+std::unique_ptr<Point> Point::intersect(const Line &obj) const {
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
+}
+
+std::unique_ptr<Point> Point::intersect(const LinSeg &obj) const {
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
+}
+
+std::unique_ptr<Point> Point::intersect(const Plane &obj) const {
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
+}
+
+std::unique_ptr<Point> Point::intersect(const Polygon &obj) const {
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
+}
+
+std::unique_ptr<Point> Point::intersect(const Polyhedron &obj) const {
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(this->pos):nullptr;
 }
 
 glm::vec3 Point::direction(const Point &obj) const {
@@ -47,30 +103,91 @@ Line::Line(Point p1, Point p2){
 Line::Line(std::vector<Point> vert): Line(vert[0], vert[1]){}
 
 float Line::dist(const Point &obj) const {
-    return obj.dim() == 0 ? glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):obj.dist(*this);
+    return glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1]));
 }
 
 float Line::dist(const Line &obj) const {
-    if(obj.isSpace()){
-        glm::vec3 vec = glm::cross(dirVec(), obj.dirVec());
-        return glm::length(vec) < 1e-5 ? dist(obj.vertices[0]):std::abs(glm::dot(vec, vertices[0].pos - obj.vertices[1].pos))/glm::length(vec);
-    }
-    return obj.dist(*this);
+    glm::vec3 vec = glm::cross(dirVec(), obj.dirVec());
+    return glm::length(vec) < 1e-5 ? dist(obj.vertices[0]):std::abs(glm::dot(vec, vertices[0].pos - obj.vertices[1].pos))/glm::length(vec);
+}
+
+float Line::dist(const LinSeg &obj) const {
+    glm::vec3 c = glm::cross(dirVec(), obj.dirVec());
+    if(glm::length(c) < 1e-5) return dist(obj.vertices[0]);
+    float t = det(obj.vertices[0].pos - vertices[0].pos, dirVec(), c)/std::pow(glm::length(c), 2);
+    return t < 0 || t > glm::length(obj.vertices[1].pos - obj.vertices[0].pos) ? std::min(dist(obj.vertices[0]), dist(obj.vertices[1])):dist((Line)obj);
+}
+
+float Line::dist(const Plane &obj) const {
+    return std::abs(glm::dot(obj.normVec(), dirVec())) < 1e-5 ? obj.dist(vertices[0]):0;
+}
+
+float Line::dist(const Polygon &obj) const {
+    Plane pl(obj.vertices[0], obj.vertices[1], obj.vertices[2]);
+    std::unique_ptr<Point> p = pl.intersect(*this);
+    if(p != nullptr && obj.contains(*p)) return 0;
+    std::vector<float> distances;
+    std::transform(obj.edges.begin(), obj.edges.end(), std::back_inserter(distances), [this](LinSeg lin){
+        return dist(lin);
+    });
+    return *std::min_element(distances.begin(), distances.end());
+}
+
+float Line::dist(const Polyhedron &obj) const {
+    std::vector<float> distances;
+    std::transform(obj.faces.begin(), obj.faces.end(), std::back_inserter(distances), [this](Polygon face){
+        return face.dist(*this);
+    });
+    return *std::min_element(distances.begin(), distances.end());
 }
 
 std::unique_ptr<Point> Line::intersect(const Point &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    return obj.dim() == 0 ? std::make_unique<Point>(obj):obj.intersect(*this);
+    return std::make_unique<Point>(obj.pos);
 }
 
 std::unique_ptr<Point> Line::intersect(const Line &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    if(contains(obj)) return obj.isSpace() ? std::make_unique<Line>(obj):obj.intersect(*this);
+    if(contains(obj)) return obj.isSpace() ? std::make_unique<Line>(obj.vertices):obj.intersect(*this);
     else if(contains(obj.vertices[0])) return std::make_unique<Point>(obj.vertices[0]);
     else if(obj.contains(vertices[0])) return std::make_unique<Point>(vertices[0]);
     glm::vec3 vec1 = glm::cross(obj.dirVec(), obj.vertices[0].pos - vertices[0].pos);
     glm::vec3 vec2 = glm::cross(obj.dirVec(), dirVec());
     return std::make_unique<Point>(vertices[0].pos + (sign(glm::dot(vec1, vec2)))*(glm::length(vec1)/glm::length(vec2))*dirVec());
+}
+
+std::unique_ptr<Point> Line::intersect(const LinSeg &obj) const {
+    return contains(obj) ? std::make_unique<LinSeg>(obj.vertices):intersect((Line)obj);
+}
+
+std::unique_ptr<Point> Line::intersect(const Plane &obj) const {
+    if(obj.dist(*this) >= 1e-5) return nullptr;
+    if(obj.contains(*this)) return std::make_unique<Line>(this->vertices);
+    if(glm::length(glm::cross(dirVec(), obj.normVec())) < 1e-5) return std::make_unique<Point>(vertices[0].pos - obj.normVec()*obj.sign_dist(vertices[0]));
+    return intersect(*obj.project(*this));
+}
+
+std::unique_ptr<Point> Line::intersect(const Polygon &obj) const {
+    if(obj.dist(*this) >= 1e-5) return nullptr;
+    else if(glm::length(glm::cross(dirVec(), obj.normVec())) < 1e-5) return std::make_unique<Point>(vertices[0].pos - obj.normVec()*obj.sign_dist(vertices[0]));
+    if(std::abs(glm::dot(dirVec(), obj.normVec())) < 1e-5){
+        std::vector<Point> points;
+        for(LinSeg edge: obj.edges){
+            std::unique_ptr<Point> inter = intersect(edge);
+            if(inter != nullptr && typeid(*inter) == typeid(vertices[0])) points.push_back(*inter);
+        }
+        std::vector<Point>::iterator p = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
+            return p1.equals(p2);
+        });
+        points.resize(std::distance(points.begin(), p));
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    }
+    return intersect(*project(*this));
+}
+
+std::unique_ptr<Point> Line::intersect(const Polyhedron &obj) const {
+    // TODO: Implement this
+    return nullptr;
 }
 
 glm::vec3 Line::dirVec() const {
@@ -93,9 +210,7 @@ LinSeg::LinSeg(Point p1, Point p2): Line(p1,p2){}
 LinSeg::LinSeg(std::vector<Point> vert): Line(vert[0], vert[1]){}
 
 float LinSeg::dist(const Point &obj) const {
-    if(obj.dim() == 0)
-        return glm::dot(obj.pos - vertices[0].pos, vertices[1].pos - vertices[0].pos) > 0 && glm::dot(obj.pos - vertices[1].pos, vertices[0].pos - vertices[1].pos) > 0 ? glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
-    return obj.dist(*this);
+    return glm::dot(obj.pos - vertices[0].pos, vertices[1].pos - vertices[0].pos) > 0 && glm::dot(obj.pos - vertices[1].pos, vertices[0].pos - vertices[1].pos) > 0 ? glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
 }
 
 float LinSeg::dist(const Line &obj) const {
@@ -116,19 +231,47 @@ float LinSeg::dist(const LinSeg &obj) const {
     return std::abs(glm::dot(c, vertices[0].pos - obj.vertices[1].pos))/glm::length(c);
 }
 
+float LinSeg::dist(const Plane &obj) const {
+    if((sign(obj.sign_dist(vertices[0])) ^ sign(obj.sign_dist(vertices[1]))) < 0) return 0;
+    return std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
+}
+
+float LinSeg::dist(const Polygon &obj) const {
+    Plane pl(obj.vertices[0], obj.vertices[1], obj.vertices[2]);
+    std::unique_ptr<Point> p = pl.intersect(*this);
+    if(p != nullptr && contains(*p)) return 0;
+    std::vector<float> distances;
+    std::transform(obj.edges.begin(), obj.edges.end(), std::back_inserter(distances), [this](LinSeg lin){
+        return dist(lin);
+    });
+    float min = *std::min_element(distances.begin(), distances.end());
+    min = std::min(min, obj.dist(vertices[0]));
+    min = std::min(min, obj.dist(vertices[1]));
+    return min;
+}
+
+float LinSeg::dist(const Polyhedron &obj) const {
+    for(Point p: vertices) if(obj.contains(p)) return 0;
+    std::vector<float> distances;
+    std::transform(obj.faces.begin(), obj.faces.end(), std::back_inserter(distances), [this](Polygon face){
+        return face.dist(*this);
+    });
+    return *std::min_element(distances.begin(), distances.end());
+}
+
 std::unique_ptr<Point> LinSeg::intersect(const Point &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    return obj.dim() == 0 ? std::make_unique<Point>(obj):obj.intersect(*this);
+    return std::make_unique<Point>(obj.pos);
 }
 
 std::unique_ptr<Point> LinSeg::intersect(const Line &obj) const {
-    return obj.contains(*this) ? std::make_unique<LinSeg>(*this):obj.intersect(*this);
+    return obj.contains(*this) ? std::make_unique<LinSeg>(this->vertices):obj.intersect(*this);
 }
 
 std::unique_ptr<Point> LinSeg::intersect(const LinSeg &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    if(contains(obj)) return std::make_unique<LinSeg>(obj);
-    else if(obj.contains(*this)) return std::make_unique<LinSeg>(*this);
+    if(contains(obj)) return std::make_unique<LinSeg>(obj.vertices);
+    else if(obj.contains(*this)) return std::make_unique<LinSeg>(this->vertices);
     if(glm::length(glm::cross(dirVec(), obj.dirVec())) < 1e-5){
         if(obj.contains(vertices[0])){
             if(vertices[0].equals(obj.vertices[0]) || vertices[0].equals(obj.vertices[1])) return std::make_unique<Point>(vertices[0]);
@@ -140,6 +283,39 @@ std::unique_ptr<Point> LinSeg::intersect(const LinSeg &obj) const {
         }
     }
     return Line::intersect(obj);
+}
+
+std::unique_ptr<Point> LinSeg::intersect(const Plane &obj) const {
+    if(obj.dist(*this) >= 1e-5) return nullptr;
+    if(obj.contains(*this)) return std::make_unique<LinSeg>(this->vertices);
+    if(glm::length(glm::cross(dirVec(), obj.normVec())) < 1e-5) return std::make_unique<Point>(vertices[0].pos - obj.normVec()*obj.sign_dist(vertices[0]));
+    return intersect(*obj.project(*this));
+}
+
+std::unique_ptr<Point> LinSeg::intersect(const Polygon &obj) const {
+    if(obj.dist(*this) >= 1e-5) return nullptr;
+    else if(glm::length(glm::cross(dirVec(), obj.normVec())) < 1e-5) return std::make_unique<Point>(vertices[0].pos - obj.normVec()*obj.sign_dist(vertices[0]));
+    else if(obj.contains(*this)) return std::make_unique<LinSeg>(this->vertices);
+    if(std::abs(glm::dot(dirVec(), obj.normVec())) < 1e-5){
+        std::vector<Point> points;
+        if(obj.contains(vertices[0])) points.push_back(vertices[0]);
+        else if(contains(vertices[1])) points.push_back(vertices[1]);
+        for(LinSeg edge: obj.edges){
+            std::unique_ptr<Point> inter = intersect(edge);
+            if(inter != nullptr && typeid(*inter) == typeid(vertices[0])) points.push_back(*inter);
+        }
+        std::vector<Point>::iterator p = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
+            return p1.equals(p2);
+        });
+        points.resize(std::distance(points.begin(), p));
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    }
+    return intersect(*obj.project(*this));
+}
+
+std::unique_ptr<Point> LinSeg::intersect(const Polyhedron &obj) const {
+    // TODO: Implement this
+    return nullptr;
 }
 
 float LinSeg::length() const {
@@ -168,7 +344,7 @@ float Plane::sign_dist(const Point &obj) const {
 }
 
 float Plane::dist(const Point &obj) const {
-    return obj.dim() == 0 ? std::abs(glm::dot(normVec(), obj.pos - vertices[0].pos)):obj.dist(*this);
+    return std::abs(glm::dot(normVec(), obj.pos - vertices[0].pos));
 }
 
 float Plane::dist(const Line &obj) const {
@@ -181,36 +357,70 @@ float Plane::dist(const LinSeg &obj) const {
 }
 
 float Plane::dist(const Plane &obj) const {
-    if(obj.isSpace()) return glm::length(glm::cross(normVec(), obj.normVec())) < 1e-5 ? dist(obj.vertices[0]):0;
-    return obj.dist(*this);
+    return glm::length(glm::cross(normVec(), obj.normVec())) < 1e-5 ? dist(obj.vertices[0]):0;
 }
+
+float Plane::dist(const Polygon &obj) const {
+    std::vector<float> distances;
+    std::transform(obj.edges.begin(), obj.edges.end(), std::back_inserter(distances), [this](LinSeg lin){
+        return dist(lin);
+    });
+    return *std::min_element(distances.begin(), distances.end());
+}
+
+float Plane::dist(const Polyhedron &obj) const {
+    std::vector<float> distances;
+    std::transform(obj.faces.begin(), obj.faces.end(), std::back_inserter(distances), [this](Polygon face){
+        return face.dist(*this);
+    });
+    return *std::min_element(distances.begin(), distances.end());
+};
 
 std::unique_ptr<Point> Plane::intersect(const Point &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    return obj.dim() == 0 ? std::make_unique<Point>(obj):obj.intersect(*this);
+    return std::make_unique<Point>(obj.pos);
 }
 
 std::unique_ptr<Point> Plane::intersect(const Line &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    if(contains(obj)) return std::make_unique<Line>(obj);
+    if(contains(obj)) return std::make_unique<Line>(obj.vertices);
     if(glm::length(glm::cross(obj.dirVec(), normVec())) < 1e-5) return std::make_unique<Point>(obj.vertices[0].pos - normVec()*sign_dist(obj.vertices[0]));
     return obj.intersect(*project(obj));
 }
 
 std::unique_ptr<Point> Plane::intersect(const LinSeg &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    if(contains(obj)) return std::make_unique<LinSeg>(obj);
+    if(contains(obj)) return std::make_unique<LinSeg>(obj.vertices);
     if(glm::length(glm::cross(obj.dirVec(), normVec())) < 1e-5) return std::make_unique<Point>(obj.vertices[0].pos - normVec()*sign_dist(obj.vertices[0]));
     return obj.intersect(*project(obj));
 }
 
 std::unique_ptr<Point> Plane::intersect(const Plane &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    if(!obj.isSpace()) return obj.intersect(*this);
-    else if(contains(obj)) return std::make_unique<Plane>(obj);
+    else if(contains(obj)) return std::make_unique<Plane>(obj.vertices);
     std::unique_ptr<Point> x = obj.intersect(Line(vertices[0], vertices[1]));
     if(x == nullptr) x = obj.intersect(Line(vertices[0], vertices[2]));
     return std::make_unique<Line>(*x, Point(x->pos + glm::cross(normVec(), obj.normVec())));
+}
+
+std::unique_ptr<Point> Plane::intersect(const Polygon &obj) const {
+    if(obj.dist(*this) >= 1e-5) return nullptr;
+    else if(contains(obj)) return std::make_unique<Polygon>(obj.vertices);
+    std::vector<Point> points;
+    for(LinSeg edge: obj.edges){
+        std::unique_ptr<Point> inter = intersect(edge);
+        if(inter != nullptr && typeid(*inter) == typeid(vertices[0])) points.push_back(*inter);
+    }
+    std::vector<Point>::iterator p = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
+        return p1.equals(p2);
+    });
+    points.resize(std::distance(points.begin(), p));
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+}
+
+std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
+    // TODO: Implement this
+    return nullptr;
 }
 
 Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
@@ -234,18 +444,15 @@ Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
 }
 
 float Polygon::dist(const Point &obj) const {
-    if(obj.dim() == 0){
-        for(LinSeg edge: edges)
-            if(glm::dot(glm::cross(edge.vertices[1].pos - edge.vertices[0].pos, obj.pos - edge.vertices[0].pos), normVec()) < 0){
-                std::vector<float> distances;
-                std::transform(edges.begin(), edges.end(), std::back_inserter(distances), [&obj](LinSeg lin){
-                    return obj.dist(lin);
-                });
-                return *std::min_element(distances.begin(), distances.end());
-            }
-        return std::abs(glm::dot(normVec(), obj.pos - vertices[0].pos));
-    }
-    return obj.dist(*this);
+    for(LinSeg edge: edges)
+        if(glm::dot(glm::cross(edge.vertices[1].pos - edge.vertices[0].pos, obj.pos - edge.vertices[0].pos), normVec()) < 0){
+            std::vector<float> distances;
+            std::transform(edges.begin(), edges.end(), std::back_inserter(distances), [&obj](LinSeg lin){
+                return obj.dist(lin);
+            });
+            return *std::min_element(distances.begin(), distances.end());
+        }
+    return std::abs(glm::dot(normVec(), obj.pos - vertices[0].pos));
 }
 
 float Polygon::dist(const Line &obj) const {
@@ -289,9 +496,18 @@ float Polygon::dist(const Polygon &obj) const {
     return std::min(*std::min_element(dist1.begin(), dist1.end()), *std::min_element(dist2.begin(), dist2.end()));
 }
 
+float Polygon::dist(const Polyhedron &obj) const {
+    for(Point p: vertices) if(obj.contains(p)) return 0;
+    std::vector<float> distances;
+    std::transform(obj.faces.begin(), obj.faces.end(), std::back_inserter(distances), [this](Polygon face){
+        return face.dist(*this);
+    });
+    return *std::min_element(distances.begin(), distances.end());
+}
+
 std::unique_ptr<Point> Polygon::intersect(const Point &obj) const{
     if(dist(obj) >= 1e-5) return nullptr;
-    return obj.dim() == 0 ? std::make_unique<Point>(obj):obj.intersect(*this);
+    return std::make_unique<Point>(obj.pos);
 }
 
 std::unique_ptr<Point> Polygon::intersect(const Line &obj) const {
@@ -315,7 +531,7 @@ std::unique_ptr<Point> Polygon::intersect(const Line &obj) const {
 std::unique_ptr<Point> Polygon::intersect(const LinSeg &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
     else if(glm::length(glm::cross(obj.dirVec(), normVec())) < 1e-5) return std::make_unique<Point>(obj.vertices[0].pos - normVec()*sign_dist(obj.vertices[0]));
-    else if(contains(obj)) return std::make_unique<LinSeg>(obj);
+    else if(contains(obj)) return std::make_unique<LinSeg>(obj.vertices);
     if(std::abs(glm::dot(obj.dirVec(), normVec())) < 1e-5){
         std::vector<Point> points;
         if(contains(obj.vertices[0])) points.push_back(obj.vertices[0]);
@@ -330,12 +546,12 @@ std::unique_ptr<Point> Polygon::intersect(const LinSeg &obj) const {
         points.resize(std::distance(points.begin(), p));
         return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
     }
-    return obj.intersect(*project(obj));;
+    return obj.intersect(*project(obj));
 }
 
 std::unique_ptr<Point> Polygon::intersect(const Plane &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
-    else if(obj.contains(*this)) return std::make_unique<Polygon>(*this);
+    else if(obj.contains(*this)) return std::make_unique<Polygon>(this->vertices);
     std::vector<Point> points;
     for(LinSeg edge: edges){
         std::unique_ptr<Point> inter = obj.intersect(edge);
@@ -349,6 +565,11 @@ std::unique_ptr<Point> Polygon::intersect(const Plane &obj) const {
 }
 
 std::unique_ptr<Point> Polygon::intersect(const Polygon &obj) const {return std::make_unique<Point>();}
+
+std::unique_ptr<Point> Polygon::intersect(const Polyhedron &obj) const {
+    // TODO: This
+    return nullptr;
+}
 
 float Polygon::area() const {
     float area = 0;
@@ -455,7 +676,7 @@ float Polyhedron::dist(const Polyhedron &obj) const {
 }
 
 std::unique_ptr<Point> Polyhedron::intersect(const Point &obj) const {
-    return dist(obj) < 1e-5 ? std::make_unique<Point>(obj):nullptr;
+    return dist(obj) < 1e-5 ? std::make_unique<Point>(obj.pos):nullptr;
 }
 
 float Polyhedron::volume() const {
