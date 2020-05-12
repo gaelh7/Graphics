@@ -9,6 +9,41 @@
 #include "Graphics/shader.hpp"
 #include "Graphics/render.hpp"
 #include "Graphics/texture.hpp"
+#include "Graphics/camera.hpp"
+
+double xpos = 240, ypos = 240;
+float dt;
+bool start = true;
+Camera cam(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(90.f), 0.f);
+
+void mouse_callback(GLFWwindow* window, double x, double y){
+    if(start){
+        xpos = x;
+        ypos = y;
+        start = false;
+    }
+    double dx = x - xpos, dy = ypos - y;
+    xpos = x;
+    ypos = y;
+    cam.mouse_move((float)dx, (float)dy);
+}
+
+void scroll_callback(GLFWwindow* window, double dx, double dy){
+    cam.mouse_scroll((float)dy);
+}
+
+void input(GLFWwindow *window){
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cam.key_press(FORWARD, dt);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cam.key_press(LEFT, dt);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cam.key_press(BACKWARD, dt);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cam.key_press(RIGHT, dt);
+}
 
 int main(void)
 {
@@ -23,7 +58,9 @@ int main(void)
     // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(480, 480, "Hello World", NULL, NULL);
+    int width = 480;
+    int height = 480;
+    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -32,6 +69,12 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height){
+        int length = width < height ? width:height;
+        glViewport((width - length)/2, (height - length)/2, length, length);
+    });
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     glfwSwapInterval(0);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -40,9 +83,11 @@ int main(void)
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
 
     GLCALL(glEnable(GL_DEPTH_TEST));
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     {
     Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
+    std::cout << cam.front.x << ", " << cam.front.y << ", " << cam.front.z << std::endl;
 
     Texture tex(PROJECT_DIR "/res/textures/wall.png");
     Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
@@ -59,21 +104,8 @@ int main(void)
     Point p5({0, 0.8,0});
     Point p6({0, 0, 0.5});
 
-    std::cout << sizeof(Surface) << std::endl;
-
-    // trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-
-    // program.SetUniformMatrixf<4, 4>("trans", glm::value_ptr(trans1));
-
     Surface s1(p1, p3, p4, p2);
     Surface sLocal(s1.vertices);
-    // s1.trans_mat = glm::translate(s1.trans_mat, glm::vec3(0.001, -0.002 ,0));
-    // s1.transform();
-
-    // s1.vertex_color(0, 1, 0, 0, 0);
-    // s1.vertex_color(1, 0, 1, 0, 0.5);
-    // s1.vertex_color(2, 0, 0, 1, 0);
-    // s1.vertex_color(3, 1, 1, 1, 1);
     s1.tex_coord(0, 0, 0);
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);
@@ -98,12 +130,7 @@ int main(void)
     sol.model = glm::rotate(sol.model,1.f, glm::vec3(1.0, 0., 0.));
     s2.model = glm::rotate(s2.model,1.f, glm::vec3(1.0, 0., 0.));
 
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    glm::mat4 project = glm::mat4(1.0);
-    project = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-    program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(view));
-    program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
+
 
 
     int frames = 0;
@@ -117,13 +144,15 @@ int main(void)
         /* Render here */
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        input(window);
 
-        // std::cout << Point(s1.local().pos).dist(Point(sLocal.pos)) << "\r";
-        // std::cout << s1.local().equals(sLocal) << "\r";
-        // std::cout << s1.local() << "\r";
+        // cam.pitch += 0.1f;
+        // cam.update();
+        glm::mat4 project = glm::mat4(1.0);
+        project = glm::perspective(glm::radians(cam.zoom), 1.0f, 0.1f, 100.0f);
+        program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
+        program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(sol.model));
-        view = glm::rotate(view, 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
-        program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(view));
 
         // s1.bind();
         // s1.render();
@@ -148,6 +177,7 @@ int main(void)
         glfwPollEvents();
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        dt = duration.count()/1000000000.f;
         time += duration.count();
     }
     std::cout << std::endl;
