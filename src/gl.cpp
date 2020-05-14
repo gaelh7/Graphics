@@ -14,7 +14,7 @@
 double xpos = 240, ypos = 240;
 float dt;
 bool start = true;
-Camera cam(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(90.f), 0.f);
+Camera cam(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), 0.f);
 
 void mouse_callback(GLFWwindow* window, double x, double y){
     if(start){
@@ -75,6 +75,7 @@ int main(void)
     });
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSwapInterval(0);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -83,11 +84,11 @@ int main(void)
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
 
     GLCALL(glEnable(GL_DEPTH_TEST));
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     {
     Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
     std::cout << cam.front.x << ", " << cam.front.y << ", " << cam.front.z << std::endl;
+    std::cout << sizeof(cam) << std::endl;
 
     Texture tex(PROJECT_DIR "/res/textures/wall.png");
     Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
@@ -97,12 +98,12 @@ int main(void)
     program.SetUniformi("Texture2", 1);
 
 
-    Point p1({-0.5, -0.5, 0.0});
-    Point p2({0.5, -0.5, 0.0});
-    Point p3({0.5,  0.5, 0.0});
-    Point p4({-0.5, 0.5, 0.0});
-    Point p5({0, 0.8,0});
-    Point p6({0, 0, 0.5});
+    Point p1({-0.5, 0.0, -0.5});
+    Point p2({0.5, 0.0, -0.5});
+    Point p3({0.5, 0.0,  0.5});
+    Point p4({-0.5, 0.0, 0.5});
+    Point p5({0, 0, 0.8});
+    Point p6({0, 0.5, 0.0});
 
     Surface s1(p1, p3, p4, p2);
     Surface sLocal(s1.vertices);
@@ -127,11 +128,8 @@ int main(void)
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
     sol.reload();
-    sol.model = glm::rotate(sol.model,1.f, glm::vec3(1.0, 0., 0.));
-    s2.model = glm::rotate(s2.model,1.f, glm::vec3(1.0, 0., 0.));
-
-
-
+    sol.model = glm::rotate(sol.model, 0.5f, glm::vec3(1.0, 0., 0.));
+    s2.model = glm::rotate(s2.model, 0.5f, glm::vec3(1.0, 0., 0.));
 
     int frames = 0;
     long long time = 0;
@@ -149,7 +147,7 @@ int main(void)
         // cam.pitch += 0.1f;
         // cam.update();
         glm::mat4 project = glm::mat4(1.0);
-        project = glm::perspective(glm::radians(cam.zoom), 1.0f, 0.1f, 100.0f);
+        project = glm::perspective(cam.zoom, 1.0f, 0.1f, 100.0f);
         program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
         program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(sol.model));
@@ -163,11 +161,11 @@ int main(void)
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s2.model));
         s2.bind();
         s2.render();
-        s2.model = glm::translate(s2.model, glm::vec3(0.002,-0.001,0));
+        s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
 
         // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        std::cout << s2.world().dist(sol.world()) << "\t";
-        std::cout << sol.world().dist(s2.world()) << "\r";
+        std::cout << s2.world().dist(sol.world()) << "  \t";
+        std::cout << sol.world().dist(s2.world()) << "\t\r";
 
 
         /* Swap front and back buffers */

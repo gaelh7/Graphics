@@ -15,8 +15,8 @@ class Polyhedron;
 
 class Point {
     public:
-        std::vector<Point> vertices;
         glm::vec3 pos;
+        std::vector<Point> vertices;
         Point();
         Point(glm::vec3 pos);
         virtual unsigned int dim() const {return 0;}

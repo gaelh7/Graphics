@@ -11,8 +11,8 @@ enum Direction {
 class Camera {
     private:
         glm::vec3 worldUp;
+        inline void update();
     public:
-        void update();
         glm::vec3 pos, front, right, up;
         float yaw, pitch, speed, sensitivity, zoom;
         Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch);
