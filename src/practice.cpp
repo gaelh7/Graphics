@@ -25,6 +25,18 @@ int main(int argc, char* argv[])
     vector<int> v{1,2,3,4,5,6};
 
     PRINT;
+    std::shared_ptr<Point> t(new Point({0,0,0}));
+    // Point t({0,0,0});
+    std::shared_ptr<Point> t1(new Point({1,1,0}));
+    LinSeg t2 = LinSeg(t1, t);
+    {
+        LinSeg l(t, t1);
+        cout << t.use_count() << endl;
+    }
+    cout << *t2.pvertices[0] << ", " << *t2.pvertices[1] << endl;
+    t->pos += glm::vec3(2,2,0);
+    cout << *t2.pvertices[0] << ", " << *t2.pvertices[1] << endl;
+    cout << "--------------------" << endl;
     Point p1({-1,1,0});
     Point p2({1,1,0});
     Point p3({-1,-1,0});

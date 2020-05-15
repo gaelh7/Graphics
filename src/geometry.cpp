@@ -97,9 +97,18 @@ Line::Line(Point p1, Point p2){
     if(p1.equals(p2))
         throw std::invalid_argument("Inputs must have different positions");
     vertices = {p1, p2};
+    pvertices = {std::make_shared<Point>(p1.pos), std::make_shared<Point>(p1.pos)};
+}
+
+Line::Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2){
+    if(p1->equals(*p2))
+        throw std::invalid_argument("Inputs must have different positions");
+    pvertices = {p1, p2};
 }
 
 Line::Line(std::vector<Point> vert): Line(vert[0], vert[1]){}
+
+Line::Line(std::vector<std::shared_ptr<Point>> vert): Line(vert[0], vert[1]){}
 
 float Line::dist(const Point &obj) const {
     return glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1]));
@@ -206,7 +215,11 @@ float Line::angle(const Line &lobj, glm::vec3* axisptr = nullptr){
 
 LinSeg::LinSeg(Point p1, Point p2): Line(p1,p2){}
 
+LinSeg::LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2): Line(p1,p2){}
+
 LinSeg::LinSeg(std::vector<Point> vert): Line(vert[0], vert[1]){}
+
+LinSeg::LinSeg(std::vector<std::shared_ptr<Point>> vert): Line(vert[0], vert[1]){}
 
 float LinSeg::dist(const Point &obj) const {
     return glm::dot(obj.pos - vertices[0].pos, vertices[1].pos - vertices[0].pos) > 0 && glm::dot(obj.pos - vertices[1].pos, vertices[0].pos - vertices[1].pos) > 0 ? glm::length(glm::cross(vertices[0].pos - obj.pos, vertices[0].pos - vertices[1].pos) / vertices[0].dist(vertices[1])):std::min(obj.dist(vertices[0]), obj.dist(vertices[1]));
@@ -324,9 +337,17 @@ float LinSeg::length() const {
 Plane::Plane(Point p1, Point p2, Point p3){
     if(Line(p1, p2).contains(p3)) throw std::invalid_argument("Inputs cannot be collinear");
     vertices = {p1, p2, p3};
+    pvertices = {std::make_shared<Point>(p1.pos), std::make_shared<Point>(p2.pos), std::make_shared<Point>(p3.pos)};
+}
+
+Plane::Plane(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3){
+    if(Line(*p1, *p2).contains(*p3)) throw std::invalid_argument("Inputs cannot be collinear");
+    pvertices = {p1, p2, p3};
 }
 
 Plane::Plane(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){}
+
+Plane::Plane(std::vector<std::shared_ptr<Point>> vert): Plane(vert[0], vert[1], vert[2]){}
 
 glm::vec3 Plane::normVec() const {
     glm::vec3 vec = glm::cross(vertices[1].pos - vertices[0].pos, vertices[2].pos - vertices[0].pos);
@@ -424,6 +445,10 @@ std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
 
 Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
     vertices = vert;
+    pvertices.resize(vert.size());
+    std::transform(vert.begin(), vert.end(), pvertices.begin(), [](Point p){
+        return std::make_shared<Point>(p.pos);
+    });
     pos = {0, 0, 0};
     for(Point p: vertices) pos += p.pos;
     pos /= vertices.size();
@@ -438,6 +463,26 @@ Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
         if(i > 0 && edges[i].dirVec() == edges[i-1].dirVec() || i == vertices.size() - 1 && edges[i].dirVec() == edges[0].dirVec())
             throw std::invalid_argument("Inputs cannot be collinear");
         if(i > 0 && edges[i-1].angle(edges[i%edges.size()], &vec) > glm::pi<float>() || i == vertices.size() - 1 && edges[i].angle(edges[0], &vec) > glm::pi<float>())
+            throw std::invalid_argument("Inputs must define a convex polygon");
+    }
+}
+
+Polygon::Polygon(std::vector<std::shared_ptr<Point>> vert){
+    pvertices = vert;
+    pos = {0, 0, 0};
+    for(std::shared_ptr<Point> p: pvertices) pos += p->pos;
+    pos /= pvertices.size();
+    Point center{pos};
+    Line l{center, *pvertices[0]};
+    glm::vec3 vec = glm::cross(pvertices[0]->direction(*pvertices[1]), pvertices[0]->direction(*pvertices[2]));
+    std::sort(pvertices.begin(), pvertices.end(), [&l, &vec, &center](std::shared_ptr<Point> p1, std::shared_ptr<Point> p2){
+        return l.angle(Line(center, *p1), &vec) < l.angle(Line(center, *p2), &vec);
+    });
+    for(unsigned int i = 0; i < pvertices.size(); i++){
+        pedges.push_back(std::make_shared<LinSeg>(pvertices[i], pvertices[(i+1)%pvertices.size()]));
+        if(i > 0 && pedges[i]->dirVec() == pedges[i-1]->dirVec() || i == pvertices.size() - 1 && pedges[i]->dirVec() == pedges[0]->dirVec())
+            throw std::invalid_argument("Inputs cannot be collinear");
+        if(i > 0 && pedges[i-1]->angle(*pedges[i%pedges.size()], &vec) > glm::pi<float>() || i == pvertices.size() - 1 && pedges[i]->angle(*pedges[0], &vec) > glm::pi<float>())
             throw std::invalid_argument("Inputs must define a convex polygon");
     }
 }
@@ -578,6 +623,10 @@ float Polygon::area() const {
 
 Polyhedron::Polyhedron(std::vector<Point> vert){
     vertices = vert;
+    pvertices.resize(vert.size());
+    std::transform(vert.begin(), vert.end(), pvertices.begin(), [](Point p){
+        return std::make_shared<Point>(p.pos);
+    });
     pos = {0, 0, 0};
     for(Point p: vertices) pos += p.pos;
     pos /= vertices.size();
@@ -615,6 +664,47 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
         return std::find_if(edges.begin(), edges.end(), [&l1](LinSeg l2){return l1.equals(l2);}) == edges.end();
     });
     if(faces.size() + vertices.size() - edges.size() != 2) throw std::invalid_argument("Inputs must define a convex polyhedron");
+}
+
+Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
+    pvertices = vert;
+    pos = {0, 0, 0};
+    for(std::shared_ptr<Point> p: pvertices) pos += p->pos;
+    pos /= pvertices.size();
+    Point center{pos};
+    std::vector<std::vector<std::shared_ptr<Point>>> points;
+    for(unsigned int i = 3; i < pvertices.size(); i++){
+        std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(pvertices.begin(), pvertices.end(), i);
+        points.insert(points.end(), comb.begin(), comb.end());
+    }
+    for(std::vector<std::shared_ptr<Point>> v: points){
+        try{
+            std::shared_ptr<Polygon> face = std::make_shared<Polygon>(v);
+            if(face->sign_dist(center) < 0){
+                std::swap(v[1], v[2]);
+                face = std::make_shared<Polygon>(v);
+            }
+            std::vector<std::shared_ptr<Point>> vert_check;
+            std::copy_if(pvertices.begin(), pvertices.end(), std::back_inserter(vert_check), [&face](std::shared_ptr<Point> p){
+                return !face->contains(*p);
+            });
+            bool side = std::all_of(vert_check.begin(), vert_check.end(), [&face](std::shared_ptr<Point> p){
+                return face->sign_dist(*p) > 0;
+            });
+            bool subface = std::any_of(pfaces.begin(), pfaces.end(), [&face](std::shared_ptr<Polygon> f){
+                return face->contains(*f) && !f->contains(*face);
+            });
+            if(side && !subface) pfaces.push_back(face);
+        }
+        catch(std::invalid_argument){}
+    }
+    if(pfaces.size() == 0) throw std::invalid_argument("Inputs cannot be coplanar");
+    std::vector<std::shared_ptr<LinSeg>> lines;
+    for(std::shared_ptr<Polygon> face: pfaces) lines.insert(lines.end(), face->pedges.begin(), face->pedges.end());
+    std::copy_if(lines.begin(), lines.end(), std::back_inserter(pedges), [this](std::shared_ptr<LinSeg> l1){
+        return std::find_if(pedges.begin(), pedges.end(), [&l1](std::shared_ptr<LinSeg> l2){return l1->equals(*l2);}) == pedges.end();
+    });
+    if(pfaces.size() + pvertices.size() - pedges.size() != 2) throw std::invalid_argument("Inputs must define a convex polyhedron");
 }
 
 float Polyhedron::dist(const Point &obj) const {

@@ -106,7 +106,6 @@ int main(void)
     Point p6({0, 0.5, 0.0});
 
     Surface s1(p1, p3, p4, p2);
-    Surface sLocal(s1.vertices);
     s1.tex_coord(0, 0, 0);
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);

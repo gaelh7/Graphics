@@ -17,6 +17,7 @@ class Point {
     public:
         glm::vec3 pos;
         std::vector<Point> vertices;
+        std::vector<std::shared_ptr<Point>> pvertices;
         Point();
         Point(glm::vec3 pos);
         virtual unsigned int dim() const {return 0;}
@@ -40,9 +41,12 @@ class Point {
 
 class Line: public Point {
     public:
+        // std::vector<std::shared_ptr<Point>> pvertices;
         Line(){};
         Line(Point p1, Point p2);
+        Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         Line(std::vector<Point> vert);
+        Line(std::vector<std::shared_ptr<Point>> vert);
         unsigned int dim() const override {return 1;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
@@ -65,7 +69,9 @@ class LinSeg: public Line {
     public:
         LinSeg(){};
         LinSeg(Point p1, Point p2);
+        LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         LinSeg(std::vector<Point> vert);
+        LinSeg(std::vector<std::shared_ptr<Point>> vert);
         bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
@@ -84,9 +90,12 @@ class LinSeg: public Line {
 
 class Plane: public Point {
     public:
+        // std::vector<std::shared_ptr<Point>> pvertices;
         Plane(){};
         Plane(Point p1, Point p2, Point p3);
         Plane(std::vector<Point> vert);
+        Plane(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3);
+        Plane(std::vector<std::shared_ptr<Point>> vert);
         unsigned int dim() const override {return 2;}
         glm::vec3 normVec() const;
         std::unique_ptr<Point> project(const Point &obj) const;
@@ -114,10 +123,14 @@ class Plane: public Point {
 class Polygon: public Plane {
     public:
         std::vector<LinSeg> edges;
+        std::vector<std::shared_ptr<LinSeg>> pedges;
         Polygon(){};
         template <typename... Points>
         Polygon(Point p1, Point p2, Point p3, Points... args): Polygon(std::vector<Point>{p1, p2, p3, args...}){};
         Polygon(std::vector<Point> vert);
+        template <typename... Points>
+        Polygon(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, Points... args): Polygon(std::vector<std::shared_ptr<Point>>{p1, p2, p3, args...}){};
+        Polygon(std::vector<std::shared_ptr<Point>> vert);
         bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
@@ -136,12 +149,18 @@ class Polygon: public Plane {
 
 class Polyhedron: public Point {
     public:
+        // std::vector<std::shared_ptr<Point>> pvertices;
         std::vector<LinSeg> edges;
+        std::vector<std::shared_ptr<LinSeg>> pedges;
         std::vector<Polygon> faces;
+        std::vector<std::shared_ptr<Polygon>> pfaces;
         Polyhedron(){};
         template <typename... Points>
         Polyhedron(Point p1, Point p2, Point p3, Point p4, Points... args): Polyhedron(std::vector<Point>{p1, p2, p3, p4, args...}){};
         Polyhedron(std::vector<Point> vert);
+        template <typename... Points>
+        Polyhedron(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, std::shared_ptr<Point> p4, Points... args): Polyhedron(std::vector<std::shared_ptr<Point>>{p1, p2, p3, p4, args...}){};
+        Polyhedron(std::vector<std::shared_ptr<Point>> vert);
         unsigned int dim() const override {return 3;}
         bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
