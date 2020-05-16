@@ -30,9 +30,9 @@ void Visual::tex_coord(const unsigned int vertex, const float x, const float y){
 Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
     VBO_DATA = new float[stride*vertices.size()];
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] = vertices[i/stride].pos.x;
-        VBO_DATA[i + 1] = vertices[i/stride].pos.y;
-        VBO_DATA[i + 2] = vertices[i/stride].pos.z;
+        VBO_DATA[i] = vertices[i/stride]->pos.x;
+        VBO_DATA[i + 1] = vertices[i/stride]->pos.y;
+        VBO_DATA[i + 2] = vertices[i/stride]->pos.z;
         VBO_DATA[i + 3] = 1;
         VBO_DATA[i + 4] = 1;
         VBO_DATA[i + 5] = 1;
@@ -75,7 +75,7 @@ Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
 Surface Surface::world(){
     std::vector<Point> vert(vertices.size());
     for(unsigned int i = 0; i < vertices.size(); i++){
-        vert[i].pos = (model*glm::vec4(vertices[i].pos, 1.0));
+        vert[i].pos = (model*glm::vec4(vertices[i]->pos, 1.0));
     }
     return Surface(vert);
 }
@@ -100,9 +100,9 @@ void Surface::set_color(const float r, const float g, const float b, const float
 Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     VBO_DATA = new float[stride*vertices.size()];
     for(unsigned int i = 0; i < stride*vertices.size(); i+=stride){
-        VBO_DATA[i] = vertices[i/stride].pos.x;
-        VBO_DATA[i + 1] = vertices[i/stride].pos.y;
-        VBO_DATA[i + 2] = vertices[i/stride].pos.z;
+        VBO_DATA[i] = vertices[i/stride]->pos.x;
+        VBO_DATA[i + 1] = vertices[i/stride]->pos.y;
+        VBO_DATA[i + 2] = vertices[i/stride]->pos.z;
         VBO_DATA[i + 3] = 1;
         VBO_DATA[i + 4] = 1;
         VBO_DATA[i + 5] = 1;
@@ -111,21 +111,21 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
         VBO_DATA[i + 8] = 0;
     }
     indices = 0;
-    for(Polygon face: faces){
-        indices += 3*(face.vertices.size() - 2);
+    for(std::shared_ptr<Polygon> face: faces){
+        indices += 3*(face->vertices.size() - 2);
     }
     IBO_DATA = new unsigned int[indices];
     int j = 0;
-    for(Polygon face: faces){
-        for(unsigned int i = 0; i < (face.vertices.size() - 2); i++){
-            auto it1 = std::find_if(vertices.begin(), vertices.end(), [&face, i](Point p){
-                return face.vertices[0].equals(p);
+    for(std::shared_ptr<Polygon> face: faces){
+        for(unsigned int i = 0; i < (face->vertices.size() - 2); i++){
+            auto it1 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+                return face->vertices[0]->equals(*p);
             });
-            auto it2 = std::find_if(vertices.begin(), vertices.end(), [&face, i](Point p){
-                return face.vertices[i + 1].equals(p);
+            auto it2 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+                return face->vertices[i + 1]->equals(*p);
             });
-            auto it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](Point p){
-                return face.vertices[i + 2].equals(p);
+            auto it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+                return face->vertices[i + 2]->equals(*p);
             });
             IBO_DATA[j++] = std::distance(vertices.begin(), it1);
             IBO_DATA[j++] = std::distance(vertices.begin(), it2);
@@ -161,7 +161,7 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
 Solid Solid::world(){
     std::vector<Point> vert(vertices.size());
     for(unsigned int i = 0; i < vertices.size(); i++){
-        vert[i].pos = (model*glm::vec4(vertices[i].pos, 1.0));
+        vert[i].pos = (model*glm::vec4(vertices[i]->pos, 1.0));
     }
     return Solid(vert);
 }

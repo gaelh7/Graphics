@@ -16,8 +16,7 @@ class Polyhedron;
 class Point {
     public:
         glm::vec3 pos;
-        std::vector<Point> vertices;
-        std::vector<std::shared_ptr<Point>> pvertices;
+        std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);
         virtual unsigned int dim() const {return 0;}
@@ -41,7 +40,6 @@ class Point {
 
 class Line: public Point {
     public:
-        // std::vector<std::shared_ptr<Point>> pvertices;
         Line(){};
         Line(Point p1, Point p2);
         Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
@@ -90,7 +88,6 @@ class LinSeg: public Line {
 
 class Plane: public Point {
     public:
-        // std::vector<std::shared_ptr<Point>> pvertices;
         Plane(){};
         Plane(Point p1, Point p2, Point p3);
         Plane(std::vector<Point> vert);
@@ -102,7 +99,7 @@ class Plane: public Point {
         template<typename T>
         std::unique_ptr<T> project(const T &obj) const {
             std::vector<Point> v;
-            for(Point p: obj.vertices) v.push_back(*project(p));
+            for(std::shared_ptr<Point> p: obj.vertices) v.push_back(*project(*p));
             return std::unique_ptr<T>(new T(v));
         }
         float sign_dist(const Point &obj) const;
@@ -122,8 +119,7 @@ class Plane: public Point {
 
 class Polygon: public Plane {
     public:
-        std::vector<LinSeg> edges;
-        std::vector<std::shared_ptr<LinSeg>> pedges;
+        std::vector<std::shared_ptr<LinSeg>> edges;
         Polygon(){};
         template <typename... Points>
         Polygon(Point p1, Point p2, Point p3, Points... args): Polygon(std::vector<Point>{p1, p2, p3, args...}){};
@@ -149,11 +145,8 @@ class Polygon: public Plane {
 
 class Polyhedron: public Point {
     public:
-        // std::vector<std::shared_ptr<Point>> pvertices;
-        std::vector<LinSeg> edges;
-        std::vector<std::shared_ptr<LinSeg>> pedges;
-        std::vector<Polygon> faces;
-        std::vector<std::shared_ptr<Polygon>> pfaces;
+        std::vector<std::shared_ptr<LinSeg>> edges;
+        std::vector<std::shared_ptr<Polygon>> faces;
         Polyhedron(){};
         template <typename... Points>
         Polyhedron(Point p1, Point p2, Point p3, Point p4, Points... args): Polyhedron(std::vector<Point>{p1, p2, p3, p4, args...}){};
@@ -179,10 +172,10 @@ class Polyhedron: public Point {
 };
 
 static std::ostream& operator<<(std::ostream &strm, const Point &p){
-    if(p.vertices.size() == 1)
+    if(p.vertices.size() == 0)
         return strm << "Point(" << p.pos.x << ", " << p.pos.y << ", " << p.pos.z << ")";
     strm << typeid(p).name() << '(';
     for(unsigned int i = 0; i < p.vertices.size() - 1; i++)
-        strm << p.vertices[i] << ", ";
-    return strm << p.vertices[p.vertices.size() - 1] << ")";
+        strm << *p.vertices[i] << ", ";
+    return strm << *p.vertices[p.vertices.size() - 1] << ")";
 };

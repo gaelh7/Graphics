@@ -14,10 +14,10 @@
 using namespace std;
 
 template <typename T>
-std::ostream& operator<<(std::ostream &strm, const vector<T> &v){
+std::ostream& operator<<(std::ostream &strm, const vector<std::shared_ptr<T>> &v){
     strm << "{";
-    for(unsigned int i = 0; i < v.size() - 1; i++) strm << v[i] << ", \n";
-    return strm << v[v.size() - 1] << "}";
+    for(unsigned int i = 0; i < v.size() - 1; i++) strm << *v[i] << ", \n";
+    return strm << *v[v.size() - 1] << "}";
 }
 
 int main(int argc, char* argv[])
@@ -33,9 +33,10 @@ int main(int argc, char* argv[])
         LinSeg l(t, t1);
         cout << t.use_count() << endl;
     }
-    cout << *t2.pvertices[0] << ", " << *t2.pvertices[1] << endl;
+    cout << *t << endl;
+    cout << *t2.vertices[0] << ", " << *t2.vertices[1] << endl;
     t->pos += glm::vec3(2,2,0);
-    cout << *t2.pvertices[0] << ", " << *t2.pvertices[1] << endl;
+    cout << *t2.vertices[0] << ", " << *t2.vertices[1] << endl;
     cout << "--------------------" << endl;
     Point p1({-1,1,0});
     Point p2({1,1,0});
