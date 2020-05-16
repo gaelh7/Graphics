@@ -4,13 +4,53 @@
 #include <vector>
 #include <memory>
 #include <glm/ext/vector_float3.hpp>
-#include <glm/geometric.hpp>
 
+/**
+ * @brief Defines a point in 3D space.
+ *
+ * Used as a building block to construct more complex
+ * shapes (Line, Polygon, etc). Can be passed to
+ * those objects by value, or through a shared pointer.
+ * Passing by value will allow objects to copy it,
+ * passing by pointer will have the objects store a
+ * shared pointer to the same point.
+ */
 class Point;
+
+/**
+ * Defines a line in 3D space from two points objects.
+ */
 class Line;
+
+/**
+ * Defines a line segment in 3D space from two points.
+ */
 class LinSeg;
+
+/**
+ * Defines a plane in 3D space from three points.
+ */
 class Plane;
+
+/**
+ * @brief Define a convex polygon in 3D space from any number of given points.
+ *
+ * The order in which the points are stored is counterclockwise
+ * around the first input. Counterclockwise is defined by the
+ * Polygon's normal vector as defined by the first three input points.
+ * Polygon's also store a vector of pointers to line segments going
+ * counterclockwise. The line segments vertices are pointers to the same
+ * in the polygon.
+ */
 class Polygon;
+
+/**
+ * @brief Define a convex polyhedron from any number of given points.
+ *
+ * Unlike Polygons, the vertices are stored in no particular order,
+ * but are used to define a set of LinSeg and Polygon objects
+ * which are used for certain calculations.
+ */
 class Polyhedron;
 
 class Point {

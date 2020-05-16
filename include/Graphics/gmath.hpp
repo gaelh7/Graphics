@@ -9,7 +9,8 @@
  * @param val Number to find the sign of.
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
-static constexpr int sign(const float val) {
+template<typename T>
+static constexpr int sign(const T val) {
     return (0 < val) - (val < 0);
 };
 

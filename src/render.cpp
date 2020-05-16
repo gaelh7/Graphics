@@ -112,7 +112,7 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     }
     indices = 0;
     for(std::shared_ptr<Polygon> face: faces){
-        indices += 3*(face->vertices.size() - 2);
+        indices += (unsigned int)(3*(face->vertices.size() - 2));
     }
     IBO_DATA = new unsigned int[indices];
     int j = 0;
@@ -127,9 +127,9 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
             auto it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
                 return face->vertices[i + 2]->equals(*p);
             });
-            IBO_DATA[j++] = std::distance(vertices.begin(), it1);
-            IBO_DATA[j++] = std::distance(vertices.begin(), it2);
-            IBO_DATA[j++] = std::distance(vertices.begin(), it3);
+            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it1);
+            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it2);
+            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it3);
         }
     }
     int VBO_RESET;

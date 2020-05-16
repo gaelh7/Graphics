@@ -32,8 +32,10 @@ include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR})
 
 # target
 add_library(Graphics STATIC ${HEADERS} ${SOURCES})
-add_executable(main ${SRC_DIR}/practice.cpp ${SOURCES})
-add_executable(gl ${SRC_DIR}/gl.cpp ${SOURCES})
+add_executable(main ${SRC_DIR}/practice.cpp)
+add_executable(gl ${SRC_DIR}/gl.cpp)
+target_link_libraries(gl Graphics)
+target_link_libraries(main Graphics)
 
 # dependencies
 add_subdirectory(${GLFW_DIR})
@@ -42,25 +44,7 @@ add_subdirectory(${XTL_DIR})
 add_subdirectory(${XTENSOR_DIR})
 
 target_link_libraries(Graphics glfw ${GLFW_LIBRARIES})
-target_link_libraries(main glfw ${GLFW_LIBRARIES})
-target_link_libraries(gl glfw ${GLFW_LIBRARIES})
-
-
 target_link_libraries(Graphics glad)
-target_link_libraries(main glad)
-target_link_libraries(gl glad)
-
-
 target_link_libraries(Graphics xtl ${XTL_LIBRARIES})
-target_link_libraries(main xtl ${XTL_LIBRARIES})
-target_link_libraries(gl xtl ${XTL_LIBRARIES})
-
-
 target_link_libraries(Graphics xtensor ${XTENSOR_LIBARIES})
-target_link_libraries(main xtensor ${XTENSOR_LIBARIES})
-target_link_libraries(gl xtensor ${XTENSOR_LIBARIES})
-
-
 target_link_libraries(Graphics ${OPENGL_LIBRARIES})
-target_link_libraries(main ${OPENGL_LIBRARIES})
-target_link_libraries(gl ${OPENGL_LIBRARIES})

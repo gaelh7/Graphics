@@ -117,8 +117,7 @@ float Line::dist(const Line &obj) const {
 float Line::dist(const LinSeg &obj) const {
     glm::vec3 c = glm::cross(dirVec(), obj.dirVec());
     if(glm::length2(c) < 1e-5) return dist(*obj.vertices[0]);
-    // glm::determinant(glm::mat3(obj.vertices[0]->pos - vertices[0]->pos, dirVec(), c));
-    float t = det(obj.vertices[0]->pos - vertices[0]->pos, dirVec(), c)/glm::length2(c);
+    float t = glm::determinant(glm::mat3(obj.vertices[0]->pos - vertices[0]->pos, dirVec(), c))/glm::length2(c);
     return t < 0 || t > glm::distance(obj.vertices[1]->pos, obj.vertices[0]->pos) ? std::min(dist(*obj.vertices[0]), dist(*obj.vertices[1])):dist((Line)obj);
 }
 
@@ -205,7 +204,7 @@ std::unique_ptr<Point> Line::project(const Point &obj) const {
 float Line::angle(const Line &lobj, glm::vec3* axisptr = nullptr){
     glm::vec3 axis = axisptr == nullptr ? glm::cross(dirVec(), lobj.dirVec()):*axisptr;
     axis = glm::normalize(axis);
-    float theta{std::atan2(det(dirVec(), lobj.dirVec(), axis), glm::dot(dirVec(), lobj.dirVec()))};
+    float theta{std::atan2(glm::determinant(glm::mat3(dirVec(), lobj.dirVec(), axis)), glm::dot(dirVec(), lobj.dirVec()))};
     return theta >= 0 ? theta:theta + 2*glm::pi<float>();
 }
 
@@ -224,7 +223,7 @@ float LinSeg::dist(const Point &obj) const {
 float LinSeg::dist(const Line &obj) const {
     glm::vec3 c = glm::cross(obj.dirVec(), dirVec());
     if(glm::length2(c) < 1e-5) return obj.dist(*vertices[0]);
-    float t = det(vertices[0]->pos - obj.vertices[0]->pos, obj.dirVec(), c)/glm::length2(c);
+    float t = glm::determinant(glm::mat3(vertices[0]->pos - obj.vertices[0]->pos, obj.dirVec(), c))/glm::length2(c);
     return t < 0 || t > glm::distance(vertices[1]->pos, vertices[0]->pos) ? std::min(obj.dist(*vertices[0]), obj.dist(*vertices[1])):obj.dist((Line)*this);
 }
 
@@ -232,8 +231,8 @@ float LinSeg::dist(const LinSeg &obj) const {
     glm::vec3 c = glm::cross(dirVec(), obj.dirVec());
     glm::vec3 t = obj.vertices[0]->pos - vertices[0]->pos;
     float c_squared = glm::length2(c);
-    float t0 = det(t, obj.dirVec(), c)/c_squared;
-    float t1 = det(t, dirVec(), c)/c_squared;
+    float t0 = glm::determinant(glm::mat3(t, obj.dirVec(), c))/c_squared;
+    float t1 = glm::determinant(glm::mat3(t, dirVec(), c))/c_squared;
     if(glm::length2(c) < 1e-5 || t0 < 0 || t0 > length()) return std::min(obj.dist(*vertices[0]), obj.dist(*vertices[1]));
     else if(t1 < 0 || t1 > obj.length()) return std::min(dist(*obj.vertices[0]), dist(*obj.vertices[1]));
     return std::abs(glm::dot(c, vertices[0]->pos - obj.vertices[1]->pos))/glm::length(c);

@@ -2,7 +2,8 @@
 #include <string>
 #include <chrono>
 #include <array>
-#include "xtensor/xarray.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Graphics/geometry.hpp"
 
 #ifdef GH_DEBUG
@@ -23,7 +24,6 @@ std::ostream& operator<<(std::ostream &strm, const vector<std::shared_ptr<T>> &v
 int main(int argc, char* argv[])
 {
     vector<int> v{1,2,3,4,5,6};
-
     PRINT;
     std::shared_ptr<Point> t(new Point({0,0,0}));
     // Point t({0,0,0});
