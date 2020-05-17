@@ -54,7 +54,16 @@ int main(int argc, char* argv[])
 
 
     Polygon x(p6,p7,p8,p9);
+
+    auto ptr = std::make_shared<int>(1);
+    auto ptr1 = ptr;
+    auto ptr2 = ptr;
+    cout << ptr2.use_count() << endl;
+
     Polyhedron y(p1,p2,p3,p4,p5);
+
+    cout << *y.vertices[0] << endl;
+    cout << y.vertices[0].use_count() << endl;
 
     cout << "Point: " << sizeof(Point) << " bytes" << endl;
     cout << "Line: " << sizeof(Line) << " bytes" << endl;

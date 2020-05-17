@@ -61,8 +61,8 @@ Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
     GLCALL(glEnableVertexAttribArray(1));
     GLCALL(glEnableVertexAttribArray(2));
     GLCALL(glVertexAttribPointer(0, 3, GL_FLOAT, false, stride*sizeof(float), nullptr));
-    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (const void*)(3*sizeof(float))));
-    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (const void*)(7*sizeof(float))));
+    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (void*)(3*sizeof(float))));
+    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (void*)(7*sizeof(float))));
 
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));
@@ -147,8 +147,8 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     GLCALL(glEnableVertexAttribArray(1));
     GLCALL(glEnableVertexAttribArray(2));
     GLCALL(glVertexAttribPointer(0, 3, GL_FLOAT, false, stride*sizeof(float), nullptr));
-    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (const void*)(3*sizeof(float))));
-    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (const void*)(7*sizeof(float))));
+    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, stride*sizeof(float), (void*)(3*sizeof(float))));
+    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, stride*sizeof(float), (void*)(7*sizeof(float))));
 
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));

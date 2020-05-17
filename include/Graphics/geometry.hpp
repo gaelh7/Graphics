@@ -99,7 +99,7 @@ class Line: public Point {
         std::unique_ptr<Point> intersect(const Polygon &obj) const override;
         std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         glm::vec3 dirVec() const;
-        std::unique_ptr<Point> project(const Point &obj) const;
+        Point project(const Point &obj) const;
         float angle(const Line &lobj, glm::vec3* axisptr);
 };
 
@@ -135,12 +135,14 @@ class Plane: public Point {
         Plane(std::vector<std::shared_ptr<Point>> vert);
         unsigned int dim() const override {return 2;}
         glm::vec3 normVec() const;
-        std::unique_ptr<Point> project(const Point &obj) const;
+        Point project(const Point &obj) const;
         template<typename T>
-        std::unique_ptr<T> project(const T &obj) const {
-            std::vector<Point> v;
-            for(std::shared_ptr<Point> p: obj.vertices) v.push_back(*project(*p));
-            return std::unique_ptr<T>(new T(v));
+        T project(const T &obj) const {
+            std::vector<Point> v(obj.vertices.size());
+            std::transform(obj.vertices.begin(), obj.vertices.end(), v.begin(), [this](std::shared_ptr<Point> p){
+                return project(*p);
+            });
+            return T(v);
         }
         float sign_dist(const Point &obj) const;
         float dist(const Point &obj) const override;

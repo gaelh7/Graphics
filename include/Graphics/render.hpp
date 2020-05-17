@@ -33,7 +33,7 @@ class Surface: public Visual, public Polygon{
         void reload();
         void set_color(const float r, const float g, const float b, const float a);
         inline void render() const {
-            GLCALL(glDrawElements(GL_TRIANGLES, (GLsizei)(3*(vertices.size() - 2)), GL_UNSIGNED_INT, nullptr));
+            GLCALL(glDrawElements(GL_TRIANGLES, 3*((int)vertices.size() - 2), GL_UNSIGNED_INT, nullptr));
         }
         void VBO_PRINT() const {
             for(unsigned int i = 0; i < vertices.size(); i++){
