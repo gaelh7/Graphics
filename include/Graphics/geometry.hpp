@@ -59,8 +59,8 @@ class Point {
         std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);
-        virtual unsigned int dim() const {return 0;}
-        virtual bool isSpace() const {return true;}
+        inline virtual unsigned int dim() const {return 0;}
+        inline virtual bool isSpace() const {return true;}
         virtual float dist(const Point &obj) const;
         virtual float dist(const Line &obj) const;
         virtual float dist(const LinSeg &obj) const;
@@ -85,7 +85,7 @@ class Line: public Point {
         Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         Line(std::vector<Point> vert);
         Line(std::vector<std::shared_ptr<Point>> vert);
-        unsigned int dim() const override {return 1;}
+        inline unsigned int dim() const override {return 1;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;
@@ -110,7 +110,7 @@ class LinSeg: public Line {
         LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         LinSeg(std::vector<Point> vert);
         LinSeg(std::vector<std::shared_ptr<Point>> vert);
-        bool isSpace() const override {return false;}
+        inline bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;
@@ -133,7 +133,7 @@ class Plane: public Point {
         Plane(std::vector<Point> vert);
         Plane(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3);
         Plane(std::vector<std::shared_ptr<Point>> vert);
-        unsigned int dim() const override {return 2;}
+        inline unsigned int dim() const override {return 2;}
         glm::vec3 normVec() const;
         Point project(const Point &obj) const;
         template<typename T>
@@ -169,7 +169,7 @@ class Polygon: public Plane {
         template <typename... Points>
         Polygon(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, Points... args): Polygon(std::vector<std::shared_ptr<Point>>{p1, p2, p3, args...}){};
         Polygon(std::vector<std::shared_ptr<Point>> vert);
-        bool isSpace() const override {return false;}
+        inline bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;
@@ -196,8 +196,8 @@ class Polyhedron: public Point {
         template <typename... Points>
         Polyhedron(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, std::shared_ptr<Point> p4, Points... args): Polyhedron(std::vector<std::shared_ptr<Point>>{p1, p2, p3, p4, args...}){};
         Polyhedron(std::vector<std::shared_ptr<Point>> vert);
-        unsigned int dim() const override {return 3;}
-        bool isSpace() const override {return false;}
+        inline unsigned int dim() const override {return 3;}
+        inline bool isSpace() const override {return false;}
         float dist(const Point &obj) const override;
         float dist(const Line &obj) const override;
         float dist(const LinSeg &obj) const override;

@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Graphics/geometry.hpp"
 
-#ifdef GH_DEBUG
+#ifndef NDEBUG
     #define PRINT std::cout << "Debug Mode" << std::endl
 #else
     #define PRINT std::cout << "Release Mode" << std::endl
@@ -38,6 +38,8 @@ int main(int argc, char* argv[])
     t->pos += glm::vec3(2,2,0);
     cout << *t2.vertices[0] << ", " << *t2.vertices[1] << endl;
     cout << "--------------------" << endl;
+    LinSeg a(glm::vec3(1,1,1), glm::vec3(2,2,2));
+    cout << a << endl;
     Point p1({-1,1,0});
     Point p2({1,1,0});
     Point p3({-1,-1,0});

@@ -4,7 +4,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <Graphics/log.hpp>
+#include "Graphics/log.hpp"
 
 struct ShaderSource{
     std::string VertexShader, FragmentShader;
@@ -121,7 +121,7 @@ class Shader{
                 case 3:
                     switch (row) {
                         case 2:
-                            glUniformMatrix3x4dv(glGetUniformLocation(id, uniform), 1, transpose, data);
+                            glUniformMatrix3x2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
                         case 3:
                             glUniformMatrix3dv(glGetUniformLocation(id, uniform), 1, transpose, data);

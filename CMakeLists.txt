@@ -4,7 +4,7 @@ project(Graphics VERSION 1.0)
 
 # flags
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(GH_DEBUG)
+    add_compile_definitions(GH_DEBUG=1)
 endif()
 add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 add_compile_definitions(GLM_FORCE_SWIZZLE)
@@ -23,7 +23,7 @@ set(STB_DIR ${LIB_DIR}/stb_image)
 set(GLM_DIR ${LIB_DIR}/glm)
 find_package(OpenGL 3.3 REQUIRED)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
-set(SOURCES ${SRC_DIR}/shader.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp ${SRC_DIR}/texture.cpp ${SRC_DIR}/camera.cpp)
+set(SOURCES ${SRC_DIR}/shader.cpp ${SRC_DIR}/geometry.cpp ${SRC_DIR}/render.cpp ${SRC_DIR}/texture.cpp ${SRC_DIR}/camera.cpp ${SRC_DIR}/collision.cpp)
 file(GLOB HEADERS ${INC_DIR}/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 

@@ -10,11 +10,14 @@
 #include "Graphics/render.hpp"
 #include "Graphics/texture.hpp"
 #include "Graphics/camera.hpp"
+#include "Graphics/gmath.hpp"
+#include "Graphics/collision.hpp"
 
 double xpos = 240, ypos = 240;
 float dt;
 bool start = true;
-Camera cam(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), 0.f);
+Camera cam(glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f));
+CHandler chandle;
 
 void mouse_callback(GLFWwindow* window, double x, double y){
     if(start){
@@ -117,18 +120,28 @@ int main(void)
     s2.tex_coord(1, 0, 0.8f);
     s2.tex_coord(2, 0.5, 1);
     s2.reload();
+    chandle.add(&s2);
 
     // s2.transform(glm::translate(glm::mat4(1.0), glm::vec3(2.0,-1.,0)));
+    Surface s3(glm::vec3(10, -5, 2), glm::vec3(10, -5, -2), glm::vec3(10, 5, 2), glm::vec3(10, 5, -2));
+    s3.tex_coord(0, 0, 0);
+    s3.tex_coord(1, 1, 0);
+    s3.tex_coord(2, 1, 1);
+    s3.tex_coord(3, 0, 1);
+    chandle.add(&s3);
+    s3.reload();
 
-    Solid sol(p1, p2, p3, p4, p6);
+    Solid sol = Solid(p1, p2, p3, p4, p6);
     sol.tex_coord(0, 0, 0);
     sol.tex_coord(1, 1, 0);
     sol.tex_coord(2, 1, 1);
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
+    chandle.add(&sol);
     sol.reload();
-    sol.model = glm::rotate(sol.model, 0.5f, glm::vec3(1.0, 0., 0.));
-    s2.model = glm::rotate(s2.model, 0.5f, glm::vec3(1.0, 0., 0.));
+    // sol.model = glm::rotate(sol.model, 0.5f, glm::vec3(1.0, 0., 0.));
+    // s2.model = glm::rotate(s2.model, 0.5f, glm::vec3(1.0, 0., 0.));
+    // sol.vel = glm::vec3(0.5,0.,0);
 
     int frames = 0;
     long long time = 0;
@@ -142,6 +155,15 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         input(window);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            sol.vel = glm::vec3(0, 3, 0);
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            sol.vel = glm::vec3(0, -3, 0);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            sol.vel = glm::vec3(-3, 0, 0);
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            sol.vel = glm::vec3(3, 0, 0);
+        chandle();
 
         // cam.pitch += 0.1f;
         // cam.update();
@@ -156,15 +178,26 @@ int main(void)
         // s1.transform();
         sol.bind();
         sol.render();
+        sol.update(dt);
+
+        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s3.model));
+        s3.bind();
+        s3.render();
 
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s2.model));
         s2.bind();
         s2.render();
-        s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
+        // s2.update(dt);
+        // s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
 
         // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        std::cout << s2.world().dist(sol.world()) << "  \t";
-        std::cout << sol.world().dist(s2.world()) << "\t\r";
+        auto ptr = Plane(s3.vertices[0], s3.vertices[1], s3.vertices[2]).intersect(sol);
+        if(ptr)
+            std::cout << *Plane(s3.vertices[0], s3.vertices[1], s3.vertices[2]).intersect(sol) << "\t\t\t\r";
+        else
+            std::cout << 0 << "\r";
+        // std::cout << s3.dist(sol) << "  \t";
+        // std::cout << sol.dist(s3) << "\t\t\t\r";
 
 
         /* Swap front and back buffers */

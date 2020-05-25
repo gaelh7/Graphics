@@ -1,7 +1,7 @@
 #pragma once
 
-#include "xtensor/xfixed.hpp"
-#include "vector"
+#include <vector>
+#include <array>
 
 /**
  * Sign of a number.
