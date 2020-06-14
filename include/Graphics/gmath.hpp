@@ -41,7 +41,7 @@ std::vector<std::vector<T>> combinations(iter first, iter last, int k){
     }
     for(iter i = first; i != last; i++){
         std::vector<T> next;
-        for(std::vector<T> end: combinations<T>(i+1, last, k-1)){
+        for(std::vector<T> end: combinations<T>(std::next(i, 1), last, k-1)){
             next = {*i};
             next.insert(next.end(), end.begin(), end.end());
             out.push_back(next);

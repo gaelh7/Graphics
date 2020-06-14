@@ -9,19 +9,25 @@ struct Physical {
     Point* obj;
     float mass;
     bool fixed;
-    bool operator<(const Physical& p){
-        if(obj->dim() == p.obj->dim()) return obj->isSpace() < p.obj->isSpace();
-        return obj->dim() < p.obj->dim();
+    Point* operator->(){
+        return obj;
     }
 };
 
-static bool operator<(const Physical& p1, const Physical& p2){
-    if(p1.obj->dim() == p2.obj->dim()) return p1.obj->isSpace() < p2.obj->isSpace();
-    return p1.obj->dim() < p2.obj->dim();
+template<>
+struct std::hash<Physical>{
+    size_t operator()(const Physical& p) const {
+        return std::hash<Point>()(*p.obj);
+    }
+};
+
+static bool operator==(const Physical& p1, const Physical& p2){
+    std::hash<Physical> h;
+    return h(p1) == h(p2);
 }
 
 class CHandler {
-    std::vector<Physical> _tangible;
+    std::unordered_set<Physical> tangible;
     std::vector<std::vector<Physical>> get_check() const;
     public:
         CHandler();
