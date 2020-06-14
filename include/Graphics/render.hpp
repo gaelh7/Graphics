@@ -21,7 +21,6 @@ class Visual {
         unsigned int* IBO_DATA;
     public:
         glm::mat4 model{1.0f};
-        glm::vec3 vel{0.0f, 0.0f, 0.0f};
         Visual();
         ~Visual();
         virtual void update(float dt) = 0;

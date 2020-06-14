@@ -16,7 +16,7 @@
 double xpos = 240, ypos = 240;
 float dt;
 bool start = true;
-Camera cam(glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f));
+Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
 CHandler chandle;
 
 void mouse_callback(GLFWwindow* window, double x, double y){
@@ -106,21 +106,23 @@ int main(void)
     Point p3({0.5, 0.0,  0.5});
     Point p4({-0.5, 0.0, 0.5});
     Point p5({0, 0, 0.8});
-    Point p6({0, 0.5, 0.0});
+    Point p6({0.5, 0.5, 0.0});
 
-    Surface s1(p1, p3, p4, p2);
+    Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
     s1.tex_coord(0, 0, 0);
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);
     s1.tex_coord(3, 0, 1);
     s1.reload();
 
-    Surface s2(p1, p4, p5);
-    s2.tex_coord(0, 0, 0);
-    s2.tex_coord(1, 0, 0.8f);
-    s2.tex_coord(2, 0.5, 1);
-    s2.reload();
-    chandle.add(&s2);
+    Solid slope(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
+    slope.tex_coord(0, 0, 0);
+    slope.tex_coord(1, 1, 0);
+    slope.tex_coord(2, 1, 1);
+    slope.tex_coord(3, 0, 1);
+    slope.tex_coord(4, 0, 0);
+    slope.tex_coord(5, 1, 0);
+    slope.reload();
 
     // s2.transform(glm::translate(glm::mat4(1.0), glm::vec3(2.0,-1.,0)));
     Surface s3(glm::vec3(10, -5, 2), glm::vec3(10, -5, -2), glm::vec3(10, 5, 2), glm::vec3(10, 5, -2));
@@ -128,8 +130,8 @@ int main(void)
     s3.tex_coord(1, 1, 0);
     s3.tex_coord(2, 1, 1);
     s3.tex_coord(3, 0, 1);
-    chandle.add(&s3);
     s3.reload();
+    std::cout << s3.normVec() << std::endl;
 
     Solid sol = Solid(p1, p2, p3, p4, p6);
     sol.tex_coord(0, 0, 0);
@@ -137,11 +139,11 @@ int main(void)
     sol.tex_coord(2, 1, 1);
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
-    chandle.add(&sol);
     sol.reload();
-    // sol.model = glm::rotate(sol.model, 0.5f, glm::vec3(1.0, 0., 0.));
-    // s2.model = glm::rotate(s2.model, 0.5f, glm::vec3(1.0, 0., 0.));
-    // sol.vel = glm::vec3(0.5,0.,0);
+
+    chandle.add(&s1, 1, true);
+    chandle.add(&slope, 1, false);
+    chandle.add(&sol, 1, false);
 
     int frames = 0;
     long long time = 0;
@@ -178,28 +180,26 @@ int main(void)
         // s1.transform();
         sol.bind();
         sol.render();
-        sol.update(dt);
 
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s3.model));
-        s3.bind();
-        s3.render();
+        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(slope.model));
+        slope.bind();
+        slope.render();
 
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s2.model));
-        s2.bind();
-        s2.render();
+        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s1.model));
+        s1.bind();
+        s1.render();
         // s2.update(dt);
         // s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
 
         // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        auto ptr = Plane(s3.vertices[0], s3.vertices[1], s3.vertices[2]).intersect(sol);
-        if(ptr)
-            std::cout << *Plane(s3.vertices[0], s3.vertices[1], s3.vertices[2]).intersect(sol) << "\t\t\t\r";
-        else
-            std::cout << 0 << "\r";
+        std::cout << glm::length(sol.vel) + glm::length(slope.vel) << "\r";
         // std::cout << s3.dist(sol) << "  \t";
         // std::cout << sol.dist(s3) << "\t\t\t\r";
 
-
+        sol.update(dt);
+        s1.update(dt);
+        slope.update(dt);
+        // sol.vel -= dt*glm::vec3(0,1,0);
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 

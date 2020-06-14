@@ -56,6 +56,7 @@ class Polyhedron;
 class Point {
     public:
         glm::vec3 pos;
+        glm::vec3 vel{0.0f, 0.0f, 0.0f};
         std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);

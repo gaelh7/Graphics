@@ -57,6 +57,10 @@ int main(int argc, char* argv[])
 
     Polygon x(p6,p7,p8,p9);
 
+    Polyhedron poly = *reinterpret_cast<Polyhedron*>(&x);
+
+    std::cout << poly << std::endl;
+
     auto ptr = std::make_shared<int>(1);
     auto ptr1 = ptr;
     auto ptr2 = ptr;
