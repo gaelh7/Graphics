@@ -1,7 +1,7 @@
 #include <algorithm>
+#include <glm/gtx/norm.hpp>
 #include "Graphics/geometry.hpp"
 #include "Graphics/gmath.hpp"
-#include <glm/gtx/norm.hpp>
 
 Point::Point(): pos({0, 0, 0}){}
 
@@ -213,7 +213,7 @@ Point Line::project(const Point &obj) const {
 float Line::angle(const Line &lobj, glm::vec3* axisptr = nullptr){
     glm::vec3 axis = axisptr ? *axisptr:glm::cross(dirVec(), lobj.dirVec());
     axis = glm::normalize(axis);
-    float theta{std::atan2(glm::determinant(glm::mat3(dirVec(), lobj.dirVec(), axis)), glm::dot(dirVec(), lobj.dirVec()))};
+    float theta = std::atan2(glm::determinant(glm::mat3(dirVec(), lobj.dirVec(), axis)), glm::dot(dirVec(), lobj.dirVec()));
     return theta >= 0 ? theta:theta + 2*glm::pi<float>();
 }
 

@@ -192,7 +192,7 @@ int main(void)
         // s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
 
         // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        std::cout << glm::length(sol.vel) + glm::length(slope.vel) << "\r";
+        // std::cout << sol.vel + slope.vel << "\r";
         // std::cout << s3.dist(sol) << "  \t";
         // std::cout << sol.dist(s3) << "\t\t\t\r";
 
