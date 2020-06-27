@@ -14,17 +14,12 @@ void CHandler::operator()() const {
         if(v[0].fixed && v[1].fixed) continue;
         // collision(v[0], v[1]);
         if(Polygon* v0_surf = dynamic_cast<Polygon*>(v[0].obj)){
-            if(v[1]->dist(*v0_surf) == 0)// && glm::dot(v[1]->vel - v0_surf->vel, v0_surf->normVec()*v0_surf->sign_dist(*v[1].obj)) < 0)
+            if(v[1]->dist(*v0_surf) == 0)
                 collision(v[0], v[1]);
         }
         else if(Polyhedron* v0_sol = dynamic_cast<Polyhedron*>(v[0].obj)){
             if(v[1]->dist(*v0_sol) == 0)
                 collision(v[0], v[1]);
-            // for(std::shared_ptr<Polygon> face: v0_sol->faces)
-            //     if(v[1]->dist(*v0_sol) == 0 && glm::dot(v[1]->vel - v0_sol->vel, face->normVec()*face->sign_dist(*v[1].obj)) < 0){
-            //         collision(v[0], v[1]);
-            //         break;
-            //     }
         }
     }
 }
@@ -50,7 +45,7 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
         if(obj2->contains(*p)) c2++;
     if(c1 < c2){
         if(Polygon* obj2_surf = dynamic_cast<Polygon*>(obj2.obj)){
-            if(obj1->dist(*obj2_surf) == 0 && glm::dot(obj1->vel - obj2->vel, obj2_surf->normVec()*obj2_surf->sign_dist(*obj1.obj)) < 0)
+            if(glm::dot(obj1->vel - obj2->vel, obj2_surf->normVec()*obj2_surf->sign_dist(*obj1.obj)) < 0)
                 dirVec = obj2_surf->normVec();
         }
         else if(Polyhedron* obj2_sol = dynamic_cast<Polyhedron*>(obj2.obj)){
@@ -62,7 +57,7 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
     }
     else{
         if(Polygon* obj1_surf = dynamic_cast<Polygon*>(obj1.obj)){
-            if(obj2->dist(*obj1_surf) == 0 && glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*(float)sign(obj1_surf->sign_dist(*obj2.obj))) < 0)
+            if(glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*(float)sign(obj1_surf->sign_dist(*obj2.obj))) < 0)
                 dirVec = obj1_surf->normVec();
         }
         else if(Polyhedron* obj1_sol = dynamic_cast<Polyhedron*>(obj1.obj)){

@@ -165,6 +165,12 @@ int main(void)
             sol.vel = glm::vec3(-3, 0, 0);
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
             sol.vel = glm::vec3(3, 0, 0);
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+            sol.vel = glm::vec3(0, 0, 3);
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+            sol.vel = glm::vec3(0, 0, -3);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            sol.vel = glm::vec3(0, 0, 0);
         chandle();
 
         // cam.pitch += 0.1f;
