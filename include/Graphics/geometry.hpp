@@ -206,11 +206,11 @@ class Polyhedron: public Point {
         float dist(const Polygon &obj) const override;
         float dist(const Polyhedron &obj) const override;
         std::unique_ptr<Point> intersect(const Point &obj) const override;
-        // std::unique_ptr<Point> intersect(const Line &obj) const;
-        // std::unique_ptr<Point> intersect(const LinSeg &obj) const;
-        // std::unique_ptr<Point> intersect(const Plane &obj) const;
-        // std::unique_ptr<Point> intersect(const Polygon &obj) const;
-        // std::unique_ptr<Point> intersect(const Polyhedron &obj) const;
+        std::unique_ptr<Point> intersect(const Line &obj) const override;
+        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float volume() const;
 };
 

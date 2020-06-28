@@ -192,8 +192,8 @@ void Solid::reload(){
 void Solid::set_color(const float r, const float g, const float b, const float a){
     for(unsigned int i = 0; i < STRIDE*vertices.size(); i+=STRIDE){
         VBO_DATA[i + RED] = r;
-        VBO_DATA[i + BLUE] = g;
-        VBO_DATA[i + GREEN] = b;
+        VBO_DATA[i + GREEN] = g;
+        VBO_DATA[i + BLUE] = b;
         VBO_DATA[i + ALPHA] = a;
     }
 }
