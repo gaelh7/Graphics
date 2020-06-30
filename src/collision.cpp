@@ -38,7 +38,7 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
     glm::vec3 impulse = 2.0f*(obj2->vel - obj1->vel)/(m2 + m1);
     glm::vec3 dirVec{0, 0, 0};
     if(Polygon* obj1_surf = dynamic_cast<Polygon*>(obj1.obj)){
-        if(glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*(float)sign(obj1_surf->sign_dist(*obj2.obj))) < 0)
+        if(glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*obj1_surf->sign_dist(*obj2.obj)) < 0)
             dirVec = obj1_surf->normVec();
     }
     else if(Polygon* obj2_surf = dynamic_cast<Polygon*>(obj2.obj)){
@@ -57,16 +57,26 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
             if(LinSeg* line = dynamic_cast<LinSeg*>(inter.get())) c2 += line->length();
         }
         if(c1 < c2){
-            auto it = std::min_element(obj1_sol->faces.begin(), obj1_sol->faces.end(), [&obj1, &obj2](std::shared_ptr<Polygon> p1, std::shared_ptr<Polygon> p2){
-                return obj2->dist(*p1) == 0 && glm::dot(obj2->vel - obj1->vel, p1->normVec()*(float)sign(p1->sign_dist(*obj2.obj))) < glm::dot(obj2->vel - obj1->vel, p2->normVec()*(float)sign(p2->sign_dist(*obj2.obj)));
-            });
-            dirVec = (*it)->normVec();
+            float val = 0;
+            for(std::vector<std::shared_ptr<Polygon>>::iterator it = obj1_sol->faces.begin(); it != obj1_sol->faces.end(); it++){
+                if(obj2->dist(**it) != 0) continue;
+                float check = glm::dot(obj2->vel - obj1->vel, (*it)->normVec()*(float)sign((*it)->sign_dist(*obj2.obj)));
+                if(check < val){
+                    val = check;
+                    dirVec = (*it)->normVec();
+                }
+            }
         }
-        else {
-            auto it = std::min_element(obj2_sol->faces.begin(), obj2_sol->faces.end(), [&obj1, &obj2](std::shared_ptr<Polygon> p1, std::shared_ptr<Polygon> p2){
-                return obj1->dist(*p1) == 0 && glm::dot(obj1->vel - obj2->vel, p1->normVec()*(float)sign(p1->sign_dist(*obj1.obj))) < glm::dot(obj1->vel - obj2->vel, p2->normVec()*(float)sign(p2->sign_dist(*obj1.obj)));
-            });
-            dirVec = (*it)->normVec();
+        else{
+            float val = 0;
+            for(std::vector<std::shared_ptr<Polygon>>::iterator it = obj2_sol->faces.begin(); it != obj2_sol->faces.end(); it++){
+                if(obj1->dist(**it) != 0) continue;
+                float check = glm::dot(obj1->vel - obj2->vel, (*it)->normVec()*(float)sign((*it)->sign_dist(*obj1.obj)));
+                if(check < val){
+                    val = check;
+                    dirVec = (*it)->normVec();
+                }
+            }
         }
     }
     if(!obj1.fixed) obj1->vel += dirVec*glm::dot(dirVec, obj2.mass*impulse);

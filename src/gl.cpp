@@ -141,8 +141,8 @@ int main(void)
     sol.reload();
 
     chandle.add(&s1, 1, true);
-    chandle.add(&slope, 1, true);
-    chandle.add(&sol, 1, true);
+    chandle.add(&sol, 1, false);
+    chandle.add(&slope, 1, false);
     std::cout << sol.volume() << std::endl;
 
     int frames = 0;
@@ -195,8 +195,8 @@ int main(void)
         s1.bind();
         s1.render();
 
-        std::unique_ptr<Point> inter = sol.intersect(slope);
-        if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
+        // std::unique_ptr<Point> inter = sol.intersect(slope);
+        // if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
         // std::cout << 1.f*sol.vel + 5.f*slope.vel << "\r";
 
         sol.update(dt);

@@ -184,7 +184,7 @@ std::unique_ptr<Point> Line::intersect(const Polygon &obj) const {
             return p1.equals(p2);
         });
         points.resize(std::distance(points.begin(), it));
-        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
     }
     return intersect(project(*this));
 }
@@ -200,7 +200,7 @@ std::unique_ptr<Point> Line::intersect(const Polyhedron &obj) const {
     });
     points.resize(std::distance(points.begin(), it));
     if(points.size() == 0) return nullptr;
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 glm::vec3 Line::dirVec() const {
@@ -325,7 +325,7 @@ std::unique_ptr<Point> LinSeg::intersect(const Polygon &obj) const {
             return p1.equals(p2);
         });
         points.resize(std::distance(points.begin(), it));
-        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
     }
     return intersect(obj.project(*this));
 }
@@ -344,7 +344,7 @@ std::unique_ptr<Point> LinSeg::intersect(const Polyhedron &obj) const {
     });
     points.resize(std::distance(points.begin(), it));
     if(points.size() == 0) return nullptr;
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 float LinSeg::length() const {
@@ -454,7 +454,7 @@ std::unique_ptr<Point> Plane::intersect(const Polygon &obj) const {
         return p1.equals(p2);
     });
     points.resize(std::distance(points.begin(), it));
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
@@ -469,7 +469,7 @@ std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
     });
     points.resize(std::distance(points.begin(), it));
     if(points.size() == 1) return std::make_unique<Point>(points[0]);
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
+    else if(points.size() == 2) return std::make_unique<LinSeg>(points[0], points[1]);
     else return std::make_unique<Polygon>(points);
 }
 
@@ -602,7 +602,7 @@ std::unique_ptr<Point> Polygon::intersect(const Line &obj) const {
             return p1.equals(p2);
         });
         points.resize(std::distance(points.begin(), it));
-        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
     }
     return obj.intersect(project(obj));
 }
@@ -623,7 +623,7 @@ std::unique_ptr<Point> Polygon::intersect(const LinSeg &obj) const {
             return p1.equals(p2);
         });
         points.resize(std::distance(points.begin(), it));
-        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+        return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
     }
     return obj.intersect(project(obj));
 }
@@ -646,7 +646,7 @@ std::unique_ptr<Point> Polygon::intersect(const Plane &obj) const {
         return p1.equals(p2);
     });
     points.resize(std::distance(points.begin(), it));
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 std::unique_ptr<Point> Polygon::intersect(const Polygon &obj) const {
@@ -735,13 +735,8 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
                 std::swap((*it)[1], (*it)[2]);
                 face = std::make_shared<Polygon>(*it);
             }
-            std::vector<std::shared_ptr<Point>> vert_check(vertices.size());
-            std::vector<std::shared_ptr<Point>>::iterator it = std::copy_if(vertices.begin(), vertices.end(), vert_check.begin(), [&face](std::shared_ptr<Point> p){
-                return !face->contains(*p);
-            });
-            vert_check.resize(std::distance(vert_check.begin(), it));
-            bool side = std::all_of(vert_check.begin(), vert_check.end(), [&face](std::shared_ptr<Point> p){
-                return face->sign_dist(*p) > 0;
+            bool side = std::all_of(vertices.begin(), vertices.end(), [&face](std::shared_ptr<Point> p){
+                return face->sign_dist(*p) >= -1e-5;
             });
             bool subface = std::any_of(faces.begin(), faces.end(), [&face](std::shared_ptr<Polygon> f){
                 return !face->contains(*f) && f->contains(*face);
@@ -778,13 +773,8 @@ Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
                 std::swap((*it)[1], (*it)[2]);
                 face = std::make_shared<Polygon>(*it);
             }
-            std::vector<std::shared_ptr<Point>> vert_check(vertices.size());
-            std::vector<std::shared_ptr<Point>>::iterator it = std::copy_if(vertices.begin(), vertices.end(), vert_check.begin(), [&face](std::shared_ptr<Point> p){
-                return !face->contains(*p);
-            });
-            vert_check.resize(std::distance(vert_check.begin(), it));
-            bool side = std::all_of(vert_check.begin(), vert_check.end(), [&face](std::shared_ptr<Point> p){
-                return face->sign_dist(*p) > 0;
+            bool side = std::all_of(vertices.begin(), vertices.end(), [&face](std::shared_ptr<Point> p){
+                return face->sign_dist(*p) >= -1e-5;
             });
             bool subface = std::any_of(faces.begin(), faces.end(), [&face](std::shared_ptr<Polygon> f){
                 return !face->contains(*f) && f->contains(*face);
