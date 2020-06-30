@@ -176,7 +176,7 @@ Polyhedron Solid::local(){
 
 void Solid::update(float dt){
     model = glm::translate(model, dt*vel);
-    pos +=dt*vel;
+    pos += dt*vel;
     for(std::shared_ptr<Point> p: vertices)
         p->pos += dt*vel;
 }

@@ -67,9 +67,11 @@ int main(int argc, char* argv[])
     cout << ptr2.use_count() << endl;
 
     Polyhedron y(p1,p2,p3,p4,p5);
+    std::cout << y << std::endl;
+    Polyhedron poly1 = Polyhedron(Point(glm::vec3(0,0,0)), Point(glm::vec3(1,0,0)), Point(glm::vec3(0,1,0)), Point(glm::vec3(0,0,1)), Point(glm::vec3(1,1,0)), Point(glm::vec3(1,0,1)), Point(glm::vec3(0,1,1)), Point(glm::vec3(1,1,1)));
+    Polyhedron poly2 = Polyhedron(Point(glm::vec3(0.5, 1, 0.5)), Point(glm::vec3(1.5,1,0.5)), Point(glm::vec3(0.5,2,0.5)), Point(glm::vec3(0.5,1,1.5)), Point(glm::vec3(1.5,2,0.5)), Point(glm::vec3(1.5,1,1.5)), Point(glm::vec3(0.5,2,1.5)), Point(glm::vec3(1.5,2,1.5)));
 
-    cout << *y.vertices[0] << endl;
-    cout << y.vertices[0].use_count() << endl;
+    cout << poly1.intersect(poly2) << endl;
 
     cout << "Point: " << sizeof(Point) << " bytes" << endl;
     cout << "Line: " << sizeof(Line) << " bytes" << endl;
@@ -82,7 +84,7 @@ int main(int argc, char* argv[])
 
     cout << y.faces << endl;
 
-    cout << y.dist(x) << "\n";
+    cout << "test: " << *poly1.intersect(poly2) << "\n";
 
     auto start = chrono::high_resolution_clock::now();
 

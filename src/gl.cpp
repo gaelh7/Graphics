@@ -141,8 +141,9 @@ int main(void)
     sol.reload();
 
     chandle.add(&s1, 1, true);
-    chandle.add(&slope, 1, false);
-    chandle.add(&sol, 1, false);
+    chandle.add(&slope, 1, true);
+    chandle.add(&sol, 1, true);
+    std::cout << sol.volume() << std::endl;
 
     int frames = 0;
     long long time = 0;
@@ -193,13 +194,10 @@ int main(void)
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s1.model));
         s1.bind();
         s1.render();
-        // s2.update(dt);
-        // s2.model = glm::translate(s2.model, dt*glm::vec3(0.2,0.,0));
 
-        // std::cout << s2 << "\t" << sol.dist(s2) <<"\n";
-        // std::cout << sol.vel + slope.vel << "\r";
-        // std::cout << s3.dist(sol) << "  \t";
-        // std::cout << sol.dist(s3) << "\t\t\t\r";
+        std::unique_ptr<Point> inter = sol.intersect(slope);
+        if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
+        // std::cout << 1.f*sol.vel + 5.f*slope.vel << "\r";
 
         sol.update(dt);
         s1.update(dt);

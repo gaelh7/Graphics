@@ -19,7 +19,7 @@ static void GLClearError(){
 
 static bool GLLogCall(const char* function, const char* file, int line){
     if(GLenum error = glGetError()){
-        std::cout << "OpenGLError " << std::hex << error << ": " << file << "(" << std::dec << line << "): in " << function << std::endl;
+        std::cerr << "OpenGLError " << std::hex << error << ": " << file << "(" << std::dec << line << "): in " << function << std::endl;
         return false;
     }
     return true;

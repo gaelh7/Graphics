@@ -2,6 +2,7 @@
 #include <glm/gtx/norm.hpp>
 #include "Graphics/geometry.hpp"
 #include "Graphics/gmath.hpp"
+#include "Graphics/hash.hpp"
 
 Point::Point(): pos({0, 0, 0}){}
 
@@ -473,6 +474,9 @@ std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
 }
 
 Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
+    Plane check(vert[0], vert[1], vert[2]);
+    for(Point p: vert)
+        if(!check.contains(p)) throw std::invalid_argument("Inputs must be coplanar");
     vertices.resize(vert.size());
     std::transform(vert.begin(), vert.end(), vertices.begin(), [](Point p){
         return std::make_shared<Point>(p.pos);
@@ -496,6 +500,9 @@ Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
 }
 
 Polygon::Polygon(std::vector<std::shared_ptr<Point>> vert){
+    Plane check(vert[0], vert[1], vert[2]);
+    for(std::shared_ptr<Point> p: vert)
+        if(!check.contains(*p)) throw std::invalid_argument("Inputs must be coplanar");
     vertices = vert;
     pos = {0, 0, 0};
     for(std::shared_ptr<Point> p: vertices) pos += p->pos;
@@ -667,13 +674,13 @@ std::unique_ptr<Point> Polygon::intersect(const Polygon &obj) const {
             if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
         }
     }
-    std::vector<Point>::iterator it = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
-        return p1.equals(p2);
+    std::vector<Point> out;
+    std::copy_if(points.begin(), points.end(), std::back_inserter(out), [&out](Point p1){
+        return std::none_of(out.begin(), out.end(), [&p1](Point p2){return p1.equals(p2);});
     });
-    points.resize(std::distance(points.begin(), it));
-    if(points.size() > 2) return std::make_unique<Polygon>(points);
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
-    else return std::make_unique<Point>(points[0].pos);
+    if(out.size() > 2) return std::make_unique<Polygon>(out);
+    else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
+    else return std::make_unique<Point>(out[0].pos);
 }
 
 std::unique_ptr<Point> Polygon::intersect(const Polyhedron &obj) const {
@@ -692,13 +699,13 @@ std::unique_ptr<Point> Polygon::intersect(const Polyhedron &obj) const {
         std::unique_ptr<Point> inter = intersect(*edge);
         if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
     }
-    std::vector<Point>::iterator it = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
-        return p1.equals(p2);
+    std::vector<Point> out;
+    std::copy_if(points.begin(), points.end(), std::back_inserter(out), [&out](Point p1){
+        return std::none_of(out.begin(), out.end(), [&p1](Point p2){return p1.equals(p2);});
     });
-    points.resize(std::distance(points.begin(), it));
-    if(points.size() > 2) return std::make_unique<Polygon>(points);
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
-    else return std::make_unique<Point>(points[0].pos);
+    if(out.size() > 2) return std::make_unique<Polygon>(out);
+    else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
+    else return std::make_unique<Point>(out[0].pos);
 }
 
 float Polygon::area() const {
@@ -721,12 +728,12 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
         std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(vertices.begin(), vertices.end(), i);
         points.insert(points.end(), comb.begin(), comb.end());
     }
-    for(std::vector<std::shared_ptr<Point>> v: points){
+    for(std::reverse_iterator<std::vector<std::vector<std::shared_ptr<Point>>>::iterator> it = points.rbegin(); it != points.rend(); it++){
         try{
-            std::shared_ptr<Polygon> face = std::make_shared<Polygon>(v);
+            std::shared_ptr<Polygon> face = std::make_shared<Polygon>(*it);
             if(face->sign_dist(center) < 0){
-                std::swap(v[1], v[2]);
-                face = std::make_shared<Polygon>(v);
+                std::swap((*it)[1], (*it)[2]);
+                face = std::make_shared<Polygon>(*it);
             }
             std::vector<std::shared_ptr<Point>> vert_check(vertices.size());
             std::vector<std::shared_ptr<Point>>::iterator it = std::copy_if(vertices.begin(), vertices.end(), vert_check.begin(), [&face](std::shared_ptr<Point> p){
@@ -737,7 +744,7 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
                 return face->sign_dist(*p) > 0;
             });
             bool subface = std::any_of(faces.begin(), faces.end(), [&face](std::shared_ptr<Polygon> f){
-                return face->contains(*f) && !f->contains(*face);
+                return !face->contains(*f) && f->contains(*face);
             });
             if(side && !subface) faces.push_back(face);
         }
@@ -749,7 +756,8 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
     std::copy_if(lines.begin(), lines.end(), std::back_inserter(edges), [this](std::shared_ptr<LinSeg> l1){
         return std::find_if(edges.begin(), edges.end(), [&l1](std::shared_ptr<LinSeg> l2){return l1->equals(*l2);}) == edges.end();
     });
-    if(faces.size() + vertices.size() - edges.size() != 2) throw std::invalid_argument("Inputs must define a convex polyhedron");
+    if(faces.size() + vertices.size() - edges.size() != 2)
+        throw std::invalid_argument("Inputs must define a convex polyhedron");
 }
 
 Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
@@ -763,12 +771,12 @@ Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
         std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(vertices.begin(), vertices.end(), i);
         points.insert(points.end(), comb.begin(), comb.end());
     }
-    for(std::vector<std::shared_ptr<Point>> v: points){
+    for(std::reverse_iterator<std::vector<std::vector<std::shared_ptr<Point>>>::iterator> it = points.rbegin(); it != points.rend(); it++){
         try{
-            std::shared_ptr<Polygon> face = std::make_shared<Polygon>(v);
+            std::shared_ptr<Polygon> face = std::make_shared<Polygon>(*it);
             if(face->sign_dist(center) < 0){
-                std::swap(v[1], v[2]);
-                face = std::make_shared<Polygon>(v);
+                std::swap((*it)[1], (*it)[2]);
+                face = std::make_shared<Polygon>(*it);
             }
             std::vector<std::shared_ptr<Point>> vert_check(vertices.size());
             std::vector<std::shared_ptr<Point>>::iterator it = std::copy_if(vertices.begin(), vertices.end(), vert_check.begin(), [&face](std::shared_ptr<Point> p){
@@ -779,7 +787,7 @@ Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
                 return face->sign_dist(*p) > 0;
             });
             bool subface = std::any_of(faces.begin(), faces.end(), [&face](std::shared_ptr<Polygon> f){
-                return face->contains(*f) && !f->contains(*face);
+                return !face->contains(*f) && f->contains(*face);
             });
             if(side && !subface) faces.push_back(face);
         }
@@ -866,7 +874,7 @@ std::unique_ptr<Point> Polyhedron::intersect(const Line &obj) const {
         return p1.equals(p2);
     });
     points.resize(std::distance(points.begin(), it));
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 std::unique_ptr<Point> Polyhedron::intersect(const LinSeg &obj) const {
@@ -882,7 +890,7 @@ std::unique_ptr<Point> Polyhedron::intersect(const LinSeg &obj) const {
         return p1.equals(p2);
     });
     points.resize(std::distance(points.begin(), it));
-    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points);
+    return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
 }
 
 std::unique_ptr<Point> Polyhedron::intersect(const Plane &obj) const {
@@ -892,13 +900,13 @@ std::unique_ptr<Point> Polyhedron::intersect(const Plane &obj) const {
         std::unique_ptr<Point> inter = obj.intersect(*edge);
         if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
     }
-    std::vector<Point>::iterator it = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
-        return p1.equals(p2);
+    std::vector<Point> out;
+    std::copy_if(points.begin(), points.end(), std::back_inserter(out), [&out](Point p1){
+        return std::none_of(out.begin(), out.end(), [&p1](Point p2){return p1.equals(p2);});
     });
-    points.resize(std::distance(points.begin(), it));
-    if(points.size() == 1) return std::make_unique<Point>(points[0]);
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
-    else return std::make_unique<Polygon>(points);
+    if(out.size() > 2) return std::make_unique<Polygon>(out);
+    else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
+    else return std::make_unique<Point>(out[0].pos);
 }
 
 std::unique_ptr<Point> Polyhedron::intersect(const Polygon &obj) const {
@@ -917,42 +925,50 @@ std::unique_ptr<Point> Polyhedron::intersect(const Polygon &obj) const {
         std::unique_ptr<Point> inter = obj.intersect(*edge);
         if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
     }
-    std::vector<Point>::iterator it = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
-        return p1.equals(p2);
+    std::vector<Point> out;
+    std::copy_if(points.begin(), points.end(), std::back_inserter(out), [&out](Point p1){
+        return std::none_of(out.begin(), out.end(), [&p1](Point p2){return p1.equals(p2);});
     });
-    points.resize(std::distance(points.begin(), it));
-    if(points.size() > 2) return std::make_unique<Polygon>(points);
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
-    else return std::make_unique<Point>(points[0].pos);
+    if(out.size() > 2) return std::make_unique<Polygon>(out);
+    else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
+    else return std::make_unique<Point>(out[0].pos);
 }
 
 std::unique_ptr<Point> Polyhedron::intersect(const Polyhedron &obj) const {
     if(dist(obj) >= 1e-5) return nullptr;
     std::vector<Point> points;
-    for(std::vector<std::shared_ptr<LinSeg>> edge: edges){
-        for(std::vector<std::shared_ptr<Polygon>> face: obj.faces){
+    for(std::shared_ptr<LinSeg> edge: edges){
+        for(std::shared_ptr<Polygon> face: obj.faces){
             std::unique_ptr<Point> inter = edge->intersect(*face);
             if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
         }
     }
-    for(std::vector<std::shared_ptr<LinSeg>> edge: obj.edges){
-        for(std::vector<std::shared_ptr<Polygon>> face: faces){
+    for(std::shared_ptr<LinSeg> edge: obj.edges){
+        for(std::shared_ptr<Polygon> face: faces){
             std::unique_ptr<Point> inter = edge->intersect(*face);
             if(inter && typeid(*inter) == typeid(Point)) points.push_back(*inter);
         }
     }
-    std::vector<Point>::iterator it = std::unique(points.begin(), points.end(), [](Point p1, Point p2){
-        return p1.equals(p2);
+    for(std::shared_ptr<Point> p: vertices){
+        if(obj.contains(*p)) points.push_back(*p);
+    }
+    for(std::shared_ptr<Point> p: obj.vertices){
+        if(contains(*p)) points.push_back(*p);
+    }
+    std::vector<Point> out;
+    std::copy_if(points.begin(), points.end(), std::back_inserter(out), [&out](Point p1){
+        return std::none_of(out.begin(), out.end(), [&p1](Point p2){return p1.equals(p2);});
     });
-    points.resize(std::distance(points.begin(), it));
-    if(points.size() > 2){
-        try
-            return std::make_unique<Polygon>(points);
-        catch(std::invalid_argument)
-            return std::make_unique<Polyhedron>(points);
+    if(out.size() > 2){
+        try{
+            return std::make_unique<Polygon>(out);
+        }
+        catch(std::invalid_argument){
+            return std::make_unique<Polyhedron>(out);
+        }
     }
-    else if(points.size() == 2) return std::make_unique<LinSeg>(points);
-    else return std::make_unique<Point>(points[0].pos);
+    else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
+    else return std::make_unique<Point>(out[0].pos);
 }
 
 float Polyhedron::volume() const {
