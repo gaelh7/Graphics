@@ -2,7 +2,6 @@
 #include <glm/gtx/norm.hpp>
 #include "Graphics/geometry.hpp"
 #include "Graphics/gmath.hpp"
-#include "Graphics/hash.hpp"
 
 Point::Point(): pos({0, 0, 0}){}
 

@@ -126,13 +126,13 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     int j = 0;
     for(std::shared_ptr<Polygon> face: faces){
         for(unsigned int i = 0; i < (face->vertices.size() - 2); i++){
-            auto it1 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+            std::vector<std::shared_ptr<Point>>::iterator it1 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
                 return face->vertices[0]->equals(*p);
             });
-            auto it2 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+            std::vector<std::shared_ptr<Point>>::iterator it2 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
                 return face->vertices[i + 1]->equals(*p);
             });
-            auto it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
+            std::vector<std::shared_ptr<Point>>::iterator it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
                 return face->vertices[i + 2]->equals(*p);
             });
             IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it1);

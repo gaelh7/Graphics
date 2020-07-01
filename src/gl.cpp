@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <chrono>
+#include <glm/gtx/norm.hpp>
 #include "Graphics/shader.hpp"
 #include "Graphics/render.hpp"
 #include "Graphics/texture.hpp"
@@ -17,7 +18,7 @@ double xpos = 240, ypos = 240;
 float dt;
 bool start = true;
 Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
-CHandler chandle;
+CHandler chandle(true);
 
 void mouse_callback(GLFWwindow* window, double x, double y){
     if(start){
@@ -117,10 +118,10 @@ int main(void)
     Solid slope(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
     slope.tex_coord(0, 0, 0);
     slope.tex_coord(1, 1, 0);
-    slope.tex_coord(2, 1, 1);
-    slope.tex_coord(3, 0, 1);
-    slope.tex_coord(4, 0, 0);
-    slope.tex_coord(5, 1, 0);
+    slope.tex_coord(2, 1, 0);
+    slope.tex_coord(3, 0, 0);
+    slope.tex_coord(4, 1, 1);
+    slope.tex_coord(5, 0, 1);
     slope.reload();
 
     // s2.transform(glm::translate(glm::mat4(1.0), glm::vec3(2.0,-1.,0)));
@@ -143,6 +144,7 @@ int main(void)
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
     chandle.add(&slope, 1, false);
+    // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
 
     int frames = 0;
@@ -197,7 +199,7 @@ int main(void)
 
         // std::unique_ptr<Point> inter = sol.intersect(slope);
         // if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
-        // std::cout << 1.f*sol.vel + 5.f*slope.vel << "\r";
+        std::cout << 1.f*glm::length2(sol.vel) + 1.f*glm::length2(slope.vel) << "\t\t\t\r";
 
         sol.update(dt);
         s1.update(dt);

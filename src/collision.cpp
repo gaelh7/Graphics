@@ -6,13 +6,14 @@ std::vector<std::vector<Physical>> CHandler::get_check() const {
     return combinations<Physical>(tangible.begin(), tangible.end(), 2);
 }
 
-CHandler::CHandler(){}
+CHandler::CHandler(): elastic(2) {}
+
+CHandler::CHandler(bool elastic): elastic(elastic + 1.f) {}
 
 void CHandler::operator()() const {
     std::vector<std::vector<Physical>> objects = get_check();
     for(std::vector<Physical> v: objects){
         if(v[0].fixed && v[1].fixed) continue;
-        // collision(v[0], v[1]);
         if(Polygon* v0_surf = dynamic_cast<Polygon*>(v[0].obj)){
             if(v[1]->dist(*v0_surf) == 0)
                 collision(v[0], v[1]);
@@ -32,10 +33,18 @@ void CHandler::add(Physical t){
     tangible.insert(t);
 }
 
+void CHandler::remove(Point* v){
+    tangible.erase({v, 0, 0});
+}
+
+void CHandler::remove(Physical t){
+    tangible.erase(t);
+}
+
 void CHandler::collision(Physical& obj1, Physical& obj2) const {
     float m1 = obj2.fixed ? 0:obj1.mass;
     float m2 = obj1.fixed ? 0:obj2.mass;
-    glm::vec3 impulse = 2.0f*(obj2->vel - obj1->vel)/(m2 + m1);
+    glm::vec3 impulse = elastic*(obj2->vel - obj1->vel)/(m2 + m1);
     glm::vec3 dirVec{0, 0, 0};
     if(Polygon* obj1_surf = dynamic_cast<Polygon*>(obj1.obj)){
         if(glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*obj1_surf->sign_dist(*obj2.obj)) < 0)
@@ -58,23 +67,23 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
         }
         if(c1 < c2){
             float val = 0;
-            for(std::vector<std::shared_ptr<Polygon>>::iterator it = obj1_sol->faces.begin(); it != obj1_sol->faces.end(); it++){
-                if(obj2->dist(**it) != 0) continue;
-                float check = glm::dot(obj2->vel - obj1->vel, (*it)->normVec()*(float)sign((*it)->sign_dist(*obj2.obj)));
+            for(std::shared_ptr<Polygon> face: obj1_sol->faces){
+                if(obj2->dist(*face) != 0) continue;
+                float check = glm::dot(obj2->vel - obj1->vel, face->normVec()*(float)sign(face->sign_dist(*obj2.obj)));
                 if(check < val){
                     val = check;
-                    dirVec = (*it)->normVec();
+                    dirVec = face->normVec();
                 }
             }
         }
         else{
             float val = 0;
-            for(std::vector<std::shared_ptr<Polygon>>::iterator it = obj2_sol->faces.begin(); it != obj2_sol->faces.end(); it++){
-                if(obj1->dist(**it) != 0) continue;
-                float check = glm::dot(obj1->vel - obj2->vel, (*it)->normVec()*(float)sign((*it)->sign_dist(*obj1.obj)));
+            for(std::shared_ptr<Polygon> face: obj2_sol->faces){
+                if(obj1->dist(*face) != 0) continue;
+                float check = glm::dot(obj1->vel - obj2->vel, face->normVec()*(float)sign(face->sign_dist(*obj1.obj)));
                 if(check < val){
                     val = check;
-                    dirVec = (*it)->normVec();
+                    dirVec = face->normVec();
                 }
             }
         }
@@ -82,15 +91,3 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
     if(!obj1.fixed) obj1->vel += dirVec*glm::dot(dirVec, obj2.mass*impulse);
     if(!obj2.fixed) obj2->vel -= dirVec*glm::dot(dirVec, obj1.mass*impulse);
 }
-
-void CHandler::handle(Polygon* s1, Polygon* s2) const { // TODO: use these functions to find contact directions
-
-}
-
-void CHandler::handle(Polygon* s1, Polyhedron* s2) const {
-
-}
-
-void CHandler::handle(Polyhedron* s1, Polygon* s2) const {}
-
-void CHandler::handle(Polyhedron* s1, Polyhedron* s2) const {}
