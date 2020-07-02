@@ -7,6 +7,9 @@
 #include <vector>
 #include <chrono>
 #include <glm/gtx/norm.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "Graphics/input.hpp"
 #include "Graphics/shader.hpp"
 #include "Graphics/render.hpp"
 #include "Graphics/texture.hpp"
@@ -34,19 +37,6 @@ void mouse_callback(GLFWwindow* window, double x, double y){
 
 void scroll_callback(GLFWwindow* window, double dx, double dy){
     cam.mouse_scroll((float)dy);
-}
-
-void input(GLFWwindow *window){
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cam.key_press(FORWARD, dt);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cam.key_press(LEFT, dt);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cam.key_press(BACKWARD, dt);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cam.key_press(RIGHT, dt);
 }
 
 int main(void)
@@ -79,6 +69,12 @@ int main(void)
     });
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    InputHandler::bind_key(GLFW_KEY_ESCAPE, [&window](){glfwSetWindowShouldClose(window, true);}, [](){});
+    InputHandler::bind_key(GLFW_KEY_W, [](){cam.key_press(FORWARD);}, [](){cam.key_release();});
+    InputHandler::bind_key(GLFW_KEY_A, [](){cam.key_press(LEFT);}, [](){cam.key_release();});
+    InputHandler::bind_key(GLFW_KEY_S, [](){cam.key_press(BACKWARD);}, [](){cam.key_release();});
+    InputHandler::bind_key(GLFW_KEY_D, [](){cam.key_press(RIGHT);}, [](){cam.key_release();});
+    glfwSetKeyCallback(window, InputHandler::key_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSwapInterval(0);
@@ -140,10 +136,17 @@ int main(void)
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
     sol.reload();
+    InputHandler::bind_key(GLFW_KEY_UP, [&sol](){sol.vel += glm::vec3(0, 3, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_DOWN, [&sol](){sol.vel += glm::vec3(0, -3, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_LEFT, [&sol](){sol.vel += glm::vec3(-3, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_RIGHT, [&sol](){sol.vel += glm::vec3(3, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_Z, [&sol](){sol.vel += glm::vec3(0, 0, 3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_X, [&sol](){sol.vel += glm::vec3(0, 0, -3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    InputHandler::bind_key(GLFW_KEY_SPACE, [&sol](){sol.vel += glm::vec3(0, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
 
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
-    chandle.add(&slope, 1, false);
+    chandle.add(&slope, 5, false);
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
 
@@ -156,23 +159,7 @@ int main(void)
         frames++;
         auto start = std::chrono::high_resolution_clock::now();
         /* Render here */
-        // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        input(window);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            sol.vel = glm::vec3(0, 3, 0);
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            sol.vel = glm::vec3(0, -3, 0);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            sol.vel = glm::vec3(-3, 0, 0);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            sol.vel = glm::vec3(3, 0, 0);
-        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            sol.vel = glm::vec3(0, 0, 3);
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            sol.vel = glm::vec3(0, 0, -3);
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            sol.vel = glm::vec3(0, 0, 0);
         chandle();
 
         // cam.pitch += 0.1f;
@@ -199,8 +186,9 @@ int main(void)
 
         // std::unique_ptr<Point> inter = sol.intersect(slope);
         // if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
-        std::cout << 1.f*glm::length2(sol.vel) + 1.f*glm::length2(slope.vel) << "\t\t\t\r";
+        if(cam.vel != glm::vec3({0,0,0})) std::cout << cam.vel*dt << "\t\t\t\r";
 
+        cam.update(dt);
         sol.update(dt);
         s1.update(dt);
         slope.update(dt);

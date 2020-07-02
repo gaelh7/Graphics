@@ -6,11 +6,11 @@
 #include <sstream>
 #include "Graphics/log.hpp"
 
-struct ShaderSource{
+struct ShaderSource {
     std::string VertexShader, FragmentShader;
 };
 
-class Shader{
+class Shader {
     private:
         const ShaderSource src;
         std::string path;

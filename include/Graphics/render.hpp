@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "Graphics/geometry.hpp"
 #include "Graphics/log.hpp"
 
@@ -10,7 +7,7 @@ class Visual;
 class Surface;
 class Solid;
 
-enum Attrib{
+enum Attrib {
     PosX, PosY, PosZ, RED, GREEN, BLUE, ALPHA, TexU, TexV, STRIDE
 };
 
@@ -35,7 +32,7 @@ class Visual {
         }
 };
 
-class Surface: public Visual, public Polygon{
+class Surface: public Visual, public Polygon {
     public:
         template<typename... Points>
         Surface(Points... args): Surface(std::vector<Point>{args...}){};
@@ -56,7 +53,7 @@ class Surface: public Visual, public Polygon{
         }
 };
 
-class Solid: public Visual, public Polyhedron{
+class Solid: public Visual, public Polyhedron {
     private:
         unsigned int indices;
     public:

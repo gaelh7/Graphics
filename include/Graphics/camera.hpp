@@ -11,13 +11,15 @@ enum Direction {
 class Camera {
     private:
         glm::vec3 worldUp;
-        inline void update();
+        inline void reset();
     public:
-        glm::vec3 pos, front, right, up;
+        glm::vec3 pos, vel, front, right, up;
         float yaw, pitch, speed, sensitivity, zoom;
         Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch);
         glm::mat4 view();
-        void key_press(Direction d, float dt);
+        void update(float dt);
+        void key_press(Direction d);
+        void key_release();
         void mouse_move(float dx, float dy, bool constrain = true);
         void mouse_scroll(float offset);
 };
