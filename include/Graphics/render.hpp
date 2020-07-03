@@ -27,8 +27,8 @@ class Visual {
         void tex_coord(const unsigned int vertex, const float x, const float y);
         inline virtual void render() const = 0;
         inline void bind() const {
-            GLCALL(glBindVertexArray(VAO));
-            GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
+            glBindVertexArray(VAO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
         }
 };
 
@@ -42,7 +42,7 @@ class Surface: public Visual, public Polygon {
         void reload() override;
         void set_color(const float r, const float g, const float b, const float a) override;
         inline void render() const override {
-            GLCALL(glDrawElements(GL_TRIANGLES, 3*((int)vertices.size() - 2), GL_UNSIGNED_INT, nullptr));
+            glDrawElements(GL_TRIANGLES, 3*((int)vertices.size() - 2), GL_UNSIGNED_INT, nullptr);
         }
         void VBO_PRINT() const {
             for(unsigned int i = 0; i < vertices.size(); i++){
@@ -65,7 +65,7 @@ class Solid: public Visual, public Polyhedron {
         void reload() override;
         void set_color(const float r, const float g, const float b, const float a) override;
         inline void render() const override {
-            GLCALL(glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr));
+            glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr);
         }
         void VBO_PRINT() const {
             for(unsigned int i = 0; i < vertices.size(); i++){

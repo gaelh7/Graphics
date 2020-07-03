@@ -5,7 +5,7 @@
 #include <glm/geometric.hpp>
 
 enum Direction {
-    FORWARD, LEFT, BACKWARD, RIGHT
+    NONE, FORWARD, LEFT, BACKWARD, RIGHT
 };
 
 class Camera {
@@ -13,13 +13,13 @@ class Camera {
         glm::vec3 worldUp;
         inline void reset();
     public:
-        glm::vec3 pos, vel, front, right, up;
+        glm::vec3 pos, front, right, up;
         float yaw, pitch, speed, sensitivity, zoom;
+        Direction dir;
         Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch);
         glm::mat4 view();
         void update(float dt);
-        void key_press(Direction d);
-        void key_release();
+        void set_dir(Direction d);
         void mouse_move(float dx, float dy, bool constrain = true);
         void mouse_scroll(float offset);
 };

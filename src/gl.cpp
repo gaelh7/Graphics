@@ -47,9 +47,9 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     int width = 480;
@@ -63,6 +63,10 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        return -1;
+    enableDebug();
+
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height){
         int length = width < height ? width:height;
         glViewport((width - length)/2, (height - length)/2, length, length);
@@ -70,19 +74,17 @@ int main(void)
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     InputHandler::bind_key(GLFW_KEY_ESCAPE, [&window](){glfwSetWindowShouldClose(window, true);}, [](){});
-    InputHandler::bind_key(GLFW_KEY_W, [](){cam.key_press(FORWARD);}, [](){cam.key_release();});
-    InputHandler::bind_key(GLFW_KEY_A, [](){cam.key_press(LEFT);}, [](){cam.key_release();});
-    InputHandler::bind_key(GLFW_KEY_S, [](){cam.key_press(BACKWARD);}, [](){cam.key_release();});
-    InputHandler::bind_key(GLFW_KEY_D, [](){cam.key_press(RIGHT);}, [](){cam.key_release();});
+    InputHandler::bind_key(GLFW_KEY_W, [](){cam.set_dir(FORWARD);}, [](){cam.set_dir(NONE);});
+    InputHandler::bind_key(GLFW_KEY_A, [](){cam.set_dir(LEFT);}, [](){cam.set_dir(NONE);});
+    InputHandler::bind_key(GLFW_KEY_S, [](){cam.set_dir(BACKWARD);}, [](){cam.set_dir(NONE);});
+    InputHandler::bind_key(GLFW_KEY_D, [](){cam.set_dir(RIGHT);}, [](){cam.set_dir(NONE);});
     glfwSetKeyCallback(window, InputHandler::key_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        return -1;
 
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
-    GLCALL(glEnable(GL_DEPTH_TEST));
+    glEnable(GL_DEPTH_TEST);
     {
     Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
@@ -159,11 +161,10 @@ int main(void)
         frames++;
         auto start = std::chrono::high_resolution_clock::now();
         /* Render here */
-        GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         chandle();
 
         // cam.pitch += 0.1f;
-        // cam.update();
         glm::mat4 project = glm::mat4(1.0);
         project = glm::perspective(cam.zoom, 1.0f, 0.1f, 100.0f);
         program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
@@ -186,7 +187,7 @@ int main(void)
 
         // std::unique_ptr<Point> inter = sol.intersect(slope);
         // if(Polyhedron* poly = dynamic_cast<Polyhedron*>(inter.get())) std::cout << poly->volume() << std::endl;
-        if(cam.vel != glm::vec3({0,0,0})) std::cout << cam.vel*dt << "\t\t\t\r";
+        // std::cout << cam.dir << "\r";
 
         cam.update(dt);
         sol.update(dt);

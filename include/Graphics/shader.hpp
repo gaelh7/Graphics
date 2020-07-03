@@ -21,40 +21,40 @@ class Shader {
     public:
         Shader(const char* filepath);
         ~Shader();
-        inline void bind() const {GLCALL(glUseProgram(id));}
-        template<typename... data>
-        void SetUniformf(const char* uniform, float v0, data... v1) const {
+        inline void bind() const {glUseProgram(id);}
+        template<typename... floats>
+        void SetUniformf(const char* uniform, float v0, floats... v1) const {
             float data[] = {v0, v1...};
             switch (sizeof...(v1)){
                 case 0:
-                    GLCALL(glUniform1fv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform1fv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 1:
-                    GLCALL(glUniform2fv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform2fv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 2:
-                    GLCALL(glUniform3fv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform3fv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 3:
-                    GLCALL(glUniform4fv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform4fv(glGetUniformLocation(id, uniform), 1, data);
                     break;
             }
         };
-        template<typename... data>
-        void SetUniformi(const char* uniform, int v0, data... v1) const {
+        template<typename... ints>
+        void SetUniformi(const char* uniform, int v0, ints... v1) const {
             int data[] = {v0, v1...};
             switch (sizeof...(v1)){
                 case 0:
-                    GLCALL(glUniform1iv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform1iv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 1:
-                    GLCALL(glUniform2iv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform2iv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 2:
-                    GLCALL(glUniform3iv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform3iv(glGetUniformLocation(id, uniform), 1, data);
                     break;
                 case 3:
-                    GLCALL(glUniform4iv(glGetUniformLocation(id, uniform), 1, data));
+                    glUniform4iv(glGetUniformLocation(id, uniform), 1, data);
                     break;
             }
         };

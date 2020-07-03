@@ -6,7 +6,7 @@ inline void Camera::reset(){
     up = glm::normalize(glm::cross(right, front));
 }
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up), pos(pos), vel(0, 0, 0), front(0, 0, 0), right(0, 0, 0), up(0, 0, 0){
+Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up), pos(pos), front(0, 0, 0), right(0, 0, 0), up(0, 0, 0), dir(NONE) {
     this->yaw = yaw;
     this->pitch = pitch;
     speed = 2.5f;
@@ -20,28 +20,24 @@ glm::mat4 Camera::view() {
 }
 
 void Camera::update(float dt) {
-    pos += vel*dt;
-}
-
-void Camera::key_press(Direction d) {
-    switch (d){
+    switch (dir) {
         case FORWARD:
-            vel = front*speed;
+            pos += front*speed*dt;
             break;
         case LEFT:
-            vel = -right*speed;
+            pos -= right*speed*dt;
             break;
         case BACKWARD:
-            vel = -front*speed;
+            pos -= front*speed*dt;
             break;
         case RIGHT:
-            vel = right*speed;
+            pos += right*speed*dt;
             break;
     }
 }
 
-void Camera::key_release() {
-    vel = {0, 0, 0};
+void Camera::set_dir(Direction d) {
+    dir = d;
 }
 
 void Camera::mouse_move(float dx, float dy, bool constrain){

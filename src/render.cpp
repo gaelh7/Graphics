@@ -4,15 +4,15 @@
 #include "Graphics/gmath.hpp"
 
 Visual::Visual() {
-    GLCALL(glGenVertexArrays(1, &VAO));
-    GLCALL(glGenBuffers(1, &VBO));
-    GLCALL(glGenBuffers(1, &IBO));
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &IBO);
 }
 
 Visual::~Visual(){
-    GLCALL(glDeleteBuffers(1, &VBO));
-    GLCALL(glDeleteBuffers(1, &IBO));
-    GLCALL(glDeleteVertexArrays(1, &VAO));
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &IBO);
+    glDeleteVertexArrays(1, &VAO);
     delete[] VBO_DATA;
     delete[] IBO_DATA;
 }
@@ -51,27 +51,27 @@ Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
     int VBO_RESET;
     int IBO_RESET;
     int VAO_RESET;
-    GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
-    GLCALL(glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET));
-    GLCALL(glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET));
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET);
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET);
 
-    GLCALL(glBindVertexArray(VAO));
+    glBindVertexArray(VAO);
 
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
-    GLCALL(glEnableVertexAttribArray(0));
-    GLCALL(glEnableVertexAttribArray(1));
-    GLCALL(glEnableVertexAttribArray(2));
-    GLCALL(glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr));
-    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float))));
-    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float))));
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
 
-    GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW);
 
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET));
-    GLCALL(glBindVertexArray(VAO_RESET));
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
+    glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET);
+    glBindVertexArray(VAO_RESET);
 }
 
 Polygon Surface::local(){
@@ -91,10 +91,10 @@ void Surface::update(float dt){
 
 void Surface::reload(){
     int VBO_RESET;
-    GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
 }
 
 void Surface::set_color(const float r, const float g, const float b, const float a){
@@ -144,27 +144,27 @@ Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
     int VBO_RESET;
     int IBO_RESET;
     int VAO_RESET;
-    GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
-    GLCALL(glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET));
-    GLCALL(glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET));
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &IBO_RESET);
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &VAO_RESET);
 
-    GLCALL(glBindVertexArray(VAO));
+    glBindVertexArray(VAO);
 
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
-    GLCALL(glEnableVertexAttribArray(0));
-    GLCALL(glEnableVertexAttribArray(1));
-    GLCALL(glEnableVertexAttribArray(2));
-    GLCALL(glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr));
-    GLCALL(glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float))));
-    GLCALL(glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float))));
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
 
-    GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-    GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW);
 
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET));
-    GLCALL(glBindVertexArray(VAO_RESET));
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
+    glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET);
+    glBindVertexArray(VAO_RESET);
 }
 
 Polyhedron Solid::local(){
@@ -184,10 +184,10 @@ void Solid::update(float dt){
 
 void Solid::reload(){
     int VBO_RESET;
-    GLCALL(glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GLCALL(glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW));
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET));
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
 }
 
 void Solid::set_color(const float r, const float g, const float b, const float a){
