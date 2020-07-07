@@ -1,7 +1,7 @@
 #pragma once
 
+#include <glad/glad.h>
 #include "Graphics/geometry.hpp"
-#include "Graphics/log.hpp"
 
 class Visual;
 class Surface;

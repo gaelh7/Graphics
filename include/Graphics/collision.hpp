@@ -2,7 +2,6 @@
 
 #include <unordered_set>
 #include "Graphics/hash.hpp"
-#include "Graphics/geometry.hpp"
 
 struct Physical {
     Point* obj;

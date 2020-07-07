@@ -1,9 +1,10 @@
+#include <glad/glad.h>
+#include <stb_image.h>
 #include "Graphics/texture.hpp"
-#include "stb_image.h"
 
 Texture::Texture(const char* filepath): id(0), path(filepath), buffer(nullptr), width(0), height(0), BPP(0){
     stbi_set_flip_vertically_on_load(1);
-    buffer = stbi_load(path.c_str(), &width, &height, &BPP, 4);
+    buffer = stbi_load(path, &width, &height, &BPP, 4);
     int TEX_RESET;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &TEX_RESET);
     glGenTextures(1, &id);

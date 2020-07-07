@@ -1,4 +1,5 @@
-#include <Graphics/shader.hpp>
+#include <iostream>
+#include "Graphics/shader.hpp"
 
 Shader::Shader(const char* filepath): src(ParseShader(filepath)), path(filepath), id(CreateShaders(src)){}
 
@@ -45,8 +46,8 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string &source)
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)alloca(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
-        std::cout << "Failed to compile shader: ";
-        std::cout << message << std::endl;
+        std::cerr << "Failed to compile shader: ";
+        std::cerr << message << std::endl;
         glDeleteShader(id);
         return 0;
     }

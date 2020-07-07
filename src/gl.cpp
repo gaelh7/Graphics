@@ -9,6 +9,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Graphics/log.hpp"
 #include "Graphics/input.hpp"
 #include "Graphics/shader.hpp"
 #include "Graphics/render.hpp"
@@ -23,7 +24,7 @@ bool start = true;
 Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
 CHandler chandle(true);
 
-void mouse_callback(GLFWwindow* window, double x, double y){
+void mouse_callback(double x, double y){
     if(start){
         xpos = x;
         ypos = y;
@@ -35,7 +36,7 @@ void mouse_callback(GLFWwindow* window, double x, double y){
     cam.mouse_move((float)dx, (float)dy);
 }
 
-void scroll_callback(GLFWwindow* window, double dx, double dy){
+void scroll_callback(double dx, double dy){
     cam.mouse_scroll((float)dy);
 }
 
@@ -71,16 +72,16 @@ int main(void)
         int length = width < height ? width:height;
         glViewport((width - length)/2, (height - length)/2, length, length);
     });
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    InputHandler::init(window);
+    InputHandler::set_cursor_pos(mouse_callback);
+    InputHandler::set_scroll(scroll_callback);
+    InputHandler::set_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     InputHandler::bind_key(GLFW_KEY_ESCAPE, [&window](){glfwSetWindowShouldClose(window, true);}, [](){});
     InputHandler::bind_key(GLFW_KEY_W, [](){cam.set_dir(FORWARD);}, [](){cam.set_dir(NONE);});
     InputHandler::bind_key(GLFW_KEY_A, [](){cam.set_dir(LEFT);}, [](){cam.set_dir(NONE);});
     InputHandler::bind_key(GLFW_KEY_S, [](){cam.set_dir(BACKWARD);}, [](){cam.set_dir(NONE);});
     InputHandler::bind_key(GLFW_KEY_D, [](){cam.set_dir(RIGHT);}, [](){cam.set_dir(NONE);});
-    glfwSetKeyCallback(window, InputHandler::key_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0);
 
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;

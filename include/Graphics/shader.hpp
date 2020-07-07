@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include "Graphics/log.hpp"
 
 struct ShaderSource {
     std::string VertexShader, FragmentShader;

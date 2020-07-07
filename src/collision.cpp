@@ -1,6 +1,7 @@
 #include <glm/geometric.hpp>
 #include "Graphics/collision.hpp"
 #include "Graphics/gmath.hpp"
+#include "Graphics/geometry.hpp"
 
 std::vector<std::vector<Physical>> CHandler::get_check() const {
     return combinations<Physical>(tangible.begin(), tangible.end(), 2);
