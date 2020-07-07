@@ -6,7 +6,7 @@ inline void Camera::reset(){
     up = glm::normalize(glm::cross(right, front));
 }
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up), pos(pos), front(0, 0, 0), right(0, 0, 0), up(0, 0, 0), dir(NONE) {
+Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up), pos(pos), front(0, 0, 0), right(0, 0, 0), up(0, 0, 0), dir(NONE){
     this->yaw = yaw;
     this->pitch = pitch;
     speed = 2.5f;
@@ -15,12 +15,12 @@ Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up)
     reset();
 }
 
-glm::mat4 Camera::view() {
+glm::mat4 Camera::view(){
     return glm::lookAt(pos, pos + front, up);
 }
 
-void Camera::update(float dt) {
-    switch (dir) {
+void Camera::update(float dt){
+    switch (dir){
         case FORWARD:
             pos += front*speed*dt;
             break;
@@ -36,7 +36,7 @@ void Camera::update(float dt) {
     }
 }
 
-void Camera::set_dir(Direction d) {
+void Camera::set_dir(Direction d){
     dir = d;
 }
 

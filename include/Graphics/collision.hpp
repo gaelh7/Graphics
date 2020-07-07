@@ -1,6 +1,5 @@
 #pragma once
 
-#include <set>
 #include <unordered_set>
 #include "Graphics/hash.hpp"
 #include "Graphics/geometry.hpp"
@@ -13,18 +12,6 @@ struct Physical {
         return obj;
     }
 };
-
-template<>
-struct std::hash<Physical>{
-    size_t operator()(const Physical& p) const {
-        return std::hash<Point>()(*p.obj);
-    }
-};
-
-static bool operator==(const Physical& p1, const Physical& p2){
-    std::hash<Physical> h;
-    return h(p1) == h(p2);
-}
 
 class CHandler {
     const float elastic;

@@ -1,20 +1,22 @@
 #pragma once
 
 #include <glm/gtx/hash.hpp>
-#include "Graphics/geometry.hpp"
+
+class Point;
+struct Physical;
 
 template<>
 struct std::hash<Point>{
-    size_t operator()(const Point& p) const {
-        size_t seed = p.vertices.size();
-        for(std::shared_ptr<Point> p: p.vertices){
-            seed ^= std::hash<glm::vec3>()(p->pos);
-        }
-        return seed;
-    }
+    size_t operator()(const Point& p) const;
 };
 
-static bool operator==(const Point& p1, const Point& p2){
-    std::hash<Point> h;
-    return h(p1) == h(p2);
-}
+bool operator==(const Point& p1, const Point& p2);
+
+bool operator!=(const Point& p1, const Point& p2);
+
+template<>
+struct std::hash<Physical>{
+    size_t operator()(const Physical& p) const;
+};
+
+bool operator==(const Physical& p1, const Physical& p2);

@@ -1,7 +1,7 @@
 #include "Graphics/texture.hpp"
 #include "stb_image.h"
 
-Texture::Texture(const char* filepath): id(0), path(filepath), buffer(nullptr), width(0), height(0), BPP(0) {
+Texture::Texture(const char* filepath): id(0), path(filepath), buffer(nullptr), width(0), height(0), BPP(0){
     stbi_set_flip_vertically_on_load(1);
     buffer = stbi_load(path.c_str(), &width, &height, &BPP, 4);
     int TEX_RESET;

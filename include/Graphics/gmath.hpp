@@ -10,7 +10,7 @@
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
 template<typename T>
-static constexpr int sign(const T val) {
+static constexpr int sign(const T val){
     return (0 < val) - (val < 0);
 };
 

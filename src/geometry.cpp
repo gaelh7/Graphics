@@ -3,9 +3,9 @@
 #include "Graphics/geometry.hpp"
 #include "Graphics/gmath.hpp"
 
-Point::Point(): pos({0, 0, 0}){}
+Point::Point(): pos({0, 0, 0}), vel(0, 0, 0) {}
 
-Point::Point(glm::vec3 pos): pos(pos){}
+Point::Point(glm::vec3 pos): pos(pos), vel(0, 0, 0) {}
 
 float Point::dist(const Point &obj) const {
     return glm::distance(pos, obj.pos);
@@ -185,7 +185,7 @@ std::unique_ptr<Point> Line::intersect(const Polygon &obj) const {
         points.resize(std::distance(points.begin(), it));
         return points.size() == 1 ? std::make_unique<Point>(points[0]):std::make_unique<LinSeg>(points[0], points[1]);
     }
-    return intersect(project(*this));
+    return intersect(obj.project(*this));
 }
 
 std::unique_ptr<Point> Line::intersect(const Polyhedron &obj) const {
@@ -210,7 +210,7 @@ Point Line::project(const Point &obj) const {
     return Point(vertices[0]->pos + dirVec()*glm::dot(obj.pos - vertices[0]->pos, dirVec()));
 }
 
-float Line::angle(const Line &lobj, glm::vec3* axisptr = nullptr){
+float Line::angle(const Line &lobj, glm::vec3* axisptr){
     glm::vec3 axis = axisptr ? *axisptr:glm::cross(dirVec(), lobj.dirVec());
     axis = glm::normalize(axis);
     float theta = std::atan2(glm::determinant(glm::mat3(dirVec(), lobj.dirVec(), axis)), glm::dot(dirVec(), lobj.dirVec()));
@@ -242,7 +242,7 @@ float LinSeg::dist(const LinSeg &obj) const {
     float c_squared = glm::length2(c);
     float t0 = glm::determinant(glm::mat3(t, obj.dirVec(), c))/c_squared;
     float t1 = glm::determinant(glm::mat3(t, dirVec(), c))/c_squared;
-    if(glm::length2(c) < 1e-5 || t0 < 0 || t0 > length()) return std::min(obj.dist(*vertices[0]), obj.dist(*vertices[1]));
+    if(c_squared < 1e-5 || t0 < 0 || t0 > length()) return std::min(obj.dist(*vertices[0]), obj.dist(*vertices[1]));
     else if(t1 < 0 || t1 > obj.length()) return std::min(dist(*obj.vertices[0]), dist(*obj.vertices[1]));
     return std::abs(glm::dot(c, vertices[0]->pos - obj.vertices[1]->pos))/glm::length(c);
 }
@@ -723,7 +723,7 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
     pos /= vertices.size();
     Point center{pos};
     std::vector<std::vector<std::shared_ptr<Point>>> points;
-    for(unsigned int i = 3; i < vertices.size(); i++){
+    for(unsigned int i = 3; i <= vertices.size(); i++){
         std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(vertices.begin(), vertices.end(), i);
         points.insert(points.end(), comb.begin(), comb.end());
     }

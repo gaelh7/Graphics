@@ -3,7 +3,7 @@
 #include "Graphics/render.hpp"
 #include "Graphics/gmath.hpp"
 
-Visual::Visual() {
+Visual::Visual(){
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &IBO);

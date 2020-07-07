@@ -56,7 +56,7 @@ class Polyhedron;
 class Point {
     public:
         glm::vec3 pos;
-        glm::vec3 vel{0.0f, 0.0f, 0.0f};
+        glm::vec3 vel;
         std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);
@@ -101,7 +101,7 @@ class Line: public Point {
         std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         glm::vec3 dirVec() const;
         Point project(const Point &obj) const;
-        float angle(const Line &lobj, glm::vec3* axisptr);
+        float angle(const Line &lobj, glm::vec3* axisptr = nullptr);
 };
 
 class LinSeg: public Line {

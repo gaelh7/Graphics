@@ -4,18 +4,25 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-static void GLErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+#ifndef NDEBUG
+    #define EXIT(x) _Exit(x)
+#else
+    #define EXIT(x)
+#endif
+
+static void GLErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam){
     std::cerr << message << std::endl;
     if(severity == GL_DEBUG_SEVERITY_HIGH){
-        _Exit(type);
+        EXIT(type);
     }
 }
 
-static void GLFWErrorCallback(int error_code, const char* message) {
+static void GLFWErrorCallback(int error_code, const char* message){
     std::cerr << "GLFW Error " << std::hex << error_code << ": " << message << std::endl;
+    EXIT(error_code);
 }
 
-static inline void enableDebug() {
+static inline void enableDebug(){
     glfwSetErrorCallback(GLFWErrorCallback);
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

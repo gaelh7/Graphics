@@ -60,9 +60,9 @@ class Shader {
         };
         template<int col, int row>
         void SetUniformMatrixf(const char* uniform, const float* data, bool transpose = false){
-            switch (row) {
+            switch (row){
                 case 2:
-                    switch (col) {
+                    switch (col){
                         case 2:
                             glUniformMatrix2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -75,7 +75,7 @@ class Shader {
                     }
                     break;
                 case 3:
-                    switch (col) {
+                    switch (col){
                         case 2:
                             glUniformMatrix3x4fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -88,7 +88,7 @@ class Shader {
                     }
                     break;
                 case 4:
-                    switch (col) {
+                    switch (col){
                         case 2:
                             glUniformMatrix4x2fv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -104,9 +104,9 @@ class Shader {
         }
         template<int col, int row>
         void SetUniformMatrixd(const char* uniform, const double* data, bool transpose = false){
-            switch (col) {
+            switch (col){
                 case 2:
-                    switch (row) {
+                    switch (row){
                         case 2:
                             glUniformMatrix2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -119,7 +119,7 @@ class Shader {
                     }
                     break;
                 case 3:
-                    switch (row) {
+                    switch (row){
                         case 2:
                             glUniformMatrix3x2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
@@ -132,7 +132,7 @@ class Shader {
                     }
                     break;
                 case 4:
-                    switch (row) {
+                    switch (row){
                         case 2:
                             glUniformMatrix4x2dv(glGetUniformLocation(id, uniform), 1, transpose, data);
                             break;
