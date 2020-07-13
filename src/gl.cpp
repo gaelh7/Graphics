@@ -20,25 +20,8 @@
 
 double xpos = 240, ypos = 240;
 float dt;
-bool start = true;
 Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
 CHandler chandle(true);
-
-void mouse_callback(double x, double y){
-    if(start){
-        xpos = x;
-        ypos = y;
-        start = false;
-    }
-    double dx = x - xpos, dy = ypos - y;
-    xpos = x;
-    ypos = y;
-    cam.mouse_move((float)dx, (float)dy);
-}
-
-void scroll_callback(double dx, double dy){
-    cam.mouse_scroll((float)dy);
-}
 
 int main(void)
 {
@@ -73,10 +56,14 @@ int main(void)
         glViewport((width - length)/2, (height - length)/2, length, length);
     });
     InputHandler::init(window);
-    InputHandler::set_cursor_pos(mouse_callback);
-    InputHandler::set_scroll(scroll_callback);
-    InputHandler::set_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+    InputHandler::set_cursor_pos([window](double x, double y){
+        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+            cam.mouse_move((float)(xpos - x), (float)(y - ypos));
+        }
+        xpos = x;
+        ypos = y;
+    });
+    InputHandler::set_scroll([](double dx, double dy){cam.mouse_scroll((float)dy);});
     InputHandler::bind_key(GLFW_KEY_ESCAPE, [&window](){glfwSetWindowShouldClose(window, true);}, [](){});
     InputHandler::bind_key(GLFW_KEY_W, [](){cam.set_dir(FORWARD);}, [](){cam.set_dir(NONE);});
     InputHandler::bind_key(GLFW_KEY_A, [](){cam.set_dir(LEFT);}, [](){cam.set_dir(NONE);});

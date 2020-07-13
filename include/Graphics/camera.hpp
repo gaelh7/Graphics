@@ -5,7 +5,7 @@
 #include <glm/geometric.hpp>
 
 enum Direction {
-    NONE, FORWARD, LEFT, BACKWARD, RIGHT
+    NONE, FORWARD, BACKWARD, RIGHT, LEFT, UP, DOWN
 };
 
 class Camera {

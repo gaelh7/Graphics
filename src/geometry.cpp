@@ -253,9 +253,8 @@ float LinSeg::dist(const Plane &obj) const {
 }
 
 float LinSeg::dist(const Polygon &obj) const {
-    Plane pl(obj.vertices[0], obj.vertices[1], obj.vertices[2]);
-    std::unique_ptr<Point> p = pl.intersect(*this);
-    if(p && contains(*p)) return 0;
+    std::unique_ptr<Point> p = intersect(static_cast<Plane>(obj));
+    if(p && obj.contains(*p)) return 0;
     std::vector<float> distances(obj.edges.size());
     std::transform(obj.edges.begin(), obj.edges.end(), distances.begin(), [this](std::shared_ptr<LinSeg> lin){
         return dist(*lin);
@@ -545,8 +544,7 @@ float Polygon::dist(const Line &obj) const {
 }
 
 float Polygon::dist(const LinSeg &obj) const {
-    Plane pl(vertices[0], vertices[1], vertices[2]);
-    std::unique_ptr<Point> p = pl.intersect(obj);
+    std::unique_ptr<Point> p = static_cast<Plane>(*this).intersect(obj);
     if(p && contains(*p)) return 0;
     std::vector<float> distances(edges.size());
     std::transform(edges.begin(), edges.end(), distances.begin(), [&obj](std::shared_ptr<LinSeg> lin){

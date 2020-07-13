@@ -10,9 +10,9 @@
  * @return 1 if val > 0, -1 if val < 0, and 0 otherwise.
  */
 template<typename T>
-static constexpr int sign(const T val){
+constexpr int sign(const T val){
     return (0 < val) - (val < 0);
-};
+}
 
 /**
  * Determinant of a 3x3 matrix.
@@ -30,7 +30,7 @@ static float det(glm::vec3 &v1, glm::vec3 &v2, glm::vec3 &v3){
     return v1[0]*(v2[1]*v3[2] - v3[1]*v2[2]) -
            v2[0]*(v1[1]*v3[2] - v3[1]*v1[2]) +
            v3[0]*(v1[1]*v2[2] - v2[1]*v1[2]);
-};
+}
 
 template <typename T, class iter>
 std::vector<std::vector<T>> combinations(iter first, iter last, int k){
@@ -48,4 +48,4 @@ std::vector<std::vector<T>> combinations(iter first, iter last, int k){
         }
     }
     return out;
-};
+}

@@ -10,7 +10,7 @@ Camera::Camera(glm::vec3 pos, glm::vec3 up, float yaw, float pitch): worldUp(up)
     this->yaw = yaw;
     this->pitch = pitch;
     speed = 2.5f;
-    sensitivity = 0.01f;
+    sensitivity = 0.0025f;
     zoom = glm::quarter_pi<float>();
     reset();
 }
@@ -24,14 +24,20 @@ void Camera::update(float dt){
         case FORWARD:
             pos += front*speed*dt;
             break;
-        case LEFT:
-            pos -= right*speed*dt;
-            break;
         case BACKWARD:
             pos -= front*speed*dt;
             break;
         case RIGHT:
             pos += right*speed*dt;
+            break;
+        case LEFT:
+            pos -= right*speed*dt;
+            break;
+        case UP:
+            pos += up*speed*dt;
+            break;
+        case DOWN:
+            pos -= up*speed*dt;
             break;
     }
 }
