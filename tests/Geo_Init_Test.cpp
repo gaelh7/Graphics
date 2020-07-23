@@ -12,11 +12,11 @@ struct GeoInitTest: public ::testing::Test {
     std::vector<std::shared_ptr<Point>> points;
 
     virtual void SetUp() override {
-        points.emplace_back(new Point({0, 0, 0}));
-        points.emplace_back(new Point({1, 0, 0}));
-        points.emplace_back(new Point({0, 1, 0}));
-        points.emplace_back(new Point({1, 1, 0}));
-        points.emplace_back(new Point({0.5, 0.5, 1}));
+        points.emplace_back(std::make_shared<Point>(glm::vec3(0, 0, 0)));
+        points.emplace_back(std::make_shared<Point>(glm::vec3(1, 0, 0)));
+        points.emplace_back(std::make_shared<Point>(glm::vec3(0, 1, 0)));
+        points.emplace_back(std::make_shared<Point>(glm::vec3(1, 1, 0)));
+        points.emplace_back(std::make_shared<Point>(glm::vec3(0.5, 0.5, 1)));
     }
 };
 
@@ -93,6 +93,7 @@ TEST_F(GeoInitTest, LinSegInit){
     EXPECT_EQ(2, lin_seg.vertices.size());
     EXPECT_EQ(1, lin_seg.dim());
     EXPECT_FALSE(lin_seg.isSpace());
+    EXPECT_FLOAT_EQ(1, lin_seg.length());
     EXPECT_EQ(glm::vec3(1, 0, 0), lin_seg.dirVec());
     EXPECT_EQ(LinSeg(*points[0], *points[1]), lin_seg);
     EXPECT_EQ(LinSeg(std::vector<Point>({*points[0], *points[1]})), lin_seg);

@@ -7,9 +7,11 @@ std::vector<std::vector<Physical>> CHandler::get_check() const {
     return combinations<Physical>(tangible.begin(), tangible.end(), 2);
 }
 
-CHandler::CHandler(): elastic(2) {}
+CHandler::CHandler(): elasticity(2) {}
 
-CHandler::CHandler(bool elastic): elastic(elastic + 1.f) {}
+CHandler::CHandler(float elasticity): elasticity(elasticity + 1.f) {
+    if(elasticity < 0 || elasticity > 1) throw std::range_error("Elasticity must be a value between 0 and 1");
+}
 
 void CHandler::operator()() const {
     std::vector<std::vector<Physical>> objects = get_check();
@@ -45,7 +47,7 @@ void CHandler::remove(Physical t){
 void CHandler::collision(Physical& obj1, Physical& obj2) const {
     float m1 = obj2.fixed ? 0:obj1.mass;
     float m2 = obj1.fixed ? 0:obj2.mass;
-    glm::vec3 impulse = elastic*(obj2->vel - obj1->vel)/(m2 + m1);
+    glm::vec3 impulse = elasticity*(obj2->vel - obj1->vel)/(m2 + m1);
     glm::vec3 dirVec{0, 0, 0};
     if(Polygon* obj1_surf = dynamic_cast<Polygon*>(obj1.obj)){
         if(glm::dot(obj2->vel - obj1->vel, obj1_surf->normVec()*obj1_surf->sign_dist(*obj2.obj)) < 0)
@@ -59,12 +61,10 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
         float c1 = 0;
         float c2 = 0;
         for(std::shared_ptr<LinSeg> edge: obj1_sol->edges){
-            std::unique_ptr<Point> inter = obj2_sol->intersect(*edge);
-            if(LinSeg* line = dynamic_cast<LinSeg*>(inter.get())) c1 += line->length();
+            if(std::unique_ptr<Point> inter = obj2_sol->intersect(*edge); LinSeg* line = dynamic_cast<LinSeg*>(inter.get())) c1 += line->length();
         }
         for(std::shared_ptr<LinSeg> edge: obj2_sol->edges){
-            std::unique_ptr<Point> inter = obj1_sol->intersect(*edge);
-            if(LinSeg* line = dynamic_cast<LinSeg*>(inter.get())) c2 += line->length();
+            if(std::unique_ptr<Point> inter = obj1_sol->intersect(*edge); LinSeg* line = dynamic_cast<LinSeg*>(inter.get())) c2 += line->length();
         }
         if(c1 < c2){
             float val = 0;
@@ -89,6 +89,6 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
             }
         }
     }
-    if(!obj1.fixed) obj1->vel += dirVec*glm::dot(dirVec, obj2.mass*impulse);
-    if(!obj2.fixed) obj2->vel -= dirVec*glm::dot(dirVec, obj1.mass*impulse);
+    obj1->vel += dirVec*glm::dot(dirVec, m2*impulse);
+    obj2->vel -= dirVec*glm::dot(dirVec, m1*impulse);
 }

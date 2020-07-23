@@ -86,19 +86,19 @@ class Line: public Point {
         Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         Line(std::vector<Point> vert);
         Line(std::vector<std::shared_ptr<Point>> vert);
-        inline unsigned int dim() const override {return 1;}
-        float dist(const Point &obj) const override;
-        float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const override;
-        float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const override;
-        float dist(const Polyhedron &obj) const override;
-        std::unique_ptr<Point> intersect(const Point &obj) const override;
-        std::unique_ptr<Point> intersect(const Line &obj) const override;
-        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
-        std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
-        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
+        inline virtual unsigned int dim() const override {return 1;}
+        virtual float dist(const Point &obj) const override;
+        virtual float dist(const Line &obj) const override;
+        virtual float dist(const LinSeg &obj) const override;
+        virtual float dist(const Plane &obj) const override;
+        virtual float dist(const Polygon &obj) const override;
+        virtual float dist(const Polyhedron &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         glm::vec3 dirVec() const;
         Point project(const Point &obj) const;
         float angle(const Line &lobj, glm::vec3* axisptr = nullptr);
@@ -111,19 +111,19 @@ class LinSeg: public Line {
         LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         LinSeg(std::vector<Point> vert);
         LinSeg(std::vector<std::shared_ptr<Point>> vert);
-        inline bool isSpace() const override {return false;}
-        float dist(const Point &obj) const override;
-        float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const override;
-        float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const override;
-        float dist(const Polyhedron &obj) const override;
-        std::unique_ptr<Point> intersect(const Point &obj) const override;
-        std::unique_ptr<Point> intersect(const Line &obj) const override;
-        std::unique_ptr<Point> intersect(const LinSeg &obj) const;
-        std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
-        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
+        inline virtual bool isSpace() const override {return false;}
+        virtual float dist(const Point &obj) const override;
+        virtual float dist(const Line &obj) const override;
+        virtual float dist(const LinSeg &obj) const override;
+        virtual float dist(const Plane &obj) const override;
+        virtual float dist(const Polygon &obj) const override;
+        virtual float dist(const Polyhedron &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float length() const;
 };
 
@@ -134,7 +134,7 @@ class Plane: public Point {
         Plane(std::vector<Point> vert);
         Plane(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3);
         Plane(std::vector<std::shared_ptr<Point>> vert);
-        inline unsigned int dim() const override {return 2;}
+        inline virtual unsigned int dim() const override {return 2;}
         glm::vec3 normVec() const;
         Point project(const Point &obj) const;
         template<typename T>
@@ -146,18 +146,18 @@ class Plane: public Point {
             return T(v);
         }
         float sign_dist(const Point &obj) const;
-        float dist(const Point &obj) const override;
-        float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const override;
-        float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const override;
-        float dist(const Polyhedron &obj) const override;
-        std::unique_ptr<Point> intersect(const Point &obj) const override;
-        std::unique_ptr<Point> intersect(const Line &obj) const override;
-        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
-        std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
-        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
+        virtual float dist(const Point &obj) const override;
+        virtual float dist(const Line &obj) const override;
+        virtual float dist(const LinSeg &obj) const override;
+        virtual float dist(const Plane &obj) const override;
+        virtual float dist(const Polygon &obj) const override;
+        virtual float dist(const Polyhedron &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
 };
 
 class Polygon: public Plane {
@@ -170,19 +170,19 @@ class Polygon: public Plane {
         template <typename... Points>
         Polygon(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, Points... args): Polygon(std::vector<std::shared_ptr<Point>>{p1, p2, p3, args...}){};
         Polygon(std::vector<std::shared_ptr<Point>> vert);
-        inline bool isSpace() const override {return false;}
-        float dist(const Point &obj) const override;
-        float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const override;
-        float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const override;
-        float dist(const Polyhedron &obj) const override;
-        std::unique_ptr<Point> intersect(const Point &obj) const override;
-        std::unique_ptr<Point> intersect(const Line &obj) const override;
-        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
-        std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
-        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
+        inline virtual bool isSpace() const override {return false;}
+        virtual float dist(const Point &obj) const override;
+        virtual float dist(const Line &obj) const override;
+        virtual float dist(const LinSeg &obj) const override;
+        virtual float dist(const Plane &obj) const override;
+        virtual float dist(const Polygon &obj) const override;
+        virtual float dist(const Polyhedron &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float area() const;
 };
 
@@ -197,20 +197,20 @@ class Polyhedron: public Point {
         template <typename... Points>
         Polyhedron(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3, std::shared_ptr<Point> p4, Points... args): Polyhedron(std::vector<std::shared_ptr<Point>>{p1, p2, p3, p4, args...}){};
         Polyhedron(std::vector<std::shared_ptr<Point>> vert);
-        inline unsigned int dim() const override {return 3;}
-        inline bool isSpace() const override {return false;}
-        float dist(const Point &obj) const override;
-        float dist(const Line &obj) const override;
-        float dist(const LinSeg &obj) const override;
-        float dist(const Plane &obj) const override;
-        float dist(const Polygon &obj) const override;
-        float dist(const Polyhedron &obj) const override;
-        std::unique_ptr<Point> intersect(const Point &obj) const override;
-        std::unique_ptr<Point> intersect(const Line &obj) const override;
-        std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
-        std::unique_ptr<Point> intersect(const Plane &obj) const override;
-        std::unique_ptr<Point> intersect(const Polygon &obj) const override;
-        std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
+        inline virtual unsigned int dim() const override {return 3;}
+        inline virtual bool isSpace() const override {return false;}
+        virtual float dist(const Point &obj) const override;
+        virtual float dist(const Line &obj) const override;
+        virtual float dist(const LinSeg &obj) const override;
+        virtual float dist(const Plane &obj) const override;
+        virtual float dist(const Polygon &obj) const override;
+        virtual float dist(const Polyhedron &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Point &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Line &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const LinSeg &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Plane &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
+        virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float volume() const;
 };
 

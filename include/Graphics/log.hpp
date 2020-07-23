@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #ifndef NDEBUG
-    #define EXIT(x) _Exit(x)
+    #define EXIT(x) std::_Exit(x)
 #else
     #define EXIT(x)
 #endif

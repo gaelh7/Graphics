@@ -25,6 +25,18 @@ TEST_F(LinSegDistTest, LinSegDistToLinSeg){
     lin2 = LinSeg(glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0));
     ASSERT_FLOAT_EQ(lin2.dist(lin), lin.dist(lin2));
     EXPECT_FLOAT_EQ(1, lin.dist(lin2));
+
+    lin2 = LinSeg(glm::vec3(-1, 0, 0), glm::vec3(2, 0, 0));
+    ASSERT_FLOAT_EQ(lin2.dist(lin), lin.dist(lin2));
+    EXPECT_FLOAT_EQ(0, lin.dist(lin2));
+
+    lin2 = LinSeg(glm::vec3(0.5, 0, 0), glm::vec3(2, 0, 0));
+    ASSERT_FLOAT_EQ(lin2.dist(lin), lin.dist(lin2));
+    EXPECT_FLOAT_EQ(0, lin.dist(lin2));
+
+    lin2 = LinSeg(glm::vec3(-1, -1.5, 0), glm::vec3(2, 1.5, 0));
+    ASSERT_FLOAT_EQ(lin2.dist(lin), lin.dist(lin2));
+    EXPECT_FLOAT_EQ(0, lin.dist(lin2));
 }
 
 TEST_F(LinSegDistTest, LinSegDistToPlane){

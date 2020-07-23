@@ -13,12 +13,12 @@ struct Physical {
 };
 
 class CHandler {
-    const float elastic;
+    const float elasticity;
     std::unordered_set<Physical> tangible;
     std::vector<std::vector<Physical>> get_check() const;
     public:
         CHandler();
-        CHandler(bool elastic);
+        CHandler(float elasticity);
         void operator()() const;
         void add(Point* v, float mass = 1.0f, bool fixed = false);
         void add(Physical t);
