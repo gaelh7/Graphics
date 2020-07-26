@@ -81,7 +81,7 @@ class Point {
 
 class Line: public Point {
     public:
-        Line(){};
+        Line();
         Line(Point p1, Point p2);
         Line(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         Line(std::vector<Point> vert);
@@ -106,7 +106,7 @@ class Line: public Point {
 
 class LinSeg: public Line {
     public:
-        LinSeg(){};
+        LinSeg();
         LinSeg(Point p1, Point p2);
         LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
         LinSeg(std::vector<Point> vert);
@@ -129,7 +129,7 @@ class LinSeg: public Line {
 
 class Plane: public Point {
     public:
-        Plane(){};
+        Plane();
         Plane(Point p1, Point p2, Point p3);
         Plane(std::vector<Point> vert);
         Plane(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2, std::shared_ptr<Point> p3);
@@ -163,7 +163,7 @@ class Plane: public Point {
 class Polygon: public Plane {
     public:
         std::vector<std::shared_ptr<LinSeg>> edges;
-        Polygon(){};
+        Polygon();
         template <typename... Points>
         Polygon(Point p1, Point p2, Point p3, Points... args): Polygon(std::vector<Point>{p1, p2, p3, args...}){};
         Polygon(std::vector<Point> vert);
@@ -190,7 +190,7 @@ class Polyhedron: public Point {
     public:
         std::vector<std::shared_ptr<LinSeg>> edges;
         std::vector<std::shared_ptr<Polygon>> faces;
-        Polyhedron(){};
+        Polyhedron();
         template <typename... Points>
         Polyhedron(Point p1, Point p2, Point p3, Point p4, Points... args): Polyhedron(std::vector<Point>{p1, p2, p3, p4, args...}){};
         Polyhedron(std::vector<Point> vert);

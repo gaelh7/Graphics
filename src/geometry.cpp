@@ -89,6 +89,10 @@ bool Point::equals(const Point &obj) const {
     return obj.contains(*this) && contains(obj);
 }
 
+Line::Line(){
+    vertices = {std::make_shared<Point>(glm::vec3(0, 0, 0)), std::make_shared<Point>(glm::vec3(1, 0, 0))};
+}
+
 Line::Line(Point p1, Point p2){
     if(p1.equals(p2))
         throw std::invalid_argument("Inputs must have different positions");
@@ -215,6 +219,8 @@ float Line::angle(const Line &lobj, glm::vec3* axisptr){
     float theta = std::atan2(glm::determinant(glm::mat3(dirVec(), lobj.dirVec(), axis)), glm::dot(dirVec(), lobj.dirVec()));
     return theta >= 0 ? theta:theta + 2*glm::pi<float>();
 }
+
+LinSeg::LinSeg(){}
 
 LinSeg::LinSeg(Point p1, Point p2): Line(p1,p2){}
 
@@ -346,6 +352,10 @@ float LinSeg::length() const {
     return glm::distance(vertices[0]->pos, vertices[1]->pos);
 }
 
+Plane::Plane(){
+    vertices = {std::make_shared<Point>(glm::vec3(0, 0, 0)), std::make_shared<Point>(glm::vec3(1, 0, 0)), std::make_shared<Point>(glm::vec3(0, 1, 0))};
+}
+
 Plane::Plane(Point p1, Point p2, Point p3){
     if(Line(p1, p2).contains(p3)) throw std::invalid_argument("Inputs cannot be collinear");
     vertices = {std::make_shared<Point>(p1.pos), std::make_shared<Point>(p2.pos), std::make_shared<Point>(p3.pos)};
@@ -468,6 +478,11 @@ std::unique_ptr<Point> Plane::intersect(const Polyhedron &obj) const {
     if(out.size() == 1) return std::make_unique<Point>(out[0]);
     else if(out.size() == 2) return std::make_unique<LinSeg>(out[0], out[1]);
     else return std::make_unique<Polygon>(out);
+}
+
+Polygon::Polygon(){
+    pos = {1.0/3.0, 1.0/3.0, 1.0/3.0};
+    edges = {std::make_shared<LinSeg>(vertices[0], vertices[1]), std::make_shared<LinSeg>(vertices[1], vertices[2]), std::make_shared<LinSeg>(vertices[2], vertices[0])};
 }
 
 Polygon::Polygon(std::vector<Point> vert): Plane(vert[0], vert[1], vert[2]){
@@ -698,6 +713,13 @@ float Polygon::area() const {
     float area = 0;
     for(std::shared_ptr<LinSeg> edge: edges) area += glm::length(glm::cross(edge->vertices[0]->pos - pos, edge->vertices[0]->pos - edge->vertices[1]->pos))/2;
     return area;
+}
+
+Polyhedron::Polyhedron(){
+    pos = {0.25, 0.25, 0.25};
+    vertices = {std::make_shared<Point>(glm::vec3(0, 0, 0)), std::make_shared<Point>(glm::vec3(1, 0, 0)), std::make_shared<Point>(glm::vec3(0, 1, 0)), std::make_shared<Point>(glm::vec3(0, 0, 1))};
+    edges = {std::make_shared<LinSeg>(vertices[0], vertices[1]), std::make_shared<LinSeg>(vertices[0], vertices[2]), std::make_shared<LinSeg>(vertices[0], vertices[3]), std::make_shared<LinSeg>(vertices[1], vertices[2]), std::make_shared<LinSeg>(vertices[1], vertices[3]), std::make_shared<LinSeg>(vertices[2], vertices[3])};
+    faces = {std::make_shared<Polygon>(vertices[0], vertices[3], vertices[1]), std::make_shared<Polygon>(vertices[0], vertices[2], vertices[3]), std::make_shared<Polygon>(vertices[0], vertices[1], vertices[2]), std::make_shared<Polygon>(vertices[3], vertices[2], vertices[1])};
 }
 
 Polyhedron::Polyhedron(std::vector<Point> vert){

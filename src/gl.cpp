@@ -71,7 +71,6 @@ int main(void)
     InputHandler::bind_key(GLFW_KEY_S, [](){cam.set_dir(BACKWARD);}, [](){cam.set_dir(NONE);});
     InputHandler::bind_key(GLFW_KEY_D, [](){cam.set_dir(RIGHT);}, [](){cam.set_dir(NONE);});
     glfwSwapInterval(0);
-
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
     glEnable(GL_DEPTH_TEST);
     {
@@ -121,6 +120,8 @@ int main(void)
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
     chandle.add(&slope, 1, false);
+
+
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
 

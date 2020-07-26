@@ -22,27 +22,37 @@ struct GeoInitTest: public ::testing::Test {
 
 TEST_F(GeoInitTest, DefaultConstructor){
     EXPECT_EQ(0, p.vertices.size());
-    EXPECT_EQ(0, lin.vertices.size());
-    EXPECT_EQ(0, lin_seg.vertices.size());
-    EXPECT_EQ(0, plan.vertices.size());
-    EXPECT_EQ(0, poly.vertices.size());
-    EXPECT_EQ(0, poly.edges.size());
-    EXPECT_EQ(0, polyhed.vertices.size());
-    EXPECT_EQ(0, polyhed.edges.size());
-    EXPECT_EQ(0, polyhed.faces.size());
+    EXPECT_EQ(2, lin.vertices.size());
+    EXPECT_EQ(2, lin_seg.vertices.size());
+    EXPECT_EQ(3, plan.vertices.size());
+    EXPECT_EQ(3, poly.vertices.size());
+    EXPECT_EQ(3, poly.edges.size());
+    EXPECT_EQ(4, polyhed.vertices.size());
+    EXPECT_EQ(6, polyhed.edges.size());
+    EXPECT_EQ(4, polyhed.faces.size());
 
     EXPECT_EQ(glm::vec3(0, 0, 0), p.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), p.vel);
     EXPECT_EQ(glm::vec3(0, 0, 0), lin.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), lin.vel);
+    EXPECT_EQ(glm::vec3(1, 0, 0), lin.dirVec());
     EXPECT_EQ(glm::vec3(0, 0, 0), lin_seg.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), lin_seg.vel);
+    EXPECT_EQ(glm::vec3(1, 0, 0), lin_seg.dirVec());
     EXPECT_EQ(glm::vec3(0, 0, 0), plan.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), plan.vel);
-    EXPECT_EQ(glm::vec3(0, 0, 0), poly.pos);
+    EXPECT_EQ(glm::vec3(0, 0, 1), plan.normVec());
+    EXPECT_EQ(glm::vec3(1.0/3.0, 1.0/3.0, 1.0/3.0), poly.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), poly.vel);
-    EXPECT_EQ(glm::vec3(0, 0, 0), polyhed.pos);
+    EXPECT_EQ(glm::vec3(0, 0, 1), poly.normVec());
+    for(int i = 0; i < poly.edges.size(); i++){
+        EXPECT_LT(0, glm::dot(poly.normVec(), glm::cross(poly.edges[i]->dirVec(), poly.edges[(i+1)%poly.edges.size()]->dirVec())));
+    }
+    EXPECT_EQ(glm::vec3(0.25, 0.25, 0.25), polyhed.pos);
     EXPECT_EQ(glm::vec3(0, 0, 0), polyhed.vel);
+    for(std::shared_ptr<Polygon> face: polyhed.faces){
+        EXPECT_LT(0, face->sign_dist(Point(polyhed.pos)));
+    }
 }
 
 TEST_F(GeoInitTest, FailCases){
@@ -122,10 +132,14 @@ TEST_F(GeoInitTest, PolygonInit){
     EXPECT_EQ(points[2], poly.vertices[3]);
     EXPECT_EQ(points[3], poly.vertices[2]);
 
-    EXPECT_EQ(Line(points[0], points[1]), *poly.edges[0]);
-    EXPECT_EQ(Line(points[1], points[3]), *poly.edges[1]);
-    EXPECT_EQ(Line(points[3], points[2]), *poly.edges[2]);
-    EXPECT_EQ(Line(points[2], points[0]), *poly.edges[3]);
+    EXPECT_EQ(LinSeg(points[0], points[1]), *poly.edges[0]);
+    EXPECT_EQ(LinSeg(points[1], points[3]), *poly.edges[1]);
+    EXPECT_EQ(LinSeg(points[3], points[2]), *poly.edges[2]);
+    EXPECT_EQ(LinSeg(points[2], points[0]), *poly.edges[3]);
+
+    for(int i = 0; i < poly.edges.size(); i++){
+        EXPECT_LT(0, glm::dot(poly.normVec(), glm::cross(poly.edges[i]->dirVec(), poly.edges[(i+1)%poly.edges.size()]->dirVec())));
+    }
 
     EXPECT_EQ(4, poly.vertices.size());
     EXPECT_EQ(4, poly.edges.size());
@@ -151,4 +165,7 @@ TEST_F(GeoInitTest, PolyhedronInit){
     EXPECT_EQ(Polyhedron(std::vector<Point>({*points[0], *points[1], *points[2], *points[3], *points[4]})), polyhed);
     EXPECT_EQ(Polyhedron(points), polyhed);
     EXPECT_NE(Polyhedron(points[0], points[1], points[2], points[4]), polyhed);
+    for(std::shared_ptr<Polygon> face: polyhed.faces){
+        EXPECT_LT(0, face->sign_dist(Point(polyhed.pos)));
+    }
 }
