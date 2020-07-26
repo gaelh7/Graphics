@@ -2,6 +2,8 @@
 #include <stb_image.h>
 #include "Graphics/texture.hpp"
 
+using namespace gmh;
+
 Texture::Texture(const char* filepath): id(0), path(filepath), buffer(nullptr), width(0), height(0), BPP(0){
     stbi_set_flip_vertically_on_load(1);
     buffer = stbi_load(path, &width, &height, &BPP, 4);

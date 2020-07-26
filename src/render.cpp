@@ -3,6 +3,8 @@
 #include "Graphics/render.hpp"
 #include "Graphics/gmath.hpp"
 
+using namespace gmh;
+
 Visual::Visual(){
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

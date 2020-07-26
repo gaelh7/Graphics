@@ -2,14 +2,14 @@
 #include <Graphics/geometry.hpp>
 
 struct PointDistTest: public ::testing::Test {
-    Point p;
+    gmh::Point p;
     virtual void SetUp() override {
         p = glm::vec3({0, 0, 0});
     }
 };
 
 TEST_F(PointDistTest, PointDistToPoint){
-    Point p2({1, 1, 0});
+    gmh::Point p2({1, 1, 0});
 
     ASSERT_FLOAT_EQ(p2.dist(p), p.dist(p2));
     EXPECT_FLOAT_EQ(sqrt(2), p.dist(p2));
@@ -20,7 +20,7 @@ TEST_F(PointDistTest, PointDistToPoint){
 }
 
 TEST_F(PointDistTest, PointDistToLine){
-    Line lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
+    gmh::Line lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
 
     ASSERT_FLOAT_EQ(lin.dist(p), p.dist(lin));
     EXPECT_FLOAT_EQ(1, p.dist(lin));
@@ -39,7 +39,7 @@ TEST_F(PointDistTest, PointDistToLine){
 }
 
 TEST_F(PointDistTest, PointDistToLinSegNoClamp){
-    LinSeg lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
+    gmh::LinSeg lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
 
     ASSERT_FLOAT_EQ(lin.dist(p), p.dist(lin));
     EXPECT_FLOAT_EQ(1, p.dist(lin));
@@ -58,8 +58,8 @@ TEST_F(PointDistTest, PointDistToLinSegNoClamp){
 }
 
 TEST_F(PointDistTest, PointDistToLinSegWithClamp){
-    LinSeg lin1(glm::vec3(100, 1, 0), glm::vec3(101, 1, 0));
-    LinSeg lin2(glm::vec3(-100, 1, 0), glm::vec3(-101, 1, 0));
+    gmh::LinSeg lin1(glm::vec3(100, 1, 0), glm::vec3(101, 1, 0));
+    gmh::LinSeg lin2(glm::vec3(-100, 1, 0), glm::vec3(-101, 1, 0));
 
     ASSERT_FLOAT_EQ(lin1.dist(p), lin2.dist(p));
     ASSERT_FLOAT_EQ(lin1.dist(p), p.dist(lin1));
@@ -80,7 +80,7 @@ TEST_F(PointDistTest, PointDistToLinSegWithClamp){
 }
 
 TEST_F(PointDistTest, PointDistToPlane){
-    Plane plan(glm::vec3(0, 1, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 1));
+    gmh::Plane plan(glm::vec3(0, 1, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 1));
 
     ASSERT_FLOAT_EQ(plan.dist(p), p.dist(plan));
     EXPECT_FLOAT_EQ(1, p.dist(plan));
@@ -95,7 +95,7 @@ TEST_F(PointDistTest, PointDistToPlane){
 }
 
 TEST_F(PointDistTest, PointDistToPolygonInPlane){
-    Polygon poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0));
+    gmh::Polygon poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0));
 
     ASSERT_FLOAT_EQ(poly.dist(p), p.dist(poly));
     EXPECT_FLOAT_EQ(1, p.dist(poly));
@@ -118,7 +118,7 @@ TEST_F(PointDistTest, PointDistToPolygonInPlane){
 }
 
 TEST_F(PointDistTest, PointDistToPolygonNoClamp){
-    Polygon poly(glm::vec3(-1, 0, 1), glm::vec3(1, -2, 1), glm::vec3(1, 2, 1));
+    gmh::Polygon poly(glm::vec3(-1, 0, 1), glm::vec3(1, -2, 1), glm::vec3(1, 2, 1));
 
     ASSERT_FLOAT_EQ(poly.dist(p), p.dist(poly));
     EXPECT_FLOAT_EQ(1, p.dist(poly));
@@ -137,7 +137,7 @@ TEST_F(PointDistTest, PointDistToPolygonNoClamp){
 }
 
 TEST_F(PointDistTest, PointDistToPolygonWithClamp){
-    Polygon poly(glm::vec3(-3, 0, 1), glm::vec3(-1, -2, 1), glm::vec3(-1, 2, 1));
+    gmh::Polygon poly(glm::vec3(-3, 0, 1), glm::vec3(-1, -2, 1), glm::vec3(-1, 2, 1));
 
     ASSERT_FLOAT_EQ(poly.dist(p), p.dist(poly));
     EXPECT_FLOAT_EQ(sqrt(2), p.dist(poly));
@@ -156,7 +156,7 @@ TEST_F(PointDistTest, PointDistToPolygonWithClamp){
 }
 
 TEST_F(PointDistTest, PointDistToPolyhedron){
-    Polyhedron poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0), glm::vec3(1.5, 0, 1));
+    gmh::Polyhedron poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0), glm::vec3(1.5, 0, 1));
 
     ASSERT_FLOAT_EQ(poly.dist(p), p.dist(poly));
     EXPECT_FLOAT_EQ(1, p.dist(poly));

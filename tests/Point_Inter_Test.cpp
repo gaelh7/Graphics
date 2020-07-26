@@ -2,7 +2,7 @@
 #include <Graphics/geometry.hpp>
 
 struct PointInterTest: public ::testing::Test {
-    Point obj;
+    gmh::Point obj;
     virtual void SetUp() override {
         obj = glm::vec3({0, 0, 0});
     }
@@ -25,16 +25,16 @@ struct PointInterTest: public ::testing::Test {
 };
 
 TEST_F(PointInterTest, PointInterWithPoint){
-    Point p2({1, 1, 0});
+    gmh::Point p2({1, 1, 0});
 
     checkNoInter(p2);
 
     obj.pos = {1, 1, 0};
-    checkYesInter(p2, Point({1, 1, 0}));
+    checkYesInter(p2, gmh::Point({1, 1, 0}));
 }
 
 TEST_F(PointInterTest, PointInterWithLine){
-    Line lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
+    gmh::Line lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
 
     checkNoInter(lin);
 
@@ -45,11 +45,11 @@ TEST_F(PointInterTest, PointInterWithLine){
     checkNoInter(lin);
 
     obj.pos = {100, 1, 0};
-    checkYesInter(lin, Point({100, 1, 0}));
+    checkYesInter(lin, gmh::Point({100, 1, 0}));
 }
 
 TEST_F(PointInterTest, PointInterWithLinSegNoClamp){
-    LinSeg lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
+    gmh::LinSeg lin(glm::vec3(-1, 1, 0), glm::vec3(1, 1, 0));
 
     checkNoInter(lin);
 
@@ -60,12 +60,12 @@ TEST_F(PointInterTest, PointInterWithLinSegNoClamp){
     checkNoInter(lin);
 
     obj.pos = {0.5, 1, 0};
-    checkYesInter(lin, Point({0.5, 1, 0}));
+    checkYesInter(lin, gmh::Point({0.5, 1, 0}));
 }
 
 TEST_F(PointInterTest, PointInterWithLinSegWithClamp){
-    LinSeg lin1(glm::vec3(100, 1, 0), glm::vec3(101, 1, 0));
-    LinSeg lin2(glm::vec3(-100, 1, 0), glm::vec3(-101, 1, 0));
+    gmh::LinSeg lin1(glm::vec3(100, 1, 0), glm::vec3(101, 1, 0));
+    gmh::LinSeg lin2(glm::vec3(-100, 1, 0), glm::vec3(-101, 1, 0));
 
     checkNoInter(lin1);
 
@@ -77,7 +77,7 @@ TEST_F(PointInterTest, PointInterWithLinSegWithClamp){
 }
 
 TEST_F(PointInterTest, PointInterWithPlane){
-    Plane plan(glm::vec3(0, 1, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 1));
+    gmh::Plane plan(glm::vec3(0, 1, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 1));
 
     checkNoInter(plan);
 
@@ -85,11 +85,11 @@ TEST_F(PointInterTest, PointInterWithPlane){
     checkNoInter(plan);
 
     obj.pos = {-4.5e5, 1, 8e2};
-    checkYesInter(plan, Point({-4.5e5, 1, 8e2}));
+    checkYesInter(plan, gmh::Point({-4.5e5, 1, 8e2}));
 }
 
 TEST_F(PointInterTest, PointInterWithPolygonInPlane){
-    Polygon poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0));
+    gmh::Polygon poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0));
 
     checkNoInter(poly);
 
@@ -103,11 +103,11 @@ TEST_F(PointInterTest, PointInterWithPolygonInPlane){
     checkNoInter(poly);
 
     obj.pos = {1.5, 0, 0};
-    checkYesInter(poly, Point({1.5, 0, 0}));
+    checkYesInter(poly, gmh::Point({1.5, 0, 0}));
 }
 
 TEST_F(PointInterTest, PointInterWithPolygonNoClamp){
-    Polygon poly(glm::vec3(-1, 0, 1), glm::vec3(1, -2, 1), glm::vec3(1, 2, 1));
+    gmh::Polygon poly(glm::vec3(-1, 0, 1), glm::vec3(1, -2, 1), glm::vec3(1, 2, 1));
 
     checkNoInter(poly);
 
@@ -122,7 +122,7 @@ TEST_F(PointInterTest, PointInterWithPolygonNoClamp){
 }
 
 TEST_F(PointInterTest, PointInterWithPolygonWithClamp){
-    Polygon poly(glm::vec3(-3, 0, 1), glm::vec3(-1, -2, 1), glm::vec3(-1, 2, 1));
+    gmh::Polygon poly(glm::vec3(-3, 0, 1), glm::vec3(-1, -2, 1), glm::vec3(-1, 2, 1));
 
     checkNoInter(poly);
 
@@ -137,7 +137,7 @@ TEST_F(PointInterTest, PointInterWithPolygonWithClamp){
 }
 
 TEST_F(PointInterTest, PointInterWithPolyhedron){
-    Polyhedron poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0), glm::vec3(1.5, 0, 1));
+    gmh::Polyhedron poly(glm::vec3(1, 0, 0), glm::vec3(2, -1, 0), glm::vec3(2, 1, 0), glm::vec3(1.5, 0, 1));
 
     checkNoInter(poly);
 
@@ -152,5 +152,5 @@ TEST_F(PointInterTest, PointInterWithPolyhedron){
 
     obj.pos = {1.5, 0, 0.5};
 
-    checkYesInter(poly, Point({1.5, 0, 0.5}));
+    checkYesInter(poly, gmh::Point({1.5, 0, 0.5}));
 }

@@ -3,6 +3,8 @@
 #include "Graphics/geometry.hpp"
 #include "Graphics/gmath.hpp"
 
+using namespace gmh;
+
 Point::Point(): pos({0, 0, 0}), vel(0, 0, 0) {}
 
 Point::Point(glm::vec3 pos): pos(pos), vel(0, 0, 0) {}

@@ -2,21 +2,23 @@
 
 #include <glm/gtx/hash.hpp>
 
-class Point;
-struct Physical;
+namespace gmh {
+    class Point;
+    struct Physical;
+
+    bool operator==(const Point& p1, const Point& p2);
+
+    bool operator!=(const Point& p1, const Point& p2);
+
+    bool operator==(const Physical& p1, const Physical& p2);
+}
 
 template<>
-struct std::hash<Point>{
-    size_t operator()(const Point& p) const;
+struct std::hash<gmh::Point>{
+    size_t operator()(const gmh::Point& p) const;
 };
-
-bool operator==(const Point& p1, const Point& p2);
-
-bool operator!=(const Point& p1, const Point& p2);
 
 template<>
-struct std::hash<Physical>{
-    size_t operator()(const Physical& p) const;
+struct std::hash<gmh::Physical>{
+    size_t operator()(const gmh::Physical& p) const;
 };
-
-bool operator==(const Physical& p1, const Physical& p2);

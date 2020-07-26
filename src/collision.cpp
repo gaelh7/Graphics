@@ -3,6 +3,8 @@
 #include "Graphics/gmath.hpp"
 #include "Graphics/geometry.hpp"
 
+using namespace gmh;
+
 std::vector<std::vector<Physical>> CHandler::get_check() const {
     return combinations<Physical>(tangible.begin(), tangible.end(), 2);
 }

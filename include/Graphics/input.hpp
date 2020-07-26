@@ -4,24 +4,26 @@
 #include <functional>
 #include <GLFW/glfw3.h>
 
-class InputHandler {
-    static GLFWwindow* window;
-    static std::unordered_map<int, std::pair<std::function<void()>, std::function<void()>>> key_bindings;
-    static std::function<void(double, double)> mouse_callback;
-    static std::function<void(double, double)> scroll_callback;
-    static void key_callback(int key, int action);
+namespace gmh{
+    class InputHandler {
+        static GLFWwindow* window;
+        static std::unordered_map<int, std::pair<std::function<void()>, std::function<void()>>> key_bindings;
+        static std::function<void(double, double)> mouse_callback;
+        static std::function<void(double, double)> scroll_callback;
+        static void key_callback(int key, int action);
 
-    public:
-        static void init(GLFWwindow* window);
+        public:
+            static void init(GLFWwindow* window);
 
-        static void bind_key(int key, std::function<void()> press_action, std::function<void()> release_action);
+            static void bind_key(int key, std::function<void()> press_action, std::function<void()> release_action);
 
-        static void unbind_key(int key);
+            static void unbind_key(int key);
 
-        static void set_cursor_pos(std::function<void(double, double)> action);
+            static void set_cursor_pos(std::function<void(double, double)> action);
 
-        static void set_scroll(std::function<void(double, double)> action);
+            static void set_scroll(std::function<void(double, double)> action);
 
-        static void set_mode(int mode, int value);
+            static void set_mode(int mode, int value);
 
-};
+    };
+}

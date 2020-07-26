@@ -2,10 +2,10 @@
 #include "Graphics/geometry.hpp"
 
 struct PolygonInterTest: public ::testing::Test {
-    Polygon obj;
+    gmh::Polygon obj;
 
     virtual void SetUp() override {
-        obj = Polygon(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0));
+        obj = gmh::Polygon(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0));
     }
 
     template<typename T>
@@ -26,86 +26,86 @@ struct PolygonInterTest: public ::testing::Test {
 };
 
 TEST_F(PolygonInterTest, PolygonInterWithPolygon){
-    Polygon poly2(glm::vec3(0, 0, 0), glm::vec3(1, 0, 1), glm::vec3(-1, 0, 1));
-    checkYesInter(poly2, Point({0, 0, 0}));
+    gmh::Polygon poly2(glm::vec3(0, 0, 0), glm::vec3(1, 0, 1), glm::vec3(-1, 0, 1));
+    checkYesInter(poly2, gmh::Point({0, 0, 0}));
 
-    poly2 = Polygon(glm::vec3(0, 1, 1), glm::vec3(1, 0, 1), glm::vec3(-1, 0, 1));
+    poly2 = gmh::Polygon(glm::vec3(0, 1, 1), glm::vec3(1, 0, 1), glm::vec3(-1, 0, 1));
     checkNoInter(poly2);
 
-    poly2 = Polygon(glm::vec3(3, 1, 0), glm::vec3(3, -1, 0), glm::vec3(4, 1, 0), glm::vec3(4, -1, 0));
+    poly2 = gmh::Polygon(glm::vec3(3, 1, 0), glm::vec3(3, -1, 0), glm::vec3(4, 1, 0), glm::vec3(4, -1, 0));
     checkNoInter(poly2);
 
-    poly2 = Polygon(glm::vec3(3, 1, 1), glm::vec3(3, -1, -1), glm::vec3(3, 1, -1), glm::vec3(3, -1, 1));
+    poly2 = gmh::Polygon(glm::vec3(3, 1, 1), glm::vec3(3, -1, -1), glm::vec3(3, 1, -1), glm::vec3(3, -1, 1));
     checkNoInter(poly2);
 
-    poly2 = Polygon(glm::vec3(0, 0, 1), glm::vec3(0, 5, 2), glm::vec3(0, -5, 2));
+    poly2 = gmh::Polygon(glm::vec3(0, 0, 1), glm::vec3(0, 5, 2), glm::vec3(0, -5, 2));
     checkNoInter(poly2);
 
-    poly2 = Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0));
-    checkYesInter(poly2, Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0)));
+    poly2 = gmh::Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0));
+    checkYesInter(poly2, gmh::Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0)));
 
-    poly2 = Polygon(glm::vec3(0, 0, 0), glm::vec3(4, 0, 0), glm::vec3(0, 4, 0));
-    checkYesInter(poly2, Polygon(glm::vec3(0, 0, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), glm::vec3(2, 2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(0, 0, 0), glm::vec3(4, 0, 0), glm::vec3(0, 4, 0));
+    checkYesInter(poly2, gmh::Polygon(glm::vec3(0, 0, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), glm::vec3(2, 2, 0)));
 
-    poly2 = Polygon(glm::vec3(0, 0, 0), glm::vec3(4, 0, 0), glm::vec3(0, 4, 0), glm::vec3(4, 4, 0));
-    checkYesInter(poly2, Polygon(glm::vec3(0, 0, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), glm::vec3(2, 2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(0, 0, 0), glm::vec3(4, 0, 0), glm::vec3(0, 4, 0), glm::vec3(4, 4, 0));
+    checkYesInter(poly2, gmh::Polygon(glm::vec3(0, 0, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), glm::vec3(2, 2, 0)));
 
-    poly2 = Polygon(glm::vec3(0, 3, 0), glm::vec3(0, -3, 0), glm::vec3(3, 3, 0), glm::vec3(3, -3, 0));
-    checkYesInter(poly2, Polygon(glm::vec3(0, 2, 0), glm::vec3(0, -2, 0), glm::vec3(2, -2, 0), glm::vec3(2, 2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(0, 3, 0), glm::vec3(0, -3, 0), glm::vec3(3, 3, 0), glm::vec3(3, -3, 0));
+    checkYesInter(poly2, gmh::Polygon(glm::vec3(0, 2, 0), glm::vec3(0, -2, 0), glm::vec3(2, -2, 0), glm::vec3(2, 2, 0)));
 
-    poly2 = Polygon(glm::vec3(2, 3, 0), glm::vec3(2, -3, 0), glm::vec3(3, 3, 0), glm::vec3(3, -3, 0));
-    checkYesInter(poly2, LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(2, 3, 0), glm::vec3(2, -3, 0), glm::vec3(3, 3, 0), glm::vec3(3, -3, 0));
+    checkYesInter(poly2, gmh::LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
 
-    poly2 = Polygon(glm::vec3(4, 0, 0), glm::vec3(0, 4, 0), glm::vec3(4, 4, 0));
-    checkYesInter(poly2, Point({2, 2, 0}));
+    poly2 = gmh::Polygon(glm::vec3(4, 0, 0), glm::vec3(0, 4, 0), glm::vec3(4, 4, 0));
+    checkYesInter(poly2, gmh::Point({2, 2, 0}));
 
-    poly2 = Polygon(glm::vec3(0, 1, 0), glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
-    checkYesInter(poly2, LinSeg(glm::vec3(0, 1, 0), glm::vec3(0, -1, 0)));
+    poly2 = gmh::Polygon(glm::vec3(0, 1, 0), glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
+    checkYesInter(poly2, gmh::LinSeg(glm::vec3(0, 1, 0), glm::vec3(0, -1, 0)));
 
-    poly2 = Polygon(glm::vec3(0, 3, 0), glm::vec3(0, -3, 0), glm::vec3(0, 0, 1));
-    checkYesInter(poly2, LinSeg(glm::vec3(0, 2, 0), glm::vec3(0, -2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(0, 3, 0), glm::vec3(0, -3, 0), glm::vec3(0, 0, 1));
+    checkYesInter(poly2, gmh::LinSeg(glm::vec3(0, 2, 0), glm::vec3(0, -2, 0)));
 
-    poly2 = Polygon(glm::vec3(0, 4, 0), glm::vec3(4, 0, 0), glm::vec3(3, 1, 2));
-    checkYesInter(poly2, Point({2, 2, 0}));
+    poly2 = gmh::Polygon(glm::vec3(0, 4, 0), glm::vec3(4, 0, 0), glm::vec3(3, 1, 2));
+    checkYesInter(poly2, gmh::Point({2, 2, 0}));
 
-    poly2 = Polygon(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(2, 0, 2));
-    checkYesInter(poly2, LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
+    poly2 = gmh::Polygon(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(2, 0, 2));
+    checkYesInter(poly2, gmh::LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
 }
 
 TEST_F(PolygonInterTest, PolygonInterWithPolyhedron){
-    Polyhedron polyhed(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0), glm::vec3(0, 0, 2));
-    checkYesInter(polyhed, Polygon(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0)));
+    gmh::Polyhedron polyhed(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0), glm::vec3(0, 0, 2));
+    checkYesInter(polyhed, gmh::Polygon(glm::vec3(2, 2, 0), glm::vec3(-2, 2, 0), glm::vec3(2, -2, 0), glm::vec3(-2, -2, 0)));
 
-    obj = Polygon(glm::vec3(2, 2, 1), glm::vec3(-2, 2, 1), glm::vec3(2, -2, 1), glm::vec3(-2, -2, 1));
-    checkYesInter(polyhed, Polygon(glm::vec3(1, 1, 1), glm::vec3(-1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1)));
+    obj = gmh::Polygon(glm::vec3(2, 2, 1), glm::vec3(-2, 2, 1), glm::vec3(2, -2, 1), glm::vec3(-2, -2, 1));
+    checkYesInter(polyhed, gmh::Polygon(glm::vec3(1, 1, 1), glm::vec3(-1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1)));
 
-    obj = Polygon(glm::vec3(2, 2, 2), glm::vec3(-2, 2, 2), glm::vec3(2, -2, 2), glm::vec3(-2, -2, 2));
-    checkYesInter(polyhed, Point({0, 0, 2}));
+    obj = gmh::Polygon(glm::vec3(2, 2, 2), glm::vec3(-2, 2, 2), glm::vec3(2, -2, 2), glm::vec3(-2, -2, 2));
+    checkYesInter(polyhed, gmh::Point({0, 0, 2}));
 
-    obj = Polygon(glm::vec3(6, 2, 0), glm::vec3(2, 2, 0), glm::vec3(6, -2, 0), glm::vec3(2, -2, 0));
-    checkYesInter(polyhed, LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
+    obj = gmh::Polygon(glm::vec3(6, 2, 0), glm::vec3(2, 2, 0), glm::vec3(6, -2, 0), glm::vec3(2, -2, 0));
+    checkYesInter(polyhed, gmh::LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
 
-    obj = Polygon(glm::vec3(2, 2, 2), glm::vec3(2, 2, -2), glm::vec3(2, -2, 2), glm::vec3(2, -2, -2));
-    checkYesInter(polyhed, LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
+    obj = gmh::Polygon(glm::vec3(2, 2, 2), glm::vec3(2, 2, -2), glm::vec3(2, -2, 2), glm::vec3(2, -2, -2));
+    checkYesInter(polyhed, gmh::LinSeg(glm::vec3(2, 2, 0), glm::vec3(2, -2, 0)));
 
-    obj = Polygon(glm::vec3(5, 2, 1), glm::vec3(1, 2, 1), glm::vec3(5, -2, 1), glm::vec3(1, -2, 1));
-    checkYesInter(polyhed, LinSeg(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1)));
+    obj = gmh::Polygon(glm::vec3(5, 2, 1), glm::vec3(1, 2, 1), glm::vec3(5, -2, 1), glm::vec3(1, -2, 1));
+    checkYesInter(polyhed, gmh::LinSeg(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1)));
 
-    obj = Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, -1, 0), glm::vec3(-1, 1, 0));
-    checkYesInter(polyhed, Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, -1, 0), glm::vec3(-1, 1, 0)));
+    obj = gmh::Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, -1, 0), glm::vec3(-1, 1, 0));
+    checkYesInter(polyhed, gmh::Polygon(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, -1, 0), glm::vec3(-1, 1, 0)));
 
-    obj = Polygon(glm::vec3(1, 1, 0.5), glm::vec3(1, -1, 0.5), glm::vec3(-1, -1, 0.5), glm::vec3(-1, 1, 0.5));
-    checkYesInter(polyhed, Polygon(glm::vec3(1, 1, 0.5), glm::vec3(1, -1, 0.5), glm::vec3(-1, -1, 0.5), glm::vec3(-1, 1, 0.5)));
+    obj = gmh::Polygon(glm::vec3(1, 1, 0.5), glm::vec3(1, -1, 0.5), glm::vec3(-1, -1, 0.5), glm::vec3(-1, 1, 0.5));
+    checkYesInter(polyhed, gmh::Polygon(glm::vec3(1, 1, 0.5), glm::vec3(1, -1, 0.5), glm::vec3(-1, -1, 0.5), glm::vec3(-1, 1, 0.5)));
 
-    obj = Polygon(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1), glm::vec3(-1, 1, 1));
-    checkYesInter(polyhed, Polygon(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1), glm::vec3(-1, 1, 1)));
+    obj = gmh::Polygon(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1), glm::vec3(-1, 1, 1));
+    checkYesInter(polyhed, gmh::Polygon(glm::vec3(1, 1, 1), glm::vec3(1, -1, 1), glm::vec3(-1, -1, 1), glm::vec3(-1, 1, 1)));
 
-    obj = Polygon(glm::vec3(1, 1, -1), glm::vec3(1, -1, -1), glm::vec3(-1, -1, -1), glm::vec3(-1, 1, -1));
+    obj = gmh::Polygon(glm::vec3(1, 1, -1), glm::vec3(1, -1, -1), glm::vec3(-1, -1, -1), glm::vec3(-1, 1, -1));
     checkNoInter(polyhed);
 
-    obj = Polygon(glm::vec3(5, 1, 0), glm::vec3(5, -1, 0), glm::vec3(3, -1, 0), glm::vec3(3, 1, 0));
+    obj = gmh::Polygon(glm::vec3(5, 1, 0), glm::vec3(5, -1, 0), glm::vec3(3, -1, 0), glm::vec3(3, 1, 0));
     checkNoInter(polyhed);
 
-    obj = Polygon(glm::vec3(0, 1, -1), glm::vec3(0, -1, -1), glm::vec3(0, -1, -2), glm::vec3(0, 1, -2));
+    obj = gmh::Polygon(glm::vec3(0, 1, -1), glm::vec3(0, -1, -1), glm::vec3(0, -1, -2), glm::vec3(0, 1, -2));
     checkNoInter(polyhed);
 }

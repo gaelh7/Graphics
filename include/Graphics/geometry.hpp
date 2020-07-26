@@ -5,6 +5,8 @@
 #include <memory>
 #include <glm/ext/vector_float3.hpp>
 
+namespace gmh{
+
 /**
  * @brief Defines a point in 3D space.
  *
@@ -214,7 +216,9 @@ class Polyhedron: public Point {
         float volume() const;
 };
 
-static std::ostream& operator<<(std::ostream &strm, const Point &p){
+}
+
+static std::ostream& operator<<(std::ostream &strm, const gmh::Point &p){
     if(p.vertices.size() == 0)
         return strm << "Point(" << p.pos.x << ", " << p.pos.y << ", " << p.pos.z << ")";
     strm << typeid(p).name() << '(';

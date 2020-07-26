@@ -1,5 +1,7 @@
 #include "Graphics/input.hpp"
 
+using namespace gmh;
+
 GLFWwindow* InputHandler::window = nullptr;
 std::unordered_map<int, std::pair<std::function<void()>, std::function<void()>>> InputHandler::key_bindings = {{GLFW_KEY_UNKNOWN, {[](){}, [](){}}}};
 std::function<void(double, double)> InputHandler::mouse_callback = [](double, double){};

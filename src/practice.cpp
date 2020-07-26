@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Graphics/geometry.hpp"
+#include "Graphics/hash.hpp"
 
 #ifndef NDEBUG
     #define PRINT std::cout << "Debug Mode" << std::endl
@@ -25,18 +26,20 @@ int main(int argc, char* argv[])
 {
     PRINT;
 
-    cout << "Point: " << sizeof(Point) << " bytes" << endl;
-    cout << "Line: " << sizeof(Line) << " bytes" << endl;
-    cout << "LinSeg: " << sizeof(LinSeg) << " bytes" << endl;
-    cout << "Plane: " << sizeof(Plane) << " bytes" << endl;
-    cout << "Polygon: " << sizeof(Polygon) << " bytes" << endl;
-    cout << "Polyhedron: " << sizeof(Polyhedron) << " bytes" << endl;
+    cout << "Point: " << sizeof(gmh::Point) << " bytes" << endl;
+    cout << "Line: " << sizeof(gmh::Line) << " bytes" << endl;
+    cout << "LinSeg: " << sizeof(gmh::LinSeg) << " bytes" << endl;
+    cout << "Plane: " << sizeof(gmh::Plane) << " bytes" << endl;
+    cout << "Polygon: " << sizeof(gmh::Polygon) << " bytes" << endl;
+    cout << "Polyhedron: " << sizeof(gmh::Polyhedron) << " bytes" << endl;
 
-    Line lin(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0));
+    gmh::Line lin(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0));
 
-    Line lin2(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    gmh::Line lin2(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
     auto start = chrono::high_resolution_clock::now();
+
+    cout << (gmh::operator!=(lin2, lin) ? "True\n":"False\n");
 
     auto end = chrono::high_resolution_clock::now();
 

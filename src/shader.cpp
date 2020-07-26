@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Graphics/shader.hpp"
 
+using namespace gmh;
+
 Shader::Shader(const char* filepath): src(ParseShader(filepath)), path(filepath), id(CreateShaders(src)){}
 
 Shader::~Shader(){

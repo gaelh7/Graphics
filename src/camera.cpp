@@ -1,5 +1,7 @@
 #include "Graphics/camera.hpp"
 
+using namespace gmh;
+
 inline void Camera::reset(){
     front = glm::normalize(glm::vec3{cos(yaw)*cos(pitch), sin(pitch), sin(yaw)*cos(pitch)});
     right = glm::normalize(glm::cross(front, worldUp));
