@@ -15,8 +15,6 @@ Visual::~Visual(){
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &IBO);
     glDeleteVertexArrays(1, &VAO);
-    delete[] VBO_DATA;
-    delete[] IBO_DATA;
 }
 
 void Visual::vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a){
@@ -32,7 +30,7 @@ void Visual::tex_coord(const unsigned int vertex, const float x, const float y){
 }
 
 Surface::Surface(std::vector<Point> vert): Polygon(vert){
-    VBO_DATA = new float[STRIDE*vertices.size()];
+    VBO_DATA.resize(STRIDE*vertices.size());
     for(unsigned int i = 0; i < STRIDE*vertices.size(); i+=STRIDE){
         VBO_DATA[i + PosX] = vertices[i/STRIDE]->pos.x;
         VBO_DATA[i + PosY] = vertices[i/STRIDE]->pos.y;
@@ -44,7 +42,7 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
         VBO_DATA[i + TexU] = 0;
         VBO_DATA[i + TexV] = 0;
     }
-    IBO_DATA = new unsigned int[3*(vertices.size() - 2)];
+    IBO_DATA.resize(3*(vertices.size() - 2));
     for(unsigned int i = 0; i < 3*(vertices.size() - 2); i+=3){
         IBO_DATA[i] = 0;
         IBO_DATA[i + 1] = i/3 + 1;
@@ -60,7 +58,7 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -69,7 +67,7 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*(vertices.size() - 2)*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
     glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET);
@@ -95,7 +93,7 @@ void Surface::reload(){
     int VBO_RESET;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
 }
 
@@ -109,7 +107,7 @@ void Surface::set_color(const float r, const float g, const float b, const float
 }
 
 Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
-    VBO_DATA = new float[STRIDE*vertices.size()];
+    VBO_DATA.resize(STRIDE*vertices.size());
     for(unsigned int i = 0; i < STRIDE*vertices.size(); i+=STRIDE){
         VBO_DATA[i + PosX] = vertices[i/STRIDE]->pos.x;
         VBO_DATA[i + PosY] = vertices[i/STRIDE]->pos.y;
@@ -125,7 +123,7 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     for(std::shared_ptr<Polygon> face: faces){
         indices += (unsigned int)(3*(face->vertices.size() - 2));
     }
-    IBO_DATA = new unsigned int[indices];
+    IBO_DATA.resize(indices);
     int j = 0;
     for(std::shared_ptr<Polygon> face: faces){
         for(unsigned int i = 0; i < (face->vertices.size() - 2); i++){
@@ -153,7 +151,7 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -162,7 +160,7 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
     glBindBuffer(GL_ARRAY_BUFFER, IBO_RESET);
@@ -188,7 +186,7 @@ void Solid::reload(){
     int VBO_RESET;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &VBO_RESET);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, STRIDE*vertices.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_RESET);
 }
 

@@ -16,8 +16,8 @@ namespace gmh{
     class Visual {
         protected:
             unsigned int VAO, VBO, IBO;
-            float* VBO_DATA;
-            unsigned int* IBO_DATA;
+            std::vector<float> VBO_DATA;
+            std::vector<unsigned int> IBO_DATA;
         public:
             glm::mat4 model{1.0f};
             Visual();
@@ -36,6 +36,7 @@ namespace gmh{
 
     class Surface: public Visual, public Polygon {
         public:
+            Surface();
             template<typename... Points>
             Surface(Points... args): Surface(std::vector<Point>{args...}){};
             Surface(std::vector<Point> vert);
@@ -59,6 +60,7 @@ namespace gmh{
         private:
             unsigned int indices;
         public:
+            Solid();
             template<typename... Points>
             Solid(Points... args): Solid(std::vector<Point>{args...}){};
             Solid(std::vector<Point> vert);
