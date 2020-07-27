@@ -49,7 +49,7 @@ target_link_libraries(main Graphics)
 # tests
 enable_testing()
 add_subdirectory(${LIB_DIR}/googletest)
-add_subdirectory(tests)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # dependencies
 add_subdirectory(${GLFW_DIR})

@@ -31,7 +31,7 @@ void Visual::tex_coord(const unsigned int vertex, const float x, const float y){
     VBO_DATA[STRIDE*vertex + TexV] = y;
 }
 
-Surface::Surface(std::vector<Point> vert): Visual(), Polygon(vert){
+Surface::Surface(std::vector<Point> vert): Polygon(vert){
     VBO_DATA = new float[STRIDE*vertices.size()];
     for(unsigned int i = 0; i < STRIDE*vertices.size(); i+=STRIDE){
         VBO_DATA[i + PosX] = vertices[i/STRIDE]->pos.x;
@@ -108,7 +108,7 @@ void Surface::set_color(const float r, const float g, const float b, const float
     }
 }
 
-Solid::Solid(std::vector<Point> vert): Visual(), Polyhedron(vert){
+Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     VBO_DATA = new float[STRIDE*vertices.size()];
     for(unsigned int i = 0; i < STRIDE*vertices.size(); i+=STRIDE){
         VBO_DATA[i + PosX] = vertices[i/STRIDE]->pos.x;

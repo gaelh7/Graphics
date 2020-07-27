@@ -1,0 +1,1 @@
+AddTest(Visual_Init)

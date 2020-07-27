@@ -87,11 +87,13 @@ int main(void)
     program.SetUniformi("Texture", 0);
     program.SetUniformi("Texture2", 1);
 
-    gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
+    gmh::Surface s1;
+
+    // s1 = gmh::Surface(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
     s1.tex_coord(0, 0, 0);
     s1.tex_coord(1, 1, 0);
     s1.tex_coord(2, 1, 1);
-    s1.tex_coord(3, 0, 1);
+    // s1.tex_coord(3, 0, 1);
     s1.reload();
 
     gmh::Solid slope(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
@@ -130,16 +132,21 @@ int main(void)
     long long time = 0;
 
     INPUT ip;
-    WORD vkey = VK_UP;
+
+    // Set up a generic keyboard event.
     ip.type = INPUT_KEYBOARD;
-    ip.ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);; // hardware scan code for key
+    ip.ki.wScan = MapVirtualKey(VK_UP, 0); // hardware scan code for key
     ip.ki.time = 0;
     ip.ki.dwExtraInfo = 0;
 
-    ip.ki.wVk = vkey;
-    ip.ki.dwFlags = 0;
-
-
+    gmh::InputHandler::bind_key(GLFW_KEY_M, [&ip](){
+            ip.ki.wVk = VK_UP; // virtual-key code for the "a" key
+            ip.ki.dwFlags = KEYEVENTF_EXTENDEDKEY; // 0 for key press
+            SendInput(1, &ip, sizeof(INPUT));
+        }, [&ip](){
+            ip.ki.dwFlags = KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY;
+            SendInput(1, &ip, sizeof(INPUT));
+        });
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)){
@@ -172,15 +179,10 @@ int main(void)
         s1.render();
 
         // std::cout << sol.vel << "\t\t\t\t\r";
-
-        ip.ki.dwFlags = 0;
-        SendInput(1, &ip, sizeof(INPUT));
         cam.update(dt);
         sol.update(dt);
         s1.update(dt);
         slope.update(dt);
-        ip.ki.dwFlags = KEYEVENTF_KEYUP;
-        SendInput(1, &ip, sizeof(INPUT));
         // sol.vel -= dt*glm::vec3(0,1,0);
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
