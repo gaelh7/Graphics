@@ -87,14 +87,28 @@ int main(void)
     program.SetUniformi("Texture", 0);
     program.SetUniformi("Texture2", 1);
 
-    gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
-    s1.tex_coord(0, 0, 0);
-    s1.tex_coord(1, 1, 0);
-    s1.tex_coord(2, 1, 1);
-    s1.tex_coord(3, 0, 1);
-    s1.reload();
+    gmh::Surface s1;
 
-    gmh::Solid slope(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
+    // gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
+    // s1.tex_coord(0, 0, 0);
+    // s1.tex_coord(1, 1, 0);
+    // s1.tex_coord(2, 1, 1);
+    // s1.tex_coord(3, 0, 1);
+    // s1.reload();
+
+
+
+    gmh::Solid slope;
+    {
+        gmh::Solid obj1 = gmh::Solid(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0), glm::vec3(0, 0, 1));
+        // gmh::Solid obj(gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2)));
+        // obj1 = std::move(obj);
+    }
+    // obj.VBO_PRINT();
+    // obj.IBO_PRINT();
+    // slope.VBO_PRINT();
+    // slope.IBO_PRINT();
+    slope = gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
     slope.tex_coord(0, 0, 0);
     slope.tex_coord(1, 1, 0);
     slope.tex_coord(2, 1, 0);

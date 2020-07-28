@@ -21,16 +21,35 @@ namespace gmh{
         public:
             glm::mat4 model{1.0f};
             Visual();
+            Visual(const Visual& obj);
+            Visual(Visual&& obj);
             ~Visual();
             virtual void update(float dt) = 0;
-            virtual void reload() = 0;
+            virtual void reload();
             virtual void set_color(const float r, const float g, const float b, const float a) = 0;
             void vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a);
             void tex_coord(const unsigned int vertex, const float x, const float y);
-            inline virtual void render() const = 0;
+            inline void render() const {
+                glDrawElements(GL_TRIANGLES, IBO_DATA.size(), GL_UNSIGNED_INT, nullptr);
+            }
             inline void bind() const {
                 glBindVertexArray(VAO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+            }
+            Visual& Visual::operator=(const Visual& obj);
+            Visual& Visual::operator=(Visual&& obj);
+            void VBO_PRINT() const {
+                std::cout << "VBO ID: " << VBO << '\n';
+                for(unsigned int i = 0; i < VBO_DATA.size(); i++){
+                    std::cout << VBO_DATA[i] << "\t";
+                    if(i%STRIDE==STRIDE-1) std::cout << std::endl;
+                }
+            }
+            void IBO_PRINT() const {
+                std::cout << "IBO ID: " << IBO << '\n';
+                for(unsigned int i = 0; i < IBO_DATA.size(); i+=3){
+                    std::cout << IBO_DATA[i] << ", " << IBO_DATA[i+1] << ", " << IBO_DATA[i + 2] << std::endl;
+                }
             }
     };
 
@@ -42,23 +61,10 @@ namespace gmh{
             Surface(std::vector<Point> vert);
             Polygon local();
             void update(float dt) override;
-            void reload() override;
             void set_color(const float r, const float g, const float b, const float a) override;
-            inline void render() const override {
-                glDrawElements(GL_TRIANGLES, 3*((int)vertices.size() - 2), GL_UNSIGNED_INT, nullptr);
-            }
-            void VBO_PRINT() const {
-                for(unsigned int i = 0; i < vertices.size(); i++){
-                    for(unsigned int j = 0; j < STRIDE; j++)
-                        std::cout << VBO_DATA[STRIDE*i + j] << "\t";
-                    std::cout << std::endl;
-                }
-            }
     };
 
     class Solid: public Visual, public Polyhedron {
-        private:
-            unsigned int indices;
         public:
             Solid();
             template<typename... Points>
@@ -66,22 +72,6 @@ namespace gmh{
             Solid(std::vector<Point> vert);
             Polyhedron local();
             void update(float dt) override;
-            void reload() override;
             void set_color(const float r, const float g, const float b, const float a) override;
-            inline void render() const override {
-                glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr);
-            }
-            void VBO_PRINT() const {
-                for(unsigned int i = 0; i < vertices.size(); i++){
-                    for(unsigned int j = 0; j < STRIDE; j++)
-                        std::cout << VBO_DATA[STRIDE*i + j] << "\t";
-                    std::cout << std::endl;
-                }
-            }
-            void IBO_PRINT() const {
-                for(unsigned int i = 0; i < indices; i+=3){
-                    std::cout << IBO_DATA[i] << ", " << IBO_DATA[i+1] << ", " << IBO_DATA[i + 2] << std::endl;
-                }
-            }
     };
 }

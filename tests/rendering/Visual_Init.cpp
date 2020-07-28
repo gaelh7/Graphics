@@ -6,8 +6,8 @@ struct VisualInitTest: public ::testing::Test {
     // gmh::Solid sol;
 
     // virtual void SetUp() override {
-    //     // surf = gmh::Surface(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0));
-    //     // sol = gmh::Solid(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0), glm::vec3(0, 0, 1));
+    //     gmh::Surface surf(gmh::Surface(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0)));
+    //     gmh::Solid sol(gmh::Solid(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0), glm::vec3(0, 0, 1)));
     // }
 };
 
