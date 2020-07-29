@@ -19,14 +19,12 @@ namespace gmh{
             std::vector<float> VBO_DATA;
             std::vector<unsigned int> IBO_DATA;
         public:
-            glm::mat4 model{1.0f};
             Visual();
             Visual(const Visual& obj);
             Visual(Visual&& obj);
             ~Visual();
-            virtual void update(float dt) = 0;
-            virtual void reload();
-            virtual void set_color(const float r, const float g, const float b, const float a) = 0;
+            void reload();
+            void set_color(const float r, const float g, const float b, const float a);
             void vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a);
             void tex_coord(const unsigned int vertex, const float x, const float y);
             inline void render() const {
@@ -60,8 +58,6 @@ namespace gmh{
             Surface(Points... args): Surface(std::vector<Point>{args...}){};
             Surface(std::vector<Point> vert);
             Polygon local();
-            void update(float dt) override;
-            void set_color(const float r, const float g, const float b, const float a) override;
     };
 
     class Solid: public Visual, public Polyhedron {
@@ -71,7 +67,5 @@ namespace gmh{
             Solid(Points... args): Solid(std::vector<Point>{args...}){};
             Solid(std::vector<Point> vert);
             Polyhedron local();
-            void update(float dt) override;
-            void set_color(const float r, const float g, const float b, const float a) override;
     };
 }

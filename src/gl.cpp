@@ -87,14 +87,13 @@ int main(void)
     program.SetUniformi("Texture", 0);
     program.SetUniformi("Texture2", 1);
 
-    gmh::Surface s1;
 
-    // gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
-    // s1.tex_coord(0, 0, 0);
-    // s1.tex_coord(1, 1, 0);
-    // s1.tex_coord(2, 1, 1);
-    // s1.tex_coord(3, 0, 1);
-    // s1.reload();
+    gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
+    s1.tex_coord(0, 0, 0);
+    s1.tex_coord(1, 1, 0);
+    s1.tex_coord(2, 1, 1);
+    s1.tex_coord(3, 0, 1);
+    s1.reload();
 
 
 

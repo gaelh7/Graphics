@@ -59,6 +59,7 @@ class Point {
     public:
         glm::vec3 pos;
         glm::vec3 vel;
+        glm::mat4 model;
         std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);
@@ -79,6 +80,7 @@ class Point {
         glm::vec3 direction(const Point &obj) const;
         bool contains(const Point &obj) const;
         bool equals(const Point &obj) const;
+        void update(float dt);
 };
 
 class Line: public Point {

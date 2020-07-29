@@ -2,13 +2,11 @@
 #include "Graphics/render.hpp"
 
 struct VisualInitTest: public ::testing::Test {
-    // gmh::Surface surf;
-    // gmh::Solid sol;
+    unsigned int VAO;
 
-    // virtual void SetUp() override {
-    //     gmh::Surface surf(gmh::Surface(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0)));
-    //     gmh::Solid sol(gmh::Solid(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0), glm::vec3(0, 0, 1)));
-    // }
+    virtual void SetUp() override {
+        glGenVertexArrays(1, &VAO);
+    }
 };
 
 TEST_F(VisualInitTest, FailCases){

@@ -5,9 +5,9 @@
 
 using namespace gmh;
 
-Point::Point(): pos({0, 0, 0}), vel(0, 0, 0) {}
+Point::Point(): pos({0, 0, 0}), vel(0, 0, 0), model(1.0) {}
 
-Point::Point(glm::vec3 pos): pos(pos), vel(0, 0, 0) {}
+Point::Point(glm::vec3 pos): pos(pos), vel(0, 0, 0), model(1.0) {}
 
 float Point::dist(const Point &obj) const {
     return glm::distance(pos, obj.pos);
@@ -89,6 +89,13 @@ bool Point::contains(const Point &obj) const {
 
 bool Point::equals(const Point &obj) const {
     return obj.contains(*this) && contains(obj);
+}
+
+void Point::update(float dt) {
+    model = glm::translate(model, dt*vel);
+    pos += dt*vel;
+    for(std::shared_ptr<Point> p: vertices)
+        p->pos += dt*vel;
 }
 
 Line::Line(){
