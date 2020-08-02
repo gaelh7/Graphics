@@ -23,6 +23,7 @@ set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/glad)
 set(STB_DIR ${LIB_DIR}/stb_image)
 set(GLM_DIR ${LIB_DIR}/glm)
+set(FT_DIR ${LIB_DIR}/freetype)
 find_package(OpenGL 4.6 REQUIRED)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 set(SOURCES ${SRC_DIR}/shader.cpp
@@ -32,12 +33,14 @@ set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/camera.cpp
             ${SRC_DIR}/collision.cpp
             ${SRC_DIR}/input.cpp
-            ${SRC_DIR}/hash.cpp)
+            ${SRC_DIR}/hash.cpp
+            ${SRC_DIR}/text.cpp
+    )
 file(GLOB HEADERS ${INC_DIR}/Graphics/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 
 # include
-include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR})
+include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR} ${FT_DIR}/include)
 
 # target
 add_library(Graphics STATIC ${HEADERS} ${SOURCES})
@@ -54,7 +57,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 # dependencies
 add_subdirectory(${GLFW_DIR})
 add_subdirectory(${GLAD_DIR})
+add_subdirectory(${FT_DIR})
 
 target_link_libraries(Graphics glfw ${GLFW_LIBRARIES})
 target_link_libraries(Graphics glad)
 target_link_libraries(Graphics ${OPENGL_LIBRARIES})
+target_link_libraries(Graphics freetype)

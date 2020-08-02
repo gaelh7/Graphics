@@ -12,7 +12,7 @@ std::vector<std::vector<Physical>> CHandler::get_check() const {
 CHandler::CHandler(): elasticity(2) {}
 
 CHandler::CHandler(float elasticity): elasticity(elasticity + 1.f) {
-    if(elasticity < 0 || elasticity > 1) throw std::range_error("Elasticity must be a value between 0 and 1");
+    if(elasticity < 0 || elasticity > 1) throw std::domain_error("Elasticity must be a value between 0 and 1");
 }
 
 void CHandler::operator()() const {

@@ -1,11 +1,6 @@
 #include <windows.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
 #include <chrono>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/io.hpp>
@@ -17,8 +12,8 @@
 #include "Graphics/render.hpp"
 #include "Graphics/texture.hpp"
 #include "Graphics/camera.hpp"
-#include "Graphics/gmath.hpp"
 #include "Graphics/collision.hpp"
+#include "Graphics/text.hpp"
 
 double xpos = 240, ypos = 240;
 float dt;
@@ -41,8 +36,7 @@ int main(void)
     int width = 480;
     int height = 480;
     window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
-    if (!window)
-    {
+    if (!window){
         glfwTerminate();
         return -1;
     }
@@ -75,6 +69,11 @@ int main(void)
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
     glEnable(GL_DEPTH_TEST);
     {
+    // glEnable(GL_CULL_FACE);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    gmh::Font font = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
     gmh::Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
     std::cout << cam.front << std::endl;
@@ -98,15 +97,6 @@ int main(void)
 
 
     gmh::Solid slope;
-    {
-        gmh::Solid obj1 = gmh::Solid(glm::vec3(1, 1, 0), glm::vec3(1, -1, 0), glm::vec3(-1, 1, 0), glm::vec3(-1, -1, 0), glm::vec3(0, 0, 1));
-        // gmh::Solid obj(gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2)));
-        // obj1 = std::move(obj);
-    }
-    // obj.VBO_PRINT();
-    // obj.IBO_PRINT();
-    // slope.VBO_PRINT();
-    // slope.IBO_PRINT();
     slope = gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
     slope.tex_coord(0, 0, 0);
     slope.tex_coord(1, 1, 0);
@@ -130,6 +120,7 @@ int main(void)
     gmh::InputHandler::bind_key(GLFW_KEY_Z, [&sol](){sol.vel += glm::vec3(0, 0, 3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
     gmh::InputHandler::bind_key(GLFW_KEY_X, [&sol](){sol.vel += glm::vec3(0, 0, -3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
     gmh::InputHandler::bind_key(GLFW_KEY_SPACE, [&sol](){sol.vel += glm::vec3(0, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
+    gmh::InputHandler::bind_key(GLFW_KEY_C, [&s1](){s1.update(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](){});
 
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
@@ -171,6 +162,9 @@ int main(void)
         // cam.pitch += 0.1f;
         glm::mat4 project = glm::mat4(1.0);
         project = glm::perspective(cam.zoom, 1.0f, 0.1f, 100.0f);
+        tex.bind(0);
+        tex2.bind(1);
+        program.bind();
         program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
         program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(sol.model));
@@ -188,6 +182,9 @@ int main(void)
         program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s1.model));
         s1.bind();
         s1.render();
+
+        font.bind();
+        font.render("This is text", 200, 200, 1, glm::vec3(1.0, 1.0, 1.0));
 
         // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);

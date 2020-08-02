@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <glm/ext/vector_float3.hpp>
+#include <glm/ext/matrix_float4x4.hpp>
 
 namespace gmh{
 
@@ -81,6 +82,7 @@ class Point {
         bool contains(const Point &obj) const;
         bool equals(const Point &obj) const;
         void update(float dt);
+        void update(glm::mat4 mat);
 };
 
 class Line: public Point {

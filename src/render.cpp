@@ -20,7 +20,6 @@ Visual::Visual(const Visual& obj){
     glGenBuffers(1, &IBO);
     VBO_DATA = obj.VBO_DATA;
     IBO_DATA = obj.IBO_DATA;
-    // model = obj.model;
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -43,7 +42,6 @@ Visual::Visual(Visual&& obj){
     obj.IBO = 0;
     VBO_DATA = std::move(obj.VBO_DATA);
     IBO_DATA = std::move(obj.IBO_DATA);
-    // model = std::move(obj.model);
 }
 
 Visual::~Visual(){
@@ -81,7 +79,6 @@ void Visual::tex_coord(const unsigned int vertex, const float x, const float y){
 Visual& Visual::operator=(const Visual& obj){
     VBO_DATA = obj.VBO_DATA;
     IBO_DATA = obj.IBO_DATA;
-    // model = model;
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, VBO_DATA.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -101,7 +98,6 @@ Visual& Visual::operator=(Visual&& obj){
     obj.IBO = 0;
     VBO_DATA = std::move(obj.VBO_DATA);
     IBO_DATA = std::move(obj.IBO_DATA);
-    // model = std::move(obj.model);
     return *this;
 }
 
@@ -156,13 +152,6 @@ Polygon Surface::local(){
     }
     return Polygon(vert);
 }
-
-// void Surface::update(float dt){
-//     model = glm::translate(model, dt*vel);
-//     pos += dt*vel;
-//     for(std::shared_ptr<Point> p: vertices)
-//         p->pos += dt*vel;
-// }
 
 Solid::Solid(){
     VBO_DATA = {0, 0, 0, 1, 1, 1, 1, 0, 0,
@@ -235,10 +224,3 @@ Polyhedron Solid::local(){
     }
     return Polyhedron(vert);
 }
-
-// void Solid::update(float dt){
-//     model = glm::translate(model, dt*vel);
-//     pos += dt*vel;
-//     for(std::shared_ptr<Point> p: vertices)
-//         p->pos += dt*vel;
-// }

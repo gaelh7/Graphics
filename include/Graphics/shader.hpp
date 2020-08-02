@@ -12,12 +12,12 @@ namespace gmh{
 
     class Shader {
         private:
-            const ShaderSource src;
-            std::string path;
-            const unsigned int id;
             static ShaderSource ParseShader(const char* filepath);
             static unsigned int CompileShader(unsigned int type, const std::string &source);
             static unsigned int CreateShaders(const ShaderSource prg);
+            const ShaderSource src;
+            std::string path;
+            const unsigned int id;
         public:
             Shader(const char* filepath);
             ~Shader();
@@ -59,7 +59,7 @@ namespace gmh{
                 }
             };
             template<int col, int row>
-            void SetUniformMatrixf(const char* uniform, const float* data, bool transpose = false){
+            void SetUniformMatrixf(const char* uniform, const float* data, bool transpose = false) const {
                 switch (row){
                     case 2:
                         switch (col){
@@ -103,7 +103,7 @@ namespace gmh{
                 }
             }
             template<int col, int row>
-            void SetUniformMatrixd(const char* uniform, const double* data, bool transpose = false){
+            void SetUniformMatrixd(const char* uniform, const double* data, bool transpose = false) const {
                 switch (col){
                     case 2:
                         switch (row){

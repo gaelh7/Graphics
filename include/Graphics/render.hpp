@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <glm/ext/matrix_float4x4.hpp>
 #include "Graphics/geometry.hpp"
 
 namespace gmh{

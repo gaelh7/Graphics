@@ -98,6 +98,13 @@ void Point::update(float dt) {
         p->pos += dt*vel;
 }
 
+void Point::update(glm::mat4 mat) {
+    model = mat*model;
+    pos = mat*glm::vec4(pos, 1.0);
+    for(std::shared_ptr<Point> p: vertices)
+        p->pos = mat*glm::vec4(p->pos, 1.0);
+}
+
 Line::Line(){
     vertices = {std::make_shared<Point>(glm::vec3(0, 0, 0)), std::make_shared<Point>(glm::vec3(1, 0, 0))};
 }
