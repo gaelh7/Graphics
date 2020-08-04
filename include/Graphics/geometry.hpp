@@ -82,7 +82,7 @@ class Point {
         bool contains(const Point &obj) const;
         bool equals(const Point &obj) const;
         void update(float dt);
-        void update(glm::mat4 mat);
+        void transform(glm::mat4 mat);
 };
 
 class Line: public Point {

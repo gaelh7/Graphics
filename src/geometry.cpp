@@ -98,7 +98,7 @@ void Point::update(float dt) {
         p->pos += dt*vel;
 }
 
-void Point::update(glm::mat4 mat) {
+void Point::transform(glm::mat4 mat) {
     model = mat*model;
     pos = mat*glm::vec4(pos, 1.0);
     for(std::shared_ptr<Point> p: vertices)

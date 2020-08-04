@@ -1,8 +1,6 @@
 #pragma once
 #include <map>
 #include <string>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include "Graphics/shader.hpp"
@@ -20,10 +18,10 @@ namespace gmh {
         unsigned int VAO, VBO;
         std::map<char, Character> characters;
         public:
+            static void unbind();
             Font(std::string path, unsigned int font_size);
             ~Font();
-            void bind();
-            void unbind();
-            void render(std::string text, float x, float y, float scale, glm::vec3 color);
+            void bind() const;
+            void render(std::string text, float x, float y, float scale, glm::vec3 color) const;
     };
 }

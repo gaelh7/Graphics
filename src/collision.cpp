@@ -72,7 +72,7 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
             float val = 0;
             for(std::shared_ptr<Polygon> face: obj1_sol->faces){
                 if(obj2->dist(*face) != 0) continue;
-                float check = glm::dot(obj2->vel - obj1->vel, face->normVec()*(float)sign(face->sign_dist(*obj2.obj)));
+                float check = glm::dot(obj2->vel - obj1->vel, face->normVec()*static_cast<float>(sign(face->sign_dist(*obj2.obj))));
                 if(check < val){
                     val = check;
                     dirVec = face->normVec();
@@ -83,7 +83,7 @@ void CHandler::collision(Physical& obj1, Physical& obj2) const {
             float val = 0;
             for(std::shared_ptr<Polygon> face: obj2_sol->faces){
                 if(obj1->dist(*face) != 0) continue;
-                float check = glm::dot(obj1->vel - obj2->vel, face->normVec()*(float)sign(face->sign_dist(*obj1.obj)));
+                float check = glm::dot(obj1->vel - obj2->vel, face->normVec()*static_cast<float>(sign(face->sign_dist(*obj1.obj))));
                 if(check < val){
                     val = check;
                     dirVec = face->normVec();

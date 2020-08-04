@@ -28,8 +28,8 @@ Visual::Visual(const Visual& obj){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(7*sizeof(float)));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, IBO_DATA.size()*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 }
 
@@ -111,8 +111,8 @@ Surface::Surface(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(7*sizeof(float)));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 }
 
@@ -140,8 +140,8 @@ Surface::Surface(std::vector<Point> vert): Polygon(vert){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(7*sizeof(float)));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, IBO_DATA.size()*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 }
 
@@ -167,8 +167,8 @@ Solid::Solid(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(7*sizeof(float)));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 }
 
@@ -185,9 +185,9 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
         VBO_DATA[i + TexU] = 0;
         VBO_DATA[i + TexV] = 0;
     }
-    unsigned int indices = 0;
+    size_t indices = 0;
     for(std::shared_ptr<Polygon> face: faces){
-        indices += (unsigned int)(3*(face->vertices.size() - 2));
+        indices += 3*(face->vertices.size() - 2);
     }
     IBO_DATA.resize(indices);
     int j = 0;
@@ -202,9 +202,9 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
             std::vector<std::shared_ptr<Point>>::iterator it3 = std::find_if(vertices.begin(), vertices.end(), [&face, i](std::shared_ptr<Point> p){
                 return face->vertices[i + 2]->equals(*p);
             });
-            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it1);
-            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it2);
-            IBO_DATA[j++] = (unsigned int)std::distance(vertices.begin(), it3);
+            IBO_DATA[j++] = static_cast<unsigned int>(std::distance(vertices.begin(), it1));
+            IBO_DATA[j++] = static_cast<unsigned int>(std::distance(vertices.begin(), it2));
+            IBO_DATA[j++] = static_cast<unsigned int>(std::distance(vertices.begin(), it3));
         }
     }
     glBufferData(GL_ARRAY_BUFFER, VBO_DATA.size()*sizeof(float), VBO_DATA.data(), GL_STATIC_DRAW);
@@ -212,8 +212,8 @@ Solid::Solid(std::vector<Point> vert): Polyhedron(vert){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(3*sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), (void*)(7*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE*sizeof(float), reinterpret_cast<void*>(7*sizeof(float)));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, IBO_DATA.size()*sizeof(unsigned int), IBO_DATA.data(), GL_STATIC_DRAW);
 }
 

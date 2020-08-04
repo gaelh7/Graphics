@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
@@ -73,7 +72,8 @@ int main(void)
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    gmh::Font font = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
+    gmh::Font font = gmh::Font("C:/Windows/Fonts/arial.ttf", 48);
+    gmh::Font font1 = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
     gmh::Shader program(PROJECT_DIR "/res/shaders/test.glsl");
     program.bind();
     std::cout << cam.front << std::endl;
@@ -120,35 +120,20 @@ int main(void)
     gmh::InputHandler::bind_key(GLFW_KEY_Z, [&sol](){sol.vel += glm::vec3(0, 0, 3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
     gmh::InputHandler::bind_key(GLFW_KEY_X, [&sol](){sol.vel += glm::vec3(0, 0, -3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
     gmh::InputHandler::bind_key(GLFW_KEY_SPACE, [&sol](){sol.vel += glm::vec3(0, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_C, [&s1](){s1.update(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](){});
+    gmh::InputHandler::bind_key(GLFW_KEY_C, [&s1](){s1.transform(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](){});
 
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
-    chandle.add(&slope, 1, false);
+    chandle.add(&slope, 5, false);
 
 
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
+    std::string str = "This is text";
 
     int frames = 0;
     long long time = 0;
-
-    INPUT ip;
-
-    // Set up a generic keyboard event.
-    ip.type = INPUT_KEYBOARD;
-    ip.ki.wScan = MapVirtualKey(VK_UP, 0); // hardware scan code for key
-    ip.ki.time = 0;
-    ip.ki.dwExtraInfo = 0;
-
-    gmh::InputHandler::bind_key(GLFW_KEY_M, [&ip](){
-            ip.ki.wVk = VK_UP; // virtual-key code for the "a" key
-            ip.ki.dwFlags = KEYEVENTF_EXTENDEDKEY; // 0 for key press
-            SendInput(1, &ip, sizeof(INPUT));
-        }, [&ip](){
-            ip.ki.dwFlags = KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY;
-            SendInput(1, &ip, sizeof(INPUT));
-        });
+    glClearColor(1, 1, 1, 1);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)){
@@ -183,9 +168,9 @@ int main(void)
         s1.bind();
         s1.render();
 
-        font.bind();
-        font.render("This is text", 200, 200, 1, glm::vec3(1.0, 1.0, 1.0));
-
+        font1.bind();
+        font1.render("Title", 190, 440, 1, glm::vec3(0.2, 0.0, 0.7));
+        gmh::Font::unbind();
         // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);
         sol.update(dt);
