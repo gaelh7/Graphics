@@ -15,13 +15,18 @@ namespace gmh{
             static ShaderSource ParseShader(const char* filepath);
             static unsigned int CompileShader(unsigned int type, const std::string &source);
             static unsigned int CreateShaders(const ShaderSource prg);
-            const ShaderSource src;
+            ShaderSource src;
             std::string path;
-            const unsigned int id;
+            unsigned int id;
         public:
+            Shader();
             Shader(const char* filepath);
+            Shader(const Shader& s);
+            Shader(Shader&& s);
             ~Shader();
             inline void bind() const {glUseProgram(id);}
+            Shader& operator=(const Shader& s);
+            Shader& operator=(Shader&& s);
             template<typename... floats>
             void SetUniformf(const char* uniform, float v0, floats... v1) const {
                 float data[] = {v0, v1...};

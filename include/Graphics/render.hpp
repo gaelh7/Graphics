@@ -33,8 +33,8 @@ namespace gmh{
                 glBindVertexArray(VAO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
             }
-            Visual& Visual::operator=(const Visual& obj);
-            Visual& Visual::operator=(Visual&& obj);
+            Visual& operator=(const Visual& obj);
+            Visual& operator=(Visual&& obj);
             void VBO_PRINT() const {
                 std::cout << "VBO ID: " << VBO << '\n';
                 for(unsigned int i = 0; i < VBO_DATA.size(); i++){

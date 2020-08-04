@@ -72,14 +72,20 @@ int main(void)
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    gmh::Font::init();
     gmh::Font font = gmh::Font("C:/Windows/Fonts/arial.ttf", 48);
     gmh::Font font1 = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
-    gmh::Shader program(PROJECT_DIR "/res/shaders/test.glsl");
+    gmh::Shader program(PROJECT_DIR "/res/shaders/text.glsl");
+    {
+        gmh::Shader p(PROJECT_DIR "/res/shaders/test.glsl");
+        program = p;
+    }
     program.bind();
     std::cout << cam.front << std::endl;
     std::cout << sizeof(cam) << std::endl;
 
-    gmh::Texture tex(PROJECT_DIR "/res/textures/wall.png");
+    gmh::Texture tex0(PROJECT_DIR "/res/textures/wall.png");
+    gmh::Texture tex(tex0);
     gmh::Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
     tex.bind(0);
     tex2.bind(1);
@@ -192,6 +198,7 @@ int main(void)
     std::cout << "FPS: " << (frames*1000000000.)/time << std::endl;
     }
     glfwTerminate();
+    gmh::Font::terminate();
     std::cout << "Press return to continue...";
     std::cin.get();
     return 0;

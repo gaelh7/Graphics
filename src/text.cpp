@@ -9,7 +9,29 @@
 
 using namespace gmh;
 
-// Shader Font::s = Shader(PROJECT_DIR "/res/shaders/text.glsl");
+Shader Font::s = Shader();
+unsigned int Font::VAO = 0;
+unsigned int Font::VBO = 0;
+
+void Font::init(){
+    s = Shader(PROJECT_DIR "/res/shaders/text.glsl");
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), reinterpret_cast<void*>(2*sizeof(float)));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Font::terminate(){
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
+}
 
 void Font::unbind(){
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -17,7 +39,7 @@ void Font::unbind(){
     glDisable(GL_BLEND);
 }
 
-Font::Font(std::string path, unsigned int font_size): s(PROJECT_DIR "/res/shaders/text.glsl"){
+Font::Font(std::string path, unsigned int font_size){
     FT_Library lib;
     FT_Face face;
     if(FT_Init_FreeType(&lib)){
@@ -47,25 +69,14 @@ Font::Font(std::string path, unsigned int font_size): s(PROJECT_DIR "/res/shader
         characters.insert({c, character});
     }
     glBindTexture(GL_TEXTURE_2D, 0);
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), NULL, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), nullptr);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), reinterpret_cast<void*>(2*sizeof(float)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
     FT_Done_Face(face);
     FT_Done_FreeType(lib);
 }
 
-Font::~Font(){
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
-}
+// Font::~Font(){
+//     glDeleteBuffers(1, &VBO);
+//     glDeleteVertexArrays(1, &VAO);
+// }
 
 void Font::bind() const {
     glEnable(GL_CULL_FACE);

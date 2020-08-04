@@ -3,10 +3,44 @@
 
 using namespace gmh;
 
+Shader::Shader(): id(0){}
+
 Shader::Shader(const char* filepath): src(ParseShader(filepath)), path(filepath), id(CreateShaders(src)){}
+
+Shader::Shader(const Shader& s): src(s.src), path(s.path), id(CreateShaders(src)){}
+
+Shader::Shader(Shader&& s): src(std::move(s.src)), path(std::move(s.path)){
+    id = s.id;
+    s.id = 0;
+}
 
 Shader::~Shader(){
     glDeleteProgram(id);
+}
+
+Shader& Shader::operator=(const Shader& s){
+    src = s.src;
+    path = s.path;
+    unsigned int vs = CompileShader(GL_VERTEX_SHADER, src.VertexShader);
+    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, src.FragmentShader);
+    glAttachShader(id, vs);
+    glAttachShader(id, fs);
+    glLinkProgram(id);
+    glValidateProgram(id);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    glDetachShader(id, vs);
+    glDetachShader(id, fs);
+    return *this;
+}
+
+Shader& Shader::operator=(Shader&& s){
+    glDeleteProgram(id);
+    src = std::move(s.src);
+    path = std::move(path);
+    id = s.id;
+    s.id = 0;
+    return *this;
 }
 
 ShaderSource Shader::ParseShader(const char* filepath){
@@ -46,7 +80,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string &source)
     if(!succeed){
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(length * sizeof(char));
+        char* message = reinterpret_cast<char*>(alloca(length*sizeof(char)));
         glGetShaderInfoLog(id, length, &length, message);
         std::cerr << "Failed to compile shader: ";
         std::cerr << message << std::endl;
