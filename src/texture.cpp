@@ -7,7 +7,7 @@ using namespace gmh;
 
 Texture::Texture(const char* filepath): path(filepath){
     stbi_set_flip_vertically_on_load(1);
-    buffer = stbi_load(path.c_str(), &width, &height, &BPP, 4);
+    buffer = stbi_load(filepath, &width, &height, &BPP, 4);
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -20,9 +20,8 @@ Texture::Texture(const char* filepath): path(filepath){
 }
 
 Texture::Texture(const Texture& tex): path(tex.path), width(tex.width), height(tex.height), BPP(tex.BPP) {
-    buffer = reinterpret_cast<unsigned char*>(malloc(width*height*4));
-    for(unsigned int i = 0; i < width*height*4; i++) buffer[i] = tex.buffer[i];
-    std::cout << width*height << '\n';
+    buffer = reinterpret_cast<unsigned char*>(std::malloc(width*height*4));
+    std::copy(tex.buffer, tex.buffer + width*height*4, buffer);
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -43,7 +42,7 @@ Texture::Texture(Texture&& tex): path(std::move(tex.path)), width(tex.width), he
 
 Texture::~Texture(){
     glDeleteTextures(1, &id);
-    free(buffer);
+    std::free(buffer);
 }
 
 void Texture::bind(unsigned int slot) const {
@@ -56,8 +55,8 @@ Texture& Texture::operator=(const Texture& tex){
     width = tex.width;
     height = tex.height;
     BPP = tex.BPP;
-    buffer = reinterpret_cast<unsigned char*>(malloc(width*height*4));
-    for(unsigned int i = 0; i < width*height*4; i++) buffer[i] = tex.buffer[i];
+    std::realloc(buffer, width*height*4);
+    std::copy(tex.buffer, tex.buffer + width*height*4, buffer);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -71,7 +70,7 @@ Texture& Texture::operator=(const Texture& tex){
 
 Texture& Texture::operator=(Texture&& tex){
     glDeleteTextures(1, &id);
-    free(buffer);
+    std::free(buffer);
     path = std::move(tex.path);
     id = tex.id;
     buffer = tex.buffer;

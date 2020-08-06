@@ -85,7 +85,8 @@ int main(void)
     std::cout << sizeof(cam) << std::endl;
 
     gmh::Texture tex0(PROJECT_DIR "/res/textures/wall.png");
-    gmh::Texture tex(tex0);
+    gmh::Texture tex(PROJECT_DIR "/res/textures/emoji.png");
+    tex = tex0;
     gmh::Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
     tex.bind(0);
     tex2.bind(1);

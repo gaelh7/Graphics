@@ -33,6 +33,15 @@ void Font::terminate(){
     glDeleteVertexArrays(1, &VAO);
 }
 
+void Font::bind(){
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    s.bind();
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+}
+
 void Font::unbind(){
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_CULL_FACE);
@@ -71,20 +80,6 @@ Font::Font(std::string path, unsigned int font_size){
     glBindTexture(GL_TEXTURE_2D, 0);
     FT_Done_Face(face);
     FT_Done_FreeType(lib);
-}
-
-// Font::~Font(){
-//     glDeleteBuffers(1, &VBO);
-//     glDeleteVertexArrays(1, &VAO);
-// }
-
-void Font::bind() const {
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    s.bind();
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
 }
 
 void Font::render(std::string text, float x, float y, float scale, glm::vec3 color) const {

@@ -20,9 +20,9 @@ namespace gmh {
         public:
             static void init();
             static void terminate();
+            static void bind();
             static void unbind();
             Font(std::string path, unsigned int font_size);
-            void bind() const;
             void render(std::string text, float x, float y, float scale, glm::vec3 color) const;
     };
 }
