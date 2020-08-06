@@ -4,12 +4,12 @@
 [submodule "lib/glm"]
 	path = lib/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "lib/glfw"]
-	path = lib/glfw
-	url = https://github.com/glfw/glfw.git
 [submodule "lib/googletest"]
 	path = lib/googletest
 	url = https://github.com/google/googletest.git
 [submodule "lib/stb"]
 	path = lib/stb
 	url = https://github.com/nothings/stb.git
+[submodule "lib/GLFW"]
+	path = lib/GLFW
+	url = https://github.com/glfw/glfw.git

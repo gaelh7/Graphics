@@ -18,7 +18,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(GLFW_DIR ${LIB_DIR}/glfw)
+set(GLFW_DIR ${LIB_DIR}/GLFW)
 set(GLAD_DIR ${LIB_DIR}/glad)
 set(STB_DIR ${LIB_DIR}/stb)
 set(GLM_DIR ${LIB_DIR}/glm)
