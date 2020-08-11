@@ -34,6 +34,7 @@ set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/input.cpp
             ${SRC_DIR}/hash.cpp
             ${SRC_DIR}/text.cpp
+            ${SRC_DIR}/window.cpp
     )
 file(GLOB HEADERS ${INC_DIR}/Graphics/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
@@ -63,3 +64,4 @@ target_link_libraries(Graphics glad)
 target_link_libraries(Graphics ${OPENGL_LIBRARIES})
 target_link_libraries(Graphics freetype)
 target_compile_definitions(Graphics PRIVATE STB_IMAGE_IMPLEMENTATION)
+target_compile_definitions(Graphics PRIVATE GLFW_INCLUDE_NONE)

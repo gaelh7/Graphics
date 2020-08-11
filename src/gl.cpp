@@ -13,53 +13,26 @@
 #include "Graphics/camera.hpp"
 #include "Graphics/collision.hpp"
 #include "Graphics/text.hpp"
+#include "Graphics/window.hpp"
 
 double xpos = 240, ypos = 240;
 float dt;
 gmh::Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
 gmh::CHandler chandle(1);
 
-int main(void)
-{
-    GLFWwindow* window;
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    /* Create a windowed mode window and its OpenGL context */
-    int width = 480;
-    int height = 480;
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
-    if (!window){
-        glfwTerminate();
-        return -1;
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        return -1;
+int main(void){
+    gmh::Window win(480, 480, "Gael's App");
     enableDebug();
-
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height){
-        int length = width < height ? width:height;
-        glViewport((width - length)/2, (height - length)/2, length, length);
-    });
-    gmh::InputHandler::init(window);
-    gmh::InputHandler::set_cursor_pos([window](double x, double y){
-        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+    gmh::InputHandler::init(&win);
+    gmh::InputHandler::set_cursor_pos([&win](double x, double y){
+        if(glfwGetMouseButton(win.handle(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
             cam.mouse_move((float)(xpos - x), (float)(y - ypos));
         }
         xpos = x;
         ypos = y;
     });
     gmh::InputHandler::set_scroll([](double dx, double dy){cam.mouse_scroll((float)dy);});
-    gmh::InputHandler::bind_key(GLFW_KEY_ESCAPE, [&window](){glfwSetWindowShouldClose(window, true);}, [](){});
+    gmh::InputHandler::bind_key(GLFW_KEY_ESCAPE, [&win](){glfwSetWindowShouldClose(win.handle(), true);}, [](){});
     gmh::InputHandler::bind_key(GLFW_KEY_W, [](){cam.set_dir(gmh::FORWARD);}, [](){cam.set_dir(gmh::NONE);});
     gmh::InputHandler::bind_key(GLFW_KEY_A, [](){cam.set_dir(gmh::LEFT);}, [](){cam.set_dir(gmh::NONE);});
     gmh::InputHandler::bind_key(GLFW_KEY_S, [](){cam.set_dir(gmh::BACKWARD);}, [](){cam.set_dir(gmh::NONE);});
@@ -72,8 +45,8 @@ int main(void)
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    gmh::Font::init();
     gmh::Font font = gmh::Font("C:/Windows/Fonts/arial.ttf", 48);
+    gmh::Font::init(&win);
     gmh::Font font1 = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
     gmh::Shader program(PROJECT_DIR "/res/shaders/text.glsl");
     {
@@ -142,8 +115,15 @@ int main(void)
     long long time = 0;
     glClearColor(1, 1, 1, 1);
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window)){
+    std::string buffer = "";
+    gmh::InputHandler::bind_key(GLFW_KEY_H, [&buffer](){buffer.push_back('h');}, [](){});
+    gmh::InputHandler::bind_key(GLFW_KEY_BACKSPACE, [&buffer](){
+        if(buffer.size() > 0)
+            buffer.pop_back();
+    }, [](){});
+
+    /* Loop until the user closes the win.handle() */
+    while (!glfwWindowShouldClose(win.handle())){
 
         frames++;
         auto start = std::chrono::high_resolution_clock::now();
@@ -153,7 +133,7 @@ int main(void)
 
         // cam.pitch += 0.1f;
         glm::mat4 project = glm::mat4(1.0);
-        project = glm::perspective(cam.zoom, 1.0f, 0.1f, 100.0f);
+        project = glm::perspective(cam.zoom, static_cast<float>(win.width)/static_cast<float>(win.height), 0.1f, 100.0f);
         tex.bind(0);
         tex2.bind(1);
         program.bind();
@@ -176,16 +156,17 @@ int main(void)
         s1.render();
 
         font1.bind();
-        font1.render("Title", 190, 440, 1, glm::vec3(0.2, 0.0, 0.7));
+        font1.render(buffer, 190, win.height - 40, 1, glm::vec3(0.2, 0.0, 0.7));
         gmh::Font::unbind();
         // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);
         sol.update(dt);
         s1.update(dt);
         slope.update(dt);
+        // win.resize(win.width + 1, win.height + 1);
         // sol.vel -= dt*glm::vec3(0,1,0);
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(win.handle());
 
         /* Poll for and process events */
         glfwPollEvents();

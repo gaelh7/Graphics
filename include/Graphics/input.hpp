@@ -2,18 +2,18 @@
 
 #include <unordered_map>
 #include <functional>
-#include <GLFW/glfw3.h>
+#include "Graphics/window.hpp"
 
 namespace gmh{
     class InputHandler {
-        static GLFWwindow* window;
+        static Window* window;
         static std::unordered_map<int, std::pair<std::function<void()>, std::function<void()>>> key_bindings;
         static std::function<void(double, double)> mouse_callback;
         static std::function<void(double, double)> scroll_callback;
         static void key_callback(int key, int action);
 
         public:
-            static void init(GLFWwindow* window);
+            static void init(Window* win);
 
             static void bind_key(int key, std::function<void()> press_action, std::function<void()> release_action);
 

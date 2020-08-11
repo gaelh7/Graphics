@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include <stb_image.h>
-#include <iostream>
 #include "Graphics/texture.hpp"
 
 using namespace gmh;
@@ -55,7 +54,7 @@ Texture& Texture::operator=(const Texture& tex){
     width = tex.width;
     height = tex.height;
     BPP = tex.BPP;
-    std::realloc(buffer, width*height*4);
+    buffer = reinterpret_cast<unsigned char*>(std::realloc(buffer, width*height*4));
     std::copy(tex.buffer, tex.buffer + width*height*4, buffer);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

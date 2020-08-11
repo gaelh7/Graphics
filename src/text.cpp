@@ -9,11 +9,13 @@
 
 using namespace gmh;
 
+Window* Font::window = nullptr;
 Shader Font::s = Shader();
 unsigned int Font::VAO = 0;
 unsigned int Font::VBO = 0;
 
-void Font::init(){
+void Font::init(Window* win){
+    window = win;
     s = Shader(PROJECT_DIR "/res/shaders/text.glsl");
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -63,7 +65,7 @@ Font::Font(std::string path, unsigned int font_size){
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     for(unsigned int c = 0; c < 256; c++){
         if(FT_Load_Char(face, c, FT_LOAD_RENDER)){
-            std::cerr << "Failed to load character: " << (char)c << std::endl;
+            std::cerr << "Failed to load character: " << static_cast<char>(c) << std::endl;
             continue;
         }
         unsigned int texture;
@@ -83,7 +85,7 @@ Font::Font(std::string path, unsigned int font_size){
 }
 
 void Font::render(std::string text, float x, float y, float scale, glm::vec3 color) const {
-    s.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(glm::ortho(0.0f, 480.0f, 0.0f, 480.0f)));
+    s.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(glm::ortho(0.0f, static_cast<float>(window->width), 0.0f, static_cast<float>(window->height))));
     s.SetUniformf("textColor", color.r, color.g, color.b);
     for(std::string::iterator c = text.begin(); c != text.end(); c++){
         Character ch = characters.at(*c);

@@ -1,9 +1,11 @@
 #pragma once
+
 #include <map>
 #include <string>
 #include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include "Graphics/shader.hpp"
+#include "Graphics/window.hpp"
 
 namespace gmh {
     struct Character {
@@ -14,11 +16,12 @@ namespace gmh {
     };
 
     class Font {
+        static Window* window;
         static Shader s;
         static unsigned int VAO, VBO;
         std::map<char, Character> characters;
         public:
-            static void init();
+            static void init(Window* win);
             static void terminate();
             static void bind();
             static void unbind();
