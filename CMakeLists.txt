@@ -23,7 +23,6 @@ set(GLAD_DIR ${LIB_DIR}/glad)
 set(STB_DIR ${LIB_DIR}/stb)
 set(GLM_DIR ${LIB_DIR}/glm)
 set(FT_DIR ${LIB_DIR}/freetype)
-find_package(OpenGL 4.6 REQUIRED)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/geometry.cpp
@@ -61,7 +60,6 @@ add_subdirectory(${FT_DIR})
 
 target_link_libraries(Graphics glfw ${GLFW_LIBRARIES})
 target_link_libraries(Graphics glad)
-target_link_libraries(Graphics ${OPENGL_LIBRARIES})
 target_link_libraries(Graphics freetype)
-target_compile_definitions(Graphics PRIVATE STB_IMAGE_IMPLEMENTATION)
+# target_compile_definitions(Graphics PRIVATE STB_IMAGE_IMPLEMENTATION)
 target_compile_definitions(Graphics PRIVATE GLFW_INCLUDE_NONE)

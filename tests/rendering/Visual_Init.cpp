@@ -1,23 +1,15 @@
 #include <gtest/gtest.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "Graphics/window.hpp"
 
 struct VisualInitTest: public ::testing::Test {
-    unsigned int VAO;
+    gmh::Window* window;
 
     virtual void SetUp() override {
-        GLFWwindow* window;
+        window = new gmh::Window(480, 480, "Test Window");
+    }
 
-        glfwInit();
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        /* Create a windowed mode window and its OpenGL context */
-        int width = 480;
-        int height = 480;
-        window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+    virtual void TearDown() override {
+        delete window;
     }
 };
 

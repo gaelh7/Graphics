@@ -22,6 +22,7 @@ gmh::CHandler chandle(1);
 
 int main(void){
     gmh::Window win(480, 480, "Gael's App");
+    win.setIcon(PROJECT_DIR "/res/textures/emoji.png");
     enableDebug();
     gmh::InputHandler::init(&win);
     gmh::InputHandler::set_cursor_pos([&win](double x, double y){
@@ -110,13 +111,11 @@ int main(void){
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
     std::string str = "This is text";
-
-    int frames = 0;
-    long long time = 0;
     glClearColor(1, 1, 1, 1);
-
     std::string buffer = "";
     gmh::InputHandler::bind_key(GLFW_KEY_H, [&buffer](){buffer.push_back('h');}, [](){});
+    gmh::InputHandler::bind_key('\\', [&buffer](){buffer.push_back('\\');}, [](){});
+    gmh::InputHandler::bind_key(GLFW_KEY_ENTER, [&buffer](){buffer.push_back('\n');}, [](){});
     gmh::InputHandler::bind_key(GLFW_KEY_BACKSPACE, [&buffer](){
         if(buffer.size() > 0)
             buffer.pop_back();
@@ -125,15 +124,15 @@ int main(void){
     /* Loop until the user closes the win.handle() */
     while (!glfwWindowShouldClose(win.handle())){
 
-        frames++;
-        auto start = std::chrono::high_resolution_clock::now();
+        // frames++;
+        // auto start = std::chrono::high_resolution_clock::now();
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        win.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         chandle();
 
         // cam.pitch += 0.1f;
         glm::mat4 project = glm::mat4(1.0);
-        project = glm::perspective(cam.zoom, static_cast<float>(win.width)/static_cast<float>(win.height), 0.1f, 100.0f);
+        project = glm::perspective(cam.zoom, win.aspect(), 0.1f, 100.0f);
         tex.bind(0);
         tex2.bind(1);
         program.bind();
@@ -156,28 +155,18 @@ int main(void){
         s1.render();
 
         font1.bind();
-        font1.render(buffer, 190, win.height - 40, 1, glm::vec3(0.2, 0.0, 0.7));
+        font1.render(buffer, 190, 440, 1, glm::vec3(0.2, 0.0, 0.7));
         gmh::Font::unbind();
         // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);
         sol.update(dt);
         s1.update(dt);
         slope.update(dt);
-        // win.resize(win.width + 1, win.height + 1);
-        // sol.vel -= dt*glm::vec3(0,1,0);
-        /* Swap front and back buffers */
-        glfwSwapBuffers(win.handle());
-
-        /* Poll for and process events */
-        glfwPollEvents();
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-        dt = duration.count()/1000000000.f;
-        time += duration.count();
+        dt = win.update();
     }
     std::cout << std::endl;
-    std::cout << "Frames: " << frames << std::endl;
-    std::cout << "FPS: " << (frames*1000000000.)/time << std::endl;
+    std::cout << "Frames: " << win.current_frame() << std::endl;
+    std::cout << "FPS: " << win.FPS() << std::endl;
     }
     glfwTerminate();
     gmh::Font::terminate();

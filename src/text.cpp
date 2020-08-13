@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace gmh;
@@ -21,7 +19,7 @@ void Font::init(Window* win){
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), nullptr);
@@ -85,7 +83,7 @@ Font::Font(std::string path, unsigned int font_size){
 }
 
 void Font::render(std::string text, float x, float y, float scale, glm::vec3 color) const {
-    s.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(glm::ortho(0.0f, static_cast<float>(window->width), 0.0f, static_cast<float>(window->height))));
+    s.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(window->ortho_project()));
     s.SetUniformf("textColor", color.r, color.g, color.b);
     for(std::string::iterator c = text.begin(); c != text.end(); c++){
         Character ch = characters.at(*c);
