@@ -104,6 +104,7 @@ void Font::render(std::string text, float x, float y, float scale, glm::vec3 col
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        x += (ch.Advance >> 6) * scale;
+        x += (ch.Bearing.x + ch.Size.x) * scale;
+        // x += (ch.Advance >> 6) * scale;
     }
 }

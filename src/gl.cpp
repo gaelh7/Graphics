@@ -21,23 +21,24 @@ gmh::Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::r
 gmh::CHandler chandle(1);
 
 int main(void){
+    gmh::TextInput& textInp = gmh::TextInput::get();
     gmh::Window win(480, 480, "Gael's App");
     win.setIcon(PROJECT_DIR "/res/textures/emoji.png");
     enableDebug();
-    gmh::InputHandler::init(&win);
-    gmh::InputHandler::set_cursor_pos([&win](double x, double y){
+    gmh::InputHandler inpHandle;
+    inpHandle.set_cursor_pos([&win](double x, double y){
         if(glfwGetMouseButton(win.handle(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
             cam.mouse_move((float)(xpos - x), (float)(y - ypos));
         }
         xpos = x;
         ypos = y;
     });
-    gmh::InputHandler::set_scroll([](double dx, double dy){cam.mouse_scroll((float)dy);});
-    gmh::InputHandler::bind_key(GLFW_KEY_ESCAPE, [&win](){glfwSetWindowShouldClose(win.handle(), true);}, [](){});
-    gmh::InputHandler::bind_key(GLFW_KEY_W, [](){cam.set_dir(gmh::FORWARD);}, [](){cam.set_dir(gmh::NONE);});
-    gmh::InputHandler::bind_key(GLFW_KEY_A, [](){cam.set_dir(gmh::LEFT);}, [](){cam.set_dir(gmh::NONE);});
-    gmh::InputHandler::bind_key(GLFW_KEY_S, [](){cam.set_dir(gmh::BACKWARD);}, [](){cam.set_dir(gmh::NONE);});
-    gmh::InputHandler::bind_key(GLFW_KEY_D, [](){cam.set_dir(gmh::RIGHT);}, [](){cam.set_dir(gmh::NONE);});
+    inpHandle.set_scroll([](double dx, double dy){cam.mouse_scroll((float)dy);});
+    inpHandle.bind_key(GLFW_KEY_ESCAPE, [&win](int mods){glfwSetWindowShouldClose(win.handle(), true);}, [](int mods){});
+    inpHandle.bind_key(GLFW_KEY_W, [](int mods){cam.set_dir(gmh::FORWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_A, [](int mods){cam.set_dir(gmh::LEFT);}, [](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_S, [](int mods){cam.set_dir(gmh::BACKWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_D, [](int mods){cam.set_dir(gmh::RIGHT);}, [](int mods){cam.set_dir(gmh::NONE);});
     glfwSwapInterval(0);
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
     glEnable(GL_DEPTH_TEST);
@@ -94,14 +95,14 @@ int main(void){
     sol.tex_coord(3, 0, 1);
     sol.tex_coord(4, 0.5, 0.5);
     sol.reload();
-    gmh::InputHandler::bind_key(GLFW_KEY_UP, [&sol](){sol.vel += glm::vec3(0, 3, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_DOWN, [&sol](){sol.vel += glm::vec3(0, -3, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_LEFT, [&sol](){sol.vel += glm::vec3(-3, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_RIGHT, [&sol](){sol.vel += glm::vec3(3, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_Z, [&sol](){sol.vel += glm::vec3(0, 0, 3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_X, [&sol](){sol.vel += glm::vec3(0, 0, -3);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_SPACE, [&sol](){sol.vel += glm::vec3(0, 0, 0);}, [&sol](){sol.vel = glm::vec3(0, 0, 0);});
-    gmh::InputHandler::bind_key(GLFW_KEY_C, [&s1](){s1.transform(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](){});
+    inpHandle.bind_key(GLFW_KEY_UP, [&sol](int mods){sol.vel += glm::vec3(0, 3, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_DOWN, [&sol](int mods){sol.vel += glm::vec3(0, -3, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_LEFT, [&sol](int mods){sol.vel += glm::vec3(-3, 0, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_RIGHT, [&sol](int mods){sol.vel += glm::vec3(3, 0, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_Z, [&sol](int mods){sol.vel += glm::vec3(0, 0, 3);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_X, [&sol](int mods){sol.vel += glm::vec3(0, 0, -3);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_SPACE, [&sol](int mods){sol.vel += glm::vec3(0, 0, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
+    inpHandle.bind_key(GLFW_KEY_C, [&s1](int mods){s1.transform(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](int mods){});
 
     chandle.add(&s1, 1, true);
     chandle.add(&sol, 1, false);
@@ -111,17 +112,19 @@ int main(void){
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
     std::string str = "This is text";
-    glClearColor(1, 1, 1, 1);
-    std::string buffer = "";
-    gmh::InputHandler::bind_key(GLFW_KEY_H, [&buffer](){buffer.push_back('h');}, [](){});
-    gmh::InputHandler::bind_key('\\', [&buffer](){buffer.push_back('\\');}, [](){});
-    gmh::InputHandler::bind_key(GLFW_KEY_ENTER, [&buffer](){buffer.push_back('\n');}, [](){});
-    gmh::InputHandler::bind_key(GLFW_KEY_BACKSPACE, [&buffer](){
-        if(buffer.size() > 0)
-            buffer.pop_back();
-    }, [](){});
+    // glClearColor(1, 1, 1, 1);
+    // std::string buffer = "";
+    // inpHandle.bind_key(GLFW_KEY_H, [&buffer](){buffer.push_back('h');}, [](){});
+    // inpHandle.bind_key('\\', [&buffer](){buffer.push_back('\\');}, [](){});
+    // inpHandle.bind_key(GLFW_KEY_ENTER, [&buffer](){buffer.push_back('\n');}, [](){});
+    // inpHandle.bind_key(GLFW_KEY_BACKSPACE, [&buffer](){
+    //     if(buffer.size() > 0)
+    //         buffer.pop_back();
+    // }, [](){});
 
     /* Loop until the user closes the win.handle() */
+    // inpHandle.bind(win);
+    textInp.bind(win);
     while (!glfwWindowShouldClose(win.handle())){
 
         // frames++;
@@ -155,7 +158,7 @@ int main(void){
         s1.render();
 
         font1.bind();
-        font1.render(buffer, 190, 440, 1, glm::vec3(0.2, 0.0, 0.7));
+        font1.render(textInp.text(), 190, 440, 1, glm::vec3(0.2, 0.0, 0.7));
         gmh::Font::unbind();
         // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);
