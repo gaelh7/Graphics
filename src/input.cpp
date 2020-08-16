@@ -44,24 +44,23 @@ void InputHandler::set_mode(Window* window, int mode, int value) const {
 }
 
 TextInput::TextInput(): buffer("") {
-    for(std::map<unsigned char, unsigned char>::const_iterator key = shift_map.cbegin(); key != shift_map.cend(); key++){
-        if(key->first >= 'a' && key->first <= 'z'){
-            bind_key(key->second, [this, key](int mods){
-                if((mods & GLFW_MOD_CAPS_LOCK) ^ (mods & GLFW_MOD_SHIFT)) buffer.push_back(key->second);
-                else buffer.push_back(key->first);
+    for(std::pair<char, char> key: shift_map){
+        if(key.first >= 'a' && key.first <= 'z'){
+            bind_key(key.second, [this, key](int mods){
+                if(!(mods & GLFW_MOD_CAPS_LOCK) ^ !(mods & GLFW_MOD_SHIFT)) buffer.push_back(key.second);
+                else buffer.push_back(key.first);
             }, [](int mods){});
         }
         else{
-            bind_key(key->first, [this, key](int mods){
-                if(mods & GLFW_MOD_SHIFT) buffer.push_back(key->second);
-                else buffer.push_back(key->first);
+            bind_key(key.first, [this, key](int mods){
+                if(mods & GLFW_MOD_SHIFT) buffer.push_back(key.second);
+                else buffer.push_back(key.first);
             }, [](int mods){});
         }
     }
+    bind_key(GLFW_KEY_SPACE, [this](int mods){buffer.push_back(' ');}, [](int mods){});
     bind_key(GLFW_KEY_BACKSPACE, [this](int mods){
-        if(buffer.size() > 0){
-            buffer.pop_back();
-        }
+        if(buffer.size() > 0) buffer.pop_back();
     }, [](int mods){});
 }
 
@@ -74,7 +73,7 @@ void TextInput::bind(const Window& window){
 }
 
 
-const std::map<unsigned char, unsigned char> TextInput::shift_map = {
+const std::unordered_map<char, char> TextInput::shift_map = {
     {'a', 'A'},
     {'b', 'B'},
     {'c', 'C'},

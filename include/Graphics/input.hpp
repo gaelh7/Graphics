@@ -9,7 +9,7 @@
 
 namespace gmh{
     class InputHandler {
-        public:
+        protected:
             std::unordered_map<int, std::pair<std::function<void(int)>, std::function<void(int)>>> key_bindings;
             std::function<void(double, double)> mouse_callback;
             std::function<void(double, double)> scroll_callback;
@@ -27,7 +27,7 @@ namespace gmh{
 
     class TextInput: private InputHandler {
         std::string buffer;
-        static const std::map<unsigned char, unsigned char> shift_map;
+        static const std::unordered_map<char, char> shift_map;
         TextInput();
         public:
             static TextInput& get(){
@@ -36,6 +36,7 @@ namespace gmh{
             }
             void bind(const Window& window);
             inline std::string text() const {return buffer;}
+            inline void clear() {buffer.clear();}
             TextInput(TextInput const&) = delete;
             void operator=(TextInput const&)  = delete;
     };

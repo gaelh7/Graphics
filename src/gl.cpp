@@ -34,7 +34,7 @@ int main(void){
         ypos = y;
     });
     inpHandle.set_scroll([](double dx, double dy){cam.mouse_scroll((float)dy);});
-    inpHandle.bind_key(GLFW_KEY_ESCAPE, [&win](int mods){glfwSetWindowShouldClose(win.handle(), true);}, [](int mods){});
+    inpHandle.bind_key(GLFW_KEY_ESCAPE, [&win](int mods){win.close();}, [](int mods){});
     inpHandle.bind_key(GLFW_KEY_W, [](int mods){cam.set_dir(gmh::FORWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
     inpHandle.bind_key(GLFW_KEY_A, [](int mods){cam.set_dir(gmh::LEFT);}, [](int mods){cam.set_dir(gmh::NONE);});
     inpHandle.bind_key(GLFW_KEY_S, [](int mods){cam.set_dir(gmh::BACKWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
@@ -112,23 +112,12 @@ int main(void){
     // chandle.remove(&s1);
     std::cout << sol.volume() << std::endl;
     std::string str = "This is text";
-    // glClearColor(1, 1, 1, 1);
-    // std::string buffer = "";
-    // inpHandle.bind_key(GLFW_KEY_H, [&buffer](){buffer.push_back('h');}, [](){});
-    // inpHandle.bind_key('\\', [&buffer](){buffer.push_back('\\');}, [](){});
-    // inpHandle.bind_key(GLFW_KEY_ENTER, [&buffer](){buffer.push_back('\n');}, [](){});
-    // inpHandle.bind_key(GLFW_KEY_BACKSPACE, [&buffer](){
-    //     if(buffer.size() > 0)
-    //         buffer.pop_back();
-    // }, [](){});
+    glClearColor(1, 1, 1, 1);
 
     /* Loop until the user closes the win.handle() */
-    // inpHandle.bind(win);
+    inpHandle.bind(win);
     textInp.bind(win);
-    while (!glfwWindowShouldClose(win.handle())){
-
-        // frames++;
-        // auto start = std::chrono::high_resolution_clock::now();
+    while (win.isOpen()){
         /* Render here */
         win.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         chandle();

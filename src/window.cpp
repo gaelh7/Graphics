@@ -4,12 +4,12 @@
 
 using namespace gmh;
 
-Window::Window(unsigned int w, unsigned int h, const char* title): win(nullptr), frame_last(std::chrono::high_resolution_clock::now()), time(0), frames(0), width(w), height(h) {
+Window::Window(unsigned int width, unsigned int height, const char* title): win(nullptr), frame_last(std::chrono::high_resolution_clock::now()), time(0), frames(0), w(width), h(height) {
     if(!glfwInit()) throw std::bad_exception();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    win = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    win = glfwCreateWindow(w, h, title, nullptr, nullptr);
     if(!win){
         glfwTerminate();
         throw std::bad_exception();
@@ -22,17 +22,17 @@ Window::Window(unsigned int w, unsigned int h, const char* title): win(nullptr),
     }
     glfwSetFramebufferSizeCallback(win, [](GLFWwindow* window, int width, int height){
         gmh::Window* self = reinterpret_cast<gmh::Window*>(glfwGetWindowUserPointer(window));
-        self->width = width;
-        self->height = height;
+        self->w = width;
+        self->h = height;
         glViewport(0, 0, width, height);
     });
 }
 
-void Window::resize(unsigned int w, unsigned int h){
-    glViewport(0, 0, w, h);
-    glfwSetWindowSize(win, w, h);
-    width = w;
-    height  = h;
+void Window::resize(unsigned int width, unsigned int height){
+    glViewport(0, 0, width, height);
+    glfwSetWindowSize(win, width, height);
+    w = w;
+    h  = h;
 }
 
 void Window::setIcon(const char* path){
