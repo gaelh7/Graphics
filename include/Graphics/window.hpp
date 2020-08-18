@@ -18,12 +18,13 @@ namespace gmh{
             void resize(unsigned int w, unsigned int h);
             void setIcon(const char* path);
             float update();
+            inline void bind(){glfwMakeContextCurrent(win);}
             inline bool isOpen(){return !glfwWindowShouldClose(win);}
             inline void close(){glfwSetWindowShouldClose(win, true);}
             inline unsigned int current_frame() const {return frames;}
             inline float FPS() const {return frames/time;}
             inline float aspect() const {return static_cast<float>(w)/static_cast<float>(h);}
-            inline glm::mat4 ortho_project() const {return glm::ortho(0.0f, static_cast<float>(w), 0.0f, static_cast<float>(h));};
+            inline glm::mat4 ortho_project() const {return glm::ortho(0.0f, static_cast<float>(w), 0.0f, static_cast<float>(h));}
             inline void clear(unsigned int bitfield) const {glClear(bitfield);}
             inline GLFWwindow* handle() const {return win;}
     };

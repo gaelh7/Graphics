@@ -48,7 +48,7 @@ void Camera::set_dir(Direction d){
     dir = d;
 }
 
-void Camera::mouse_move(float dx, float dy, bool constrain){
+void Camera::rotate(float dx, float dy, bool constrain){
     yaw += dx*sensitivity;
     pitch += dy*sensitivity;
     if(constrain){
@@ -60,7 +60,7 @@ void Camera::mouse_move(float dx, float dy, bool constrain){
     reset();
 }
 
-void Camera::mouse_scroll(float offset){
+void Camera::zoom_out(float offset){
     zoom += offset*sensitivity;
     if(zoom <= glm::radians(1.f))
         zoom = glm::radians(1.f);

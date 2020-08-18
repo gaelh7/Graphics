@@ -1,3 +1,4 @@
 build
 .vscode
 res/textures/desktop.ini
+imgui.ini

@@ -21,7 +21,7 @@ namespace gmh{
             glm::mat4 view();
             void update(float dt);
             void set_dir(Direction d);
-            void mouse_move(float dx, float dy, bool constrain = true);
-            void mouse_scroll(float offset);
+            void rotate(float dx, float dy, bool constrain = true);
+            void zoom_out(float offset);
     };
 }

@@ -23,6 +23,7 @@ set(GLAD_DIR ${LIB_DIR}/glad)
 set(STB_DIR ${LIB_DIR}/stb)
 set(GLM_DIR ${LIB_DIR}/glm)
 set(FT_DIR ${LIB_DIR}/freetype)
+set(IMG_DIR ${LIB_DIR}/imgui)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/geometry.cpp
@@ -39,7 +40,7 @@ file(GLOB HEADERS ${INC_DIR}/Graphics/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 
 # include
-include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR} ${FT_DIR}/include)
+include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR} ${FT_DIR}/include ${IMG_DIR})
 
 # target
 add_library(Graphics STATIC ${HEADERS} ${SOURCES})
@@ -57,9 +58,18 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_subdirectory(${GLFW_DIR})
 add_subdirectory(${GLAD_DIR})
 add_subdirectory(${FT_DIR})
+target_sources(Graphics PRIVATE
+    ${IMG_DIR}/imgui.h
+    ${IMG_DIR}/imgui.cpp
+    ${IMG_DIR}/imgui_draw.cpp
+    ${IMG_DIR}/imgui_widgets.cpp
+    ${IMG_DIR}/examples/imgui_impl_glfw.h
+    ${IMG_DIR}/examples/imgui_impl_glfw.cpp
+    ${IMG_DIR}/examples/imgui_impl_opengl3.h
+    ${IMG_DIR}/examples/imgui_impl_opengl3.cpp
+)
 
 target_link_libraries(Graphics glfw ${GLFW_LIBRARIES})
 target_link_libraries(Graphics glad)
 target_link_libraries(Graphics freetype)
-# target_compile_definitions(Graphics PRIVATE STB_IMAGE_IMPLEMENTATION)
 target_compile_definitions(Graphics PRIVATE GLFW_INCLUDE_NONE)
