@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 

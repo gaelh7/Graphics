@@ -8,7 +8,7 @@
 namespace gmh{
     class Window {
         GLFWwindow* win;
-        std::chrono::steady_clock::time_point frame_last;
+        std::chrono::system_clock::time_point frame_last;
         float time;
         unsigned int frames;
         unsigned int w, h;
