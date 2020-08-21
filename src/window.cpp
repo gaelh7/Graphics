@@ -4,7 +4,7 @@
 
 using namespace gmh;
 
-Window::Window(unsigned int width, unsigned int height, const char* title): win(nullptr), frame_last(std::chrono::high_resolution_clock::now()), time(0), frames(0), w(width), h(height) {
+Window::Window(unsigned int width, unsigned int height, const char* title): win(nullptr), frame_last(std::chrono::steady_clock::now()), time(0), frames(0), w(width), h(height) {
     if(!glfwInit()) throw std::bad_exception();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -22,8 +22,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title): win(
     }
     glfwSetFramebufferSizeCallback(win, [](GLFWwindow* window, int width, int height){
         gmh::Window* self = reinterpret_cast<gmh::Window*>(glfwGetWindowUserPointer(window));
-        self->w = width;
-        self->h = height;
+        if(width) self->w = width;
+        if(height) self->h = height;
         glViewport(0, 0, width, height);
     });
 }

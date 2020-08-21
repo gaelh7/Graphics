@@ -8,12 +8,12 @@
 namespace gmh{
     class Window {
         GLFWwindow* win;
-        std::chrono::system_clock::time_point frame_last;
+        std::chrono::steady_clock::time_point frame_last;
         float time;
         unsigned int frames;
         unsigned int w, h;
         public:
-            unsigned int &width = w, &height = h;
+            const unsigned int &width = w, &height = h;
             Window(unsigned int width, unsigned int height, const char* title);
             void resize(unsigned int w, unsigned int h);
             void setIcon(const char* path);

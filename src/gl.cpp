@@ -72,7 +72,6 @@ int main(void){
     program.SetUniformi("Texture", 0);
     program.SetUniformi("Texture2", 1);
 
-
     gmh::Surface s1(glm::vec3(-5, 0.0, -5), glm::vec3(5, 0.0, -5), glm::vec3(5, 0.0,  5), glm::vec3(-5, 0.0, 5));
     s1.tex_coord(0, 0, 0);
     s1.tex_coord(1, 1, 0);
@@ -82,8 +81,9 @@ int main(void){
 
 
 
-    gmh::Solid slope;
-    slope = gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
+    gmh::Solid temp = gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
+    gmh::Solid slope = temp;
+    // slope = std::move(temp);
     slope.tex_coord(0, 0, 0);
     slope.tex_coord(1, 1, 0);
     slope.tex_coord(2, 1, 0);
@@ -126,7 +126,7 @@ int main(void){
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
 
-    glm::vec3 tcolor(1.0, 1.0, 1.0);
+    glm::vec3 tcolor(0.0, 0.0, 0.0);
 
     /* Loop until the user closes the win.handle() */
     inpHandle.bind(win);
@@ -154,7 +154,7 @@ int main(void){
         program.bind();
         program.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
         program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(sol.model));
+        program.SetUniformMatrixf<4, 4>("model", sol.model_ptr());
 
         // s1.bind();
         // s1.render();
@@ -162,18 +162,18 @@ int main(void){
         sol.bind();
         sol.render();
 
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(slope.model));
+        program.SetUniformMatrixf<4, 4>("model", slope.model_ptr());
         slope.bind();
         slope.render();
 
-        program.SetUniformMatrixf<4, 4>("model", glm::value_ptr(s1.model));
+        program.SetUniformMatrixf<4, 4>("model", s1.model_ptr());
         s1.bind();
         s1.render();
 
         font1.bind();
         font1.render(textInp.text(), 190, 440, 1, tcolor);
+        font.render("Extra text", 190, 300, 1, tcolor);
         gmh::Font::unbind();
-        // std::cout << sol.vel << "\t\t\t\t\r";
         cam.update(dt);
         sol.update(dt);
         s1.update(dt);

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace gmh{
 
@@ -58,11 +59,13 @@ class Polygon;
 class Polyhedron;
 
 class Point {
+    protected:
+        glm::mat4 model;
+        std::vector<std::shared_ptr<Point>> v;
     public:
+        const std::vector<std::shared_ptr<Point>>& vertices = v;
         glm::vec3 pos;
         glm::vec3 vel;
-        glm::mat4 model;
-        std::vector<std::shared_ptr<Point>> vertices;
         Point();
         Point(glm::vec3 pos);
         inline virtual unsigned int dim() const {return 0;}
@@ -84,6 +87,8 @@ class Point {
         bool equals(const Point &obj) const;
         void update(float dt);
         void transform(glm::mat4 mat);
+        inline const float* model_ptr() const {return glm::value_ptr(model);}
+        Point& operator=(const Point&);
 };
 
 class Line: public Point {
@@ -112,12 +117,8 @@ class Line: public Point {
 };
 
 class LinSeg: public Line {
+    using Line::Line;
     public:
-        LinSeg();
-        LinSeg(Point p1, Point p2);
-        LinSeg(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
-        LinSeg(std::vector<Point> vert);
-        LinSeg(std::vector<std::shared_ptr<Point>> vert);
         inline virtual bool isSpace() const override {return false;}
         virtual float dist(const Point &obj) const override;
         virtual float dist(const Line &obj) const override;
@@ -168,8 +169,10 @@ class Plane: public Point {
 };
 
 class Polygon: public Plane {
+    protected:
+        std::vector<std::shared_ptr<LinSeg>> e;
     public:
-        std::vector<std::shared_ptr<LinSeg>> edges;
+        const std::vector<std::shared_ptr<LinSeg>>& edges = e;
         Polygon();
         template <typename... Points>
         Polygon(Point p1, Point p2, Point p3, Points... args): Polygon(std::vector<Point>{p1, p2, p3, args...}){};
@@ -191,12 +194,16 @@ class Polygon: public Plane {
         virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
         virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float area() const;
+        Polygon& operator=(const Polygon& poly);
 };
 
 class Polyhedron: public Point {
+    protected:
+        std::vector<std::shared_ptr<LinSeg>> e;
+        std::vector<std::shared_ptr<Polygon>> f;
     public:
-        std::vector<std::shared_ptr<LinSeg>> edges;
-        std::vector<std::shared_ptr<Polygon>> faces;
+        const std::vector<std::shared_ptr<LinSeg>>& edges = e;
+        const std::vector<std::shared_ptr<Polygon>>& faces = f;
         Polyhedron();
         template <typename... Points>
         Polyhedron(Point p1, Point p2, Point p3, Point p4, Points... args): Polyhedron(std::vector<Point>{p1, p2, p3, p4, args...}){};
@@ -219,6 +226,7 @@ class Polyhedron: public Point {
         virtual std::unique_ptr<Point> intersect(const Polygon &obj) const override;
         virtual std::unique_ptr<Point> intersect(const Polyhedron &obj) const override;
         float volume() const;
+        Polyhedron& operator=(const Polyhedron& poly);
 };
 
 }
