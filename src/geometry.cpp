@@ -759,7 +759,7 @@ Polyhedron::Polyhedron(std::vector<Point> vert){
         std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(v.begin(), v.end(), i);
         points.insert(points.end(), comb.begin(), comb.end());
     }
-    for(std::reverse_iterator<std::vector<std::vector<std::shared_ptr<Point>>>::iterator> it = points.rbegin(); it != points.rend(); it++){
+    for(std::vector<std::vector<std::shared_ptr<Point>>>::reverse_iterator it = points.rbegin(); it != points.rend(); it++){
         try{
             std::shared_ptr<Polygon> face = std::make_shared<Polygon>(*it);
             if(face->sign_dist(center) < 0){
@@ -797,7 +797,7 @@ Polyhedron::Polyhedron(std::vector<std::shared_ptr<Point>> vert){
         std::vector<std::vector<std::shared_ptr<Point>>> comb = combinations<std::shared_ptr<Point>>(v.begin(), v.end(), i);
         points.insert(points.end(), comb.begin(), comb.end());
     }
-    for(std::reverse_iterator<std::vector<std::vector<std::shared_ptr<Point>>>::iterator> it = points.rbegin(); it != points.rend(); it++){
+    for(std::vector<std::vector<std::shared_ptr<Point>>>::reverse_iterator it = points.rbegin(); it != points.rend(); it++){
         try{
             std::shared_ptr<Polygon> face = std::make_shared<Polygon>(*it);
             if(face->sign_dist(center) < 0){

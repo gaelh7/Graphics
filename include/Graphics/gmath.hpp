@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <array>
+#include <glm/ext/vector_float3.hpp>
 
 namespace gmh{
     /**
@@ -37,7 +38,7 @@ namespace gmh{
     std::vector<std::vector<T>> combinations(iter first, iter last, int k){
         std::vector<std::vector<T>> out;
         if(k == 1){
-            for(iter i = first; i != last; i++) out.push_back(std::vector<T>{*i});
+            for(iter i = first; i != last; i++) out.emplace_back(std::vector<T>{*i});
             return out;
         }
         for(iter i = first; i != last; i++){

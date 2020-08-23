@@ -1,4 +1,5 @@
 #include "Graphics/camera.hpp"
+#include <glm/geometric.hpp>
 
 using namespace gmh;
 

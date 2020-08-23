@@ -48,14 +48,14 @@ void Font::unbind(){
     glDisable(GL_BLEND);
 }
 
-Font::Font(std::string path, unsigned int font_size){
+Font::Font(const char* path, unsigned int font_size){
     FT_Library lib;
     FT_Face face;
     if(FT_Init_FreeType(&lib)){
         std::cerr << "Failed to initialize freetype" << std::endl;
         throw std::bad_exception();
     }
-    if(FT_New_Face(lib, path.c_str(), 0, &face)){
+    if(FT_New_Face(lib, path, 0, &face)){
         std::cerr << "Failed to load font" << std::endl;
         throw std::bad_exception();
     }

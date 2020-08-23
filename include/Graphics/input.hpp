@@ -1,10 +1,8 @@
 #pragma once
 
-// #include <unordered_map>
-#include <map>
+#include <unordered_map>
 #include <functional>
 #include <string>
-#include <sstream>
 #include "Graphics/window.hpp"
 
 namespace gmh{
@@ -30,10 +28,7 @@ namespace gmh{
         static const std::unordered_map<char, char> shift_map;
         TextInput();
         public:
-            static TextInput& get(){
-                static TextInput self;
-                return self;
-            }
+            static TextInput& get();
             void bind(const Window& window);
             inline std::string text() const {return buffer;}
             inline void clear() {buffer.clear();}

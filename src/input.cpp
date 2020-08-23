@@ -44,17 +44,17 @@ void InputHandler::set_mode(Window* window, int mode, int value) const {
 }
 
 TextInput::TextInput(): buffer("") {
-    for(std::pair<char, char> key: shift_map){
-        if(key.first >= 'a' && key.first <= 'z'){
-            bind_key(key.second, [this, key](int mods){
-                if(!(mods & GLFW_MOD_CAPS_LOCK) ^ !(mods & GLFW_MOD_SHIFT)) buffer.push_back(key.second);
-                else buffer.push_back(key.first);
+    for(const auto&[lower, upper]: shift_map){
+        if(lower >= 'a' && lower <= 'z'){
+            bind_key(upper, [this, lower = lower, upper = upper](int mods){
+                if(!(mods & GLFW_MOD_CAPS_LOCK) ^ !(mods & GLFW_MOD_SHIFT)) buffer.push_back(upper);
+                else buffer.push_back(lower);
             }, [](int mods){});
         }
         else{
-            bind_key(key.first, [this, key](int mods){
-                if(mods & GLFW_MOD_SHIFT) buffer.push_back(key.second);
-                else buffer.push_back(key.first);
+            bind_key(lower, [this, lower = lower, upper = upper](int mods){
+                if(mods & GLFW_MOD_SHIFT) buffer.push_back(upper);
+                else buffer.push_back(lower);
             }, [](int mods){});
         }
     }
@@ -62,6 +62,11 @@ TextInput::TextInput(): buffer("") {
     bind_key(GLFW_KEY_BACKSPACE, [this](int mods){
         if(buffer.size() > 0) buffer.pop_back();
     }, [](int mods){});
+}
+
+TextInput& TextInput::get(){
+    static TextInput self;
+    return self;
 }
 
 void TextInput::bind(const Window& window){

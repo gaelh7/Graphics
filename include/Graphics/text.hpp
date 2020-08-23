@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -19,13 +19,13 @@ namespace gmh {
         static Window* window;
         static Shader s;
         static unsigned int VAO, VBO;
-        std::map<char, Character> characters;
+        std::unordered_map<char, Character> characters;
         public:
             static void init(Window* win);
             static void terminate();
             static void bind();
             static void unbind();
-            Font(std::string path, unsigned int font_size);
+            Font(const char* path, unsigned int font_size);
             void render(std::string text, float x, float y, float scale, glm::vec3 color) const;
     };
 }

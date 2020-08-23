@@ -1,5 +1,5 @@
-#include <glm/geometric.hpp>
 #include "Graphics/collision.hpp"
+#include <glm/geometric.hpp>
 #include "Graphics/gmath.hpp"
 #include "Graphics/geometry.hpp"
 
