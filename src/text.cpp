@@ -8,13 +8,13 @@
 using namespace gmh;
 
 Window* Font::window = nullptr;
-Shader Font::s = Shader();
+Shader Font::program = Shader();
 unsigned int Font::VAO = 0;
 unsigned int Font::VBO = 0;
 
 void Font::init(Window* win){
     window = win;
-    s = Shader(PROJECT_DIR "/res/shaders/text.glsl");
+    program = Shader(PROJECT_DIR "/res/shaders/text.glsl");
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -37,7 +37,7 @@ void Font::bind(){
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    s.bind();
+    program.bind();
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 }
@@ -82,10 +82,10 @@ Font::Font(const char* path, unsigned int font_size){
     FT_Done_FreeType(lib);
 }
 
-void Font::render(std::string text, float x, float y, float scale, glm::vec3 color) const {
-    s.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(window->ortho_project()));
-    s.SetUniformf("textColor", color.r, color.g, color.b);
-    for(std::string::iterator c = text.begin(); c != text.end(); c++){
+void Font::render(std::string_view text, float x, float y, float scale, glm::vec3 color) const {
+    program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(window->ortho_project()));
+    program.SetUniformf("textColor", color.r, color.g, color.b);
+    for(std::string_view::iterator c = text.begin(); c != text.end(); c++){
         Character ch = characters.at(*c);
         float xpos = x + ch.Bearing.x * scale;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;

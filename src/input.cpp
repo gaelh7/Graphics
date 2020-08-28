@@ -17,10 +17,10 @@ InputHandler::InputHandler(): mouse_callback([](double, double){}), scroll_callb
 
 void InputHandler::bind(const Window& window){
     static InputHandler* ptr = this;
-    glfwSetCursorPosCallback(window.handle(), [](GLFWwindow* win, double x, double y){ptr->mouse_callback(x, y);});
-    glfwSetScrollCallback(window.handle(), [](GLFWwindow* win, double x, double y){ptr->scroll_callback(x, y);});
-    glfwSetKeyCallback(window.handle(), [](GLFWwindow* win, int key, int scancode, int action, int mods){ptr->key_callback(key, action, mods);});
-    glfwSetMouseButtonCallback(window.handle(), [](GLFWwindow* win, int button, int action, int mods){ptr->key_callback(button, action, mods);});
+    glfwSetCursorPosCallback(window.handle(), [](GLFWwindow*, double x, double y){ptr->mouse_callback(x, y);});
+    glfwSetScrollCallback(window.handle(), [](GLFWwindow*, double x, double y){ptr->scroll_callback(x, y);});
+    glfwSetKeyCallback(window.handle(), [](GLFWwindow*, int key, int, int action, int mods){ptr->key_callback(key, action, mods);});
+    glfwSetMouseButtonCallback(window.handle(), [](GLFWwindow*, int button, int action, int mods){ptr->key_callback(button, action, mods);});
 }
 
 void InputHandler::bind_key(int key, std::function<void(int)> press_action, std::function<void(int)> release_action){
@@ -49,19 +49,19 @@ TextInput::TextInput(): buffer("") {
             bind_key(upper, [this, lower = lower, upper = upper](int mods){
                 if(!(mods & GLFW_MOD_CAPS_LOCK) ^ !(mods & GLFW_MOD_SHIFT)) buffer.push_back(upper);
                 else buffer.push_back(lower);
-            }, [](int mods){});
+            }, [](int){});
         }
         else{
             bind_key(lower, [this, lower = lower, upper = upper](int mods){
                 if(mods & GLFW_MOD_SHIFT) buffer.push_back(upper);
                 else buffer.push_back(lower);
-            }, [](int mods){});
+            }, [](int){});
         }
     }
-    bind_key(GLFW_KEY_SPACE, [this](int mods){buffer.push_back(' ');}, [](int mods){});
-    bind_key(GLFW_KEY_BACKSPACE, [this](int mods){
+    bind_key(GLFW_KEY_SPACE, [this](int){buffer.push_back(' ');}, [](int){});
+    bind_key(GLFW_KEY_BACKSPACE, [this](int){
         if(buffer.size() > 0) buffer.pop_back();
-    }, [](int mods){});
+    }, [](int){});
 }
 
 TextInput& TextInput::get(){
@@ -71,10 +71,10 @@ TextInput& TextInput::get(){
 
 void TextInput::bind(const Window& window){
     glfwSetInputMode(window.handle(), GLFW_LOCK_KEY_MODS, GLFW_TRUE);
-    glfwSetCursorPosCallback(window.handle(), [](GLFWwindow* win, double x, double y){get().mouse_callback(x, y);});
-    glfwSetScrollCallback(window.handle(), [](GLFWwindow* win, double x, double y){get().scroll_callback(x, y);});
-    glfwSetKeyCallback(window.handle(), [](GLFWwindow* win, int key, int scancode, int action, int mods){get().key_callback(key, action, mods);});
-    glfwSetMouseButtonCallback(window.handle(), [](GLFWwindow* win, int button, int action, int mods){get().key_callback(button, action, mods);});
+    glfwSetCursorPosCallback(window.handle(), [](GLFWwindow*, double x, double y){get().mouse_callback(x, y);});
+    glfwSetScrollCallback(window.handle(), [](GLFWwindow*, double x, double y){get().scroll_callback(x, y);});
+    glfwSetKeyCallback(window.handle(), [](GLFWwindow*, int key, int, int action, int mods){get().key_callback(key, action, mods);});
+    glfwSetMouseButtonCallback(window.handle(), [](GLFWwindow*, int button, int action, int mods){get().key_callback(button, action, mods);});
 }
 
 

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace gmh{
+namespace gmh {
     struct ShaderSource {
         std::string VertexShader, FragmentShader;
     };

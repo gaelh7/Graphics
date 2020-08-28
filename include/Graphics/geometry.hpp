@@ -8,7 +8,7 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace gmh{
+namespace gmh {
 
 /**
  * @brief Defines a point in 3D space.
@@ -147,11 +147,11 @@ class Plane: public Point {
         Point project(const Point &obj) const;
         template<typename T>
         T project(const T &obj) const {
-            std::vector<Point> v(obj.vertices.size());
-            std::transform(obj.vertices.begin(), obj.vertices.end(), v.begin(), [this](std::shared_ptr<Point> p){
+            std::vector<Point> vert(obj.vertices.size());
+            std::transform(obj.vertices.begin(), obj.vertices.end(), vert.begin(), [this](std::shared_ptr<Point> p){
                 return project(*p);
             });
-            return T(v);
+            return T(vert);
         }
         float sign_dist(const Point &obj) const;
         virtual float dist(const Point &obj) const override;

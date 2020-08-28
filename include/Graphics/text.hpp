@@ -17,7 +17,7 @@ namespace gmh {
 
     class Font {
         static Window* window;
-        static Shader s;
+        static Shader program;
         static unsigned int VAO, VBO;
         std::unordered_map<char, Character> characters;
         public:
@@ -26,6 +26,6 @@ namespace gmh {
             static void bind();
             static void unbind();
             Font(const char* path, unsigned int font_size);
-            void render(std::string text, float x, float y, float scale, glm::vec3 color) const;
+            void render(std::string_view text, float x, float y, float scale, glm::vec3 color) const;
     };
 }

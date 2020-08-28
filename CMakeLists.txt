@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.17)
 
 project(Graphics VERSION 1.0)
 
@@ -24,10 +24,11 @@ set(STB_DIR ${LIB_DIR}/stb)
 set(GLM_DIR ${LIB_DIR}/glm)
 set(FT_DIR ${LIB_DIR}/freetype)
 set(IMG_DIR ${LIB_DIR}/imgui)
+set(ASMP_DIR ${LIB_DIR}/assimp)
 # file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/geometry.cpp
-            ${SRC_DIR}/render.cpp
+            ${SRC_DIR}/georender.cpp
             ${SRC_DIR}/texture.cpp
             ${SRC_DIR}/camera.cpp
             ${SRC_DIR}/collision.cpp
@@ -35,12 +36,12 @@ set(SOURCES ${SRC_DIR}/shader.cpp
             ${SRC_DIR}/hash.cpp
             ${SRC_DIR}/text.cpp
             ${SRC_DIR}/window.cpp
+            ${SRC_DIR}/model.cpp
     )
 file(GLOB HEADERS ${INC_DIR}/Graphics/*.hpp)
 # set(HEADERS ${INC_DIR}/Graphics/geometry.hpp ${INC_DIR}/Graphics/render.hpp ${INC_DIR}/Graphics/shader.hpp ${INC_DIR}/Graphics/gmath.hpp)
 
 # include
-include_directories(${INC_DIR} ${STB_DIR} ${GLM_DIR} ${FT_DIR}/include ${IMG_DIR})
 
 # target
 add_library(Graphics STATIC ${HEADERS} ${SOURCES})
@@ -48,6 +49,13 @@ add_executable(main ${SRC_DIR}/practice.cpp)
 add_executable(gl ${SRC_DIR}/gl.cpp)
 target_link_libraries(gl Graphics)
 target_link_libraries(main Graphics)
+
+target_include_directories(Graphics PUBLIC ${INC_DIR} ${STB_DIR} ${GLM_DIR} ${FT_DIR}/include ${IMG_DIR})
+
+# target_compile_options(Graphics PRIVATE
+#   $<$<CXX_COMPILER_ID:MSVC>:/W4>
+#   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
+# )
 
 # tests
 enable_testing()
@@ -58,6 +66,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_subdirectory(${GLFW_DIR})
 add_subdirectory(${GLAD_DIR})
 add_subdirectory(${FT_DIR})
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(${ASMP_DIR})
 target_sources(Graphics PRIVATE
     ${IMG_DIR}/imgui.h
     ${IMG_DIR}/imgui.cpp
@@ -72,4 +82,5 @@ target_sources(Graphics PRIVATE
 target_link_libraries(Graphics glfw ${GLFW_LIBRARIES})
 target_link_libraries(Graphics glad)
 target_link_libraries(Graphics freetype)
+target_link_libraries(Graphics assimp ${ASSIMP_LIBRARIES})
 target_compile_definitions(Graphics PRIVATE GLFW_INCLUDE_NONE)

@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Graphics/geometry.hpp"
 #include "Graphics/hash.hpp"
+#include "Graphics/log.hpp"
 
 #ifndef NDEBUG
     #define PRINT std::cout << "Debug Mode" << std::endl
@@ -25,6 +26,11 @@ std::ostream& operator<<(std::ostream &strm, const vector<std::shared_ptr<T>> &v
 int main(int argc, char* argv[])
 {
     PRINT;
+    std::atexit([](){
+        std::cout << "Allocations: " << allocations << std::endl;
+        std::cout << "Deletions: " << deletions << std::endl;
+        std::cout << bytes_allocated << " Bytes allocated" << std::endl;
+    });
 
     cout << "Point: " << sizeof(gmh::Point) << " bytes" << endl;
     cout << "Line: " << sizeof(gmh::Line) << " bytes" << endl;

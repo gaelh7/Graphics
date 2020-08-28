@@ -160,7 +160,7 @@ TEST_F(GeoInitTest, PolyhedronInit){
     EXPECT_EQ(5, polyhed.faces.size());
     EXPECT_EQ(3, polyhed.dim());
     EXPECT_FALSE(polyhed.isSpace());
-    EXPECT_FLOAT_EQ(1.0F/3.0F, polyhed.volume());
+    EXPECT_FLOAT_EQ(1.0f/3.0f, polyhed.volume());
     EXPECT_EQ(gmh::Polyhedron(*points[0], *points[1], *points[2], *points[3], *points[4]), polyhed);
     EXPECT_EQ(gmh::Polyhedron(std::vector<gmh::Point>({*points[0], *points[1], *points[2], *points[3], *points[4]})), polyhed);
     EXPECT_EQ(gmh::Polyhedron(points), polyhed);

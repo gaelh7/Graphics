@@ -16,7 +16,7 @@ size_t std::hash<Physical>::operator()(const Physical& p) const {
     return std::hash<Point>()(*p.obj);
 }
 
-namespace gmh{
+namespace gmh {
     bool operator==(const Point& p1, const Point& p2){
         std::hash<Point> h;
         return h(p1) == h(p2);

@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <cstdlib>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/io.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -11,57 +12,57 @@
 #include "Graphics/log.hpp"
 #include "Graphics/input.hpp"
 #include "Graphics/shader.hpp"
-#include "Graphics/render.hpp"
+#include "Graphics/georender.hpp"
 #include "Graphics/texture.hpp"
 #include "Graphics/camera.hpp"
 #include "Graphics/collision.hpp"
 #include "Graphics/text.hpp"
 #include "Graphics/window.hpp"
+#include "Graphics/model.hpp"
 
-double xpos = 240, ypos = 240;
-float dt;
-gmh::Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
-gmh::CHandler chandle(1);
+    double xpos = 240, ypos = 240;
 
 int main(void){
+    std::atexit([](){
+        std::cout << "Allocations: \t" << allocations << std::endl;
+        std::cout << "Deletions: \t" << deletions << std::endl;
+        std::cout << bytes_allocated << " Bytes allocated" << std::endl;
+    });
+    float dt{};
+    gmh::Camera cam{glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(-90.f), glm::radians(-15.f)};
+    gmh::CHandler chandle(1);
     gmh::TextInput& textInp = gmh::TextInput::get();
     gmh::Window win(480, 480, "Gael's App");
     win.bind();
     win.setIcon(PROJECT_DIR "/res/textures/emoji.png");
     enableDebug();
     gmh::InputHandler inpHandle;
-    inpHandle.set_cursor_pos([&win](double x, double y){
+    inpHandle.set_cursor_pos([&win, &cam](double x, double y){
         if(glfwGetMouseButton(win.handle(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
             cam.rotate((float)(xpos - x), (float)(y - ypos));
         }
         xpos = x;
         ypos = y;
     });
-    inpHandle.set_scroll([](double dx, double dy){cam.zoom_out((float)dy);});
+    inpHandle.set_scroll([&cam](double dx, double dy){cam.zoom_out((float)dy);});
     inpHandle.bind_key(GLFW_KEY_ESCAPE, [&win](int mods){win.close();}, [](int mods){});
-    inpHandle.bind_key(GLFW_KEY_W, [](int mods){cam.set_dir(gmh::FORWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
-    inpHandle.bind_key(GLFW_KEY_A, [](int mods){cam.set_dir(gmh::LEFT);}, [](int mods){cam.set_dir(gmh::NONE);});
-    inpHandle.bind_key(GLFW_KEY_S, [](int mods){cam.set_dir(gmh::BACKWARD);}, [](int mods){cam.set_dir(gmh::NONE);});
-    inpHandle.bind_key(GLFW_KEY_D, [](int mods){cam.set_dir(gmh::RIGHT);}, [](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_W, [&cam](int mods){cam.set_dir(gmh::FORWARD);}, [&cam](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_A, [&cam](int mods){cam.set_dir(gmh::LEFT);}, [&cam](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_S, [&cam](int mods){cam.set_dir(gmh::BACKWARD);}, [&cam](int mods){cam.set_dir(gmh::NONE);});
+    inpHandle.bind_key(GLFW_KEY_D, [&cam](int mods){cam.set_dir(gmh::RIGHT);}, [&cam](int mods){cam.set_dir(gmh::NONE);});
     glfwSwapInterval(0);
     std::cout << "OpenGL Version " << glGetString(GL_VERSION) << std::endl;
     glEnable(GL_DEPTH_TEST);
     {
-    // glEnable(GL_CULL_FACE);
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     gmh::Font font = gmh::Font("C:/Windows/Fonts/arial.ttf", 48);
     gmh::Font::init(&win);
     gmh::Font font1 = gmh::Font("C:/Windows/Fonts/times.ttf", 48);
-    gmh::Shader program(PROJECT_DIR "/res/shaders/text.glsl");
-    {
-        gmh::Shader p(PROJECT_DIR "/res/shaders/test.glsl");
-        program = p;
-    }
+    gmh::Shader program(PROJECT_DIR "/res/shaders/test.glsl");
+    // {
+    //     gmh::Shader p(PROJECT_DIR "/res/shaders/test.glsl");
+    //     program = p;
+    // }
     program.bind();
-    std::cout << cam.front << std::endl;
-    std::cout << sizeof(cam) << std::endl;
 
     gmh::Texture tex0(PROJECT_DIR "/res/textures/wall.png");
     gmh::Texture tex(PROJECT_DIR "/res/textures/emoji.png");
@@ -83,7 +84,7 @@ int main(void){
 
     gmh::Solid temp = gmh::Solid(glm::vec3(10,0,2), glm::vec3(10,0,-2), glm::vec3(20,0,2), glm::vec3(20,0,-2), glm::vec3(20,10,2), glm::vec3(20,10,-2));
     gmh::Solid slope = temp;
-    // slope = std::move(temp);
+    slope = std::move(temp);
     slope.tex_coord(0, 0, 0);
     slope.tex_coord(1, 1, 0);
     slope.tex_coord(2, 1, 0);
@@ -106,15 +107,16 @@ int main(void){
     inpHandle.bind_key(GLFW_KEY_Z, [&sol](int mods){sol.vel += glm::vec3(0, 0, 3);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
     inpHandle.bind_key(GLFW_KEY_X, [&sol](int mods){sol.vel += glm::vec3(0, 0, -3);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
     inpHandle.bind_key(GLFW_KEY_SPACE, [&sol](int mods){sol.vel += glm::vec3(0, 0, 0);}, [&sol](int mods){sol.vel = glm::vec3(0, 0, 0);});
-    inpHandle.bind_key(GLFW_KEY_C, [&s1](int mods){s1.transform(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](int mods){});
+    // inpHandle.bind_key(GLFW_KEY_C, [&s1](int mods){s1.transform(glm::translate(glm::mat4(1), glm::vec3(0, 0.01, 0)));}, [](int mods){});
 
-    chandle.add(&s1, 1, true);
-    chandle.add(&sol, 1, false);
-    chandle.add(&slope, 5, false);
+    gmh::Physical p1{&s1, 1, true};
+    chandle.add(p1);
+    chandle.add(&sol, 1);
+    chandle.add(&slope, 5);
 
 
     // chandle.remove(&s1);
-    std::cout << sol.volume() << std::endl;
+    // std::cout << sol.volume() << std::endl;
     std::string str = "This is text";
     glClearColor(1, 1, 1, 1);
 
@@ -122,6 +124,9 @@ int main(void){
     ImGui_ImplGlfw_InitForOpenGL(win.handle(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
     ImGui::StyleColorsDark();
+
+    gmh::Shader model_shader(PROJECT_DIR "/res/shaders/load_model.glsl");
+    gmh::Model backpack(PROJECT_DIR "/res/models/backpack/backpack.obj");
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
@@ -132,7 +137,6 @@ int main(void){
     inpHandle.bind(win);
     textInp.bind(win);
     while (win.isOpen()){
-        /* Render here */
         win.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         chandle();
 
@@ -146,7 +150,7 @@ int main(void){
         if(ImGui::Button("Bind motion")) inpHandle.bind(win);
         ImGui::End();
 
-        // cam.pitch += 0.1f;
+
         glm::mat4 project = glm::mat4(1.0);
         project = glm::perspective(cam.zoom, win.aspect(), 0.1f, 100.0f);
         tex.bind(0);
@@ -156,9 +160,6 @@ int main(void){
         program.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
         program.SetUniformMatrixf<4, 4>("model", sol.model_ptr());
 
-        // s1.bind();
-        // s1.render();
-        // s1.transform();
         sol.bind();
         sol.render();
 
@@ -170,14 +171,21 @@ int main(void){
         s1.bind();
         s1.render();
 
+
+        model_shader.bind();
+        model_shader.SetUniformMatrixf<4, 4>("view", glm::value_ptr(cam.view()));
+        model_shader.SetUniformMatrixf<4, 4>("projection", glm::value_ptr(project));
+        model_shader.SetUniformMatrixf<4, 4>("model", glm::value_ptr(glm::mat4(1)));
+        backpack.render(model_shader);
+
         font1.bind();
         font1.render(textInp.text(), 190, 440, 1, tcolor);
-        font.render("Extra text", 190, 300, 1, tcolor);
+        // font.render("Extra text", 190, 300, 1, tcolor);
         gmh::Font::unbind();
         cam.update(dt);
         sol.update(dt);
-        s1.update(dt);
-        slope.update(dt);
+        // s1.update(dt);
+        // slope.update(dt);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -193,7 +201,7 @@ int main(void){
     ImGui::DestroyContext();
     glfwTerminate();
     gmh::Font::terminate();
-    std::cout << "Press return to continue...";
+    std::cout << "Press return to continue..." << std::flush;
     std::cin.get();
     return 0;
 }

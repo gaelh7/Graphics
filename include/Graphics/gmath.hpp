@@ -4,7 +4,7 @@
 #include <array>
 #include <glm/ext/vector_float3.hpp>
 
-namespace gmh{
+namespace gmh {
     /**
      * Sign of a number.
      *

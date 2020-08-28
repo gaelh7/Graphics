@@ -3,7 +3,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace gmh{
+namespace gmh {
     enum Direction {
         NONE, FORWARD, BACKWARD, RIGHT, LEFT, UP, DOWN
     };

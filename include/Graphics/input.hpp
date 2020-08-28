@@ -5,7 +5,7 @@
 #include <string>
 #include "Graphics/window.hpp"
 
-namespace gmh{
+namespace gmh {
     class InputHandler {
         protected:
             std::unordered_map<int, std::pair<std::function<void(int)>, std::function<void(int)>>> key_bindings;
@@ -30,7 +30,7 @@ namespace gmh{
         public:
             static TextInput& get();
             void bind(const Window& window);
-            inline std::string text() const {return buffer;}
+            inline const std::string& text() const {return buffer;}
             inline void clear() {buffer.clear();}
             TextInput(TextInput const&) = delete;
             void operator=(TextInput const&)  = delete;

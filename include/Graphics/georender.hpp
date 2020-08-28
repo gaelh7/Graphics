@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include "Graphics/geometry.hpp"
 
-namespace gmh{
+namespace gmh {
     class Visual;
     class Surface;
     class Solid;
@@ -27,7 +27,7 @@ namespace gmh{
             void vertex_color(const unsigned int vertex, const float r, const float g, const float b, const float a);
             void tex_coord(const unsigned int vertex, const float x, const float y);
             inline void render() const {
-                glDrawElements(GL_TRIANGLES, IBO_DATA.size(), GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, static_cast<int>(IBO_DATA.size()), GL_UNSIGNED_INT, nullptr);
             }
             inline void bind() const {
                 glBindVertexArray(VAO);
