@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 namespace gmh {
     enum TextureType {
@@ -8,14 +9,13 @@ namespace gmh {
     };
 
     class Texture {
-        private:
-            unsigned int id;
-            unsigned char* buffer;
-            int width, height, BPP;
+        static const std::string typeNames[NUMTEXTYPES];
+        std::string path;
+        unsigned int id;
+        std::shared_ptr<unsigned char> buffer;
+        int width, height, BPP;
+        TextureType type;
         public:
-            std::string path;
-            static const std::string typeNames[NUMTEXTYPES];
-            TextureType type;
             Texture(const char* filepath, TextureType texturetype = TEXTYPENONE);
             Texture(const Texture& tex);
             Texture(Texture&& tex);
@@ -23,5 +23,8 @@ namespace gmh {
             void bind(unsigned int slot = 0) const;
             Texture& operator=(const Texture& tex);
             Texture& operator=(Texture&& tex);
+
+        friend class Model;
+        friend class Mesh;
     };
 }

@@ -33,18 +33,10 @@ Mesh::Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<
 }
 
 void Mesh::render(const Shader& program) const {
-    unsigned int diffuse = 1, specular = 1;
+    unsigned int numTypes[NUMTEXTYPES] = {1, 1, 1, 1, 1, 1, 1};
     for(unsigned int i = 0; i < textures.size(); i++){
         glActiveTexture(GL_TEXTURE0 + i);
-
-        switch(textures[i]->type){
-            case(DIFFUSE):
-                program.SetUniformi(("texture_diffuse"+std::to_string(diffuse++)).c_str(), i);
-                break;
-            case(SPECULAR):
-                program.SetUniformi(("texture_specular"+std::to_string(specular++)).c_str(), i);
-                break;
-        }
+        program.SetUniformi((Texture::typeNames[textures[i]->type]+std::to_string(numTypes[i]++)).c_str(), i);
         textures[i]->bind(i);
     }
     glActiveTexture(GL_TEXTURE0);
@@ -86,7 +78,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
             indices.push_back(mesh->mFaces[i].mIndices[j]);
     }
     if(mesh->mMaterialIndex >= 0){
-        aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         std::vector<std::shared_ptr<Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
@@ -100,7 +92,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type){
+std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type){
     std::vector<std::shared_ptr<Texture>> textures;
     for(unsigned int i = 0; i < mat->GetTextureCount(type); i++){
         aiString str;
@@ -123,7 +115,7 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial *ma
 
 Model::Model(const char* filepath): path(filepath) {
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
         std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;

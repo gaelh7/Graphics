@@ -64,9 +64,11 @@ int main(void){
     // }
     program.bind();
 
-    gmh::Texture tex0(PROJECT_DIR "/res/textures/wall.png");
     gmh::Texture tex(PROJECT_DIR "/res/textures/emoji.png");
-    tex = tex0;
+    {
+        gmh::Texture tex0(PROJECT_DIR "/res/textures/wall.png");
+        tex = std::move(tex0);
+    }
     gmh::Texture tex2(PROJECT_DIR "/res/textures/emoji.png");
     tex.bind(0);
     tex2.bind(1);
@@ -184,8 +186,8 @@ int main(void){
         gmh::Font::unbind();
         cam.update(dt);
         sol.update(dt);
-        // s1.update(dt);
-        // slope.update(dt);
+        s1.update(dt);
+        slope.update(dt);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
