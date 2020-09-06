@@ -39,7 +39,11 @@ int main(int argc, char* argv[])
     cout << "Polygon: " << sizeof(gmh::Polygon) << " bytes" << endl;
     cout << "Polyhedron: " << sizeof(gmh::Polyhedron) << " bytes" << endl;
 
-    gmh::Line lin(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0));
+    gmh::Line lin(glm::vec3(0, 0, 0), glm::vec3(-1, 2, 3));
+
+    gmh::Point p({2, 1, 0});
+
+    std::cout <<  lin.project(p) << std::endl;
 
     gmh::Line lin2(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 

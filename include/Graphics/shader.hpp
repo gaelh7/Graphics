@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 #include <string>
-#include <fstream>
-#include <sstream>
 
 namespace gmh {
     struct ShaderSource {
@@ -19,7 +17,7 @@ namespace gmh {
             std::string path;
             unsigned int id;
         public:
-            Shader();
+            Shader() = default;
             Shader(const char* filepath);
             Shader(const Shader& s);
             Shader(Shader&& s);

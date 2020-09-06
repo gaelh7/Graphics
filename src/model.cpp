@@ -6,7 +6,7 @@
 
 using namespace gmh;
 
-Mesh::Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<std::shared_ptr<Texture>> text): vertices(vert), indices(ind), textures(text) {
+Mesh::Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture*> text): vertices(vert), indices(ind), textures(text) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &IBO);
@@ -57,7 +57,7 @@ void Model::processNode(aiNode* node, const aiScene* scene){
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<std::shared_ptr<Texture>> textures;
+    std::vector<Texture*> textures;
 
     for(unsigned int i = 0; i < mesh->mNumVertices; i++){
         Vertex vertex;
@@ -78,39 +78,31 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
             indices.push_back(mesh->mFaces[i].mIndices[j]);
     }
     if(mesh->mMaterialIndex >= 0){
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        std::vector<std::shared_ptr<Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-        std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT);
-        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-        std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT);
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        for(int i = DIFFUSE; i < NUMTEXTYPES; i++){
+            loadMaterialTextures(textures, scene->mMaterials[mesh->mMaterialIndex], static_cast<aiTextureType>(i));
+        }
     }
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type){
-    std::vector<std::shared_ptr<Texture>> textures;
+void Model::loadMaterialTextures(std::vector<Texture*>& textures, aiMaterial* mat, aiTextureType type){
     for(unsigned int i = 0; i < mat->GetTextureCount(type); i++){
         aiString str;
         mat->GetTexture(type, i, &str);
         bool skip = false;
         for(unsigned int j = 0; j < loaded.size(); j++){
-            if(loaded[j]->path.substr(loaded[j]->path.find_last_of('/') + 1, loaded[j]->path.size()) == std::string(str.C_Str())){
-                textures.push_back(loaded[j]);
+            if(loaded[j].path.substr(loaded[j].path.find_last_of('/') + 1, loaded[j].path.size()) == std::string(str.C_Str())){
+                textures.push_back(&loaded[j]);
                 skip = true;
                 break;
             }
         }
         if(!skip){
-            textures.emplace_back(std::make_shared<Texture>((path.substr(0, path.find_last_of('/')) + '/' + str.C_Str()).c_str(), static_cast<TextureType>(type)));
-            loaded.push_back(textures.back());
+            loaded.emplace_back((path.substr(0, path.find_last_of('/')) + '/' + str.C_Str()).c_str(), static_cast<TextureType>(type));
+            textures.push_back(&loaded.back());
         }
     }
-    return textures;
 }
 
 Model::Model(const char* filepath): path(filepath) {

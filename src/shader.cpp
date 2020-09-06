@@ -1,9 +1,9 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "Graphics/shader.hpp"
 
 using namespace gmh;
-
-Shader::Shader(): id(0){}
 
 Shader::Shader(const char* filepath): src(ParseShader(filepath)), path(filepath), id(CreateShaders(src)){}
 
